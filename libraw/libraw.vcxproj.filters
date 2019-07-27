@@ -21,22 +21,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\io\constants.h">
+    <ClInclude Include="..\include\raw\AbstractRaw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\io\error.h">
+    <ClInclude Include="..\include\raw\StandartRaw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\io\iodevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\physicaldrive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\dbf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\utility.h">
+    <ClInclude Include="..\include\raw\factories.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,7 +38,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ioengine.cpp">
+    <ClCompile Include="factories.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

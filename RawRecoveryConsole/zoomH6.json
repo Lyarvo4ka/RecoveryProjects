@@ -1,0 +1,14 @@
+{
+  "ZoomH6": {
+    "type":"special",
+    "description": "Recovery fragment ZOOM Handy Recorder H6.",
+    "header": [
+      {
+        "hexdata": "5A4F4F4D20483620",
+        "offset": 0
+      }
+    ],
+    "block_size":32768,
+    "extension":".wav"
+	}
+}
