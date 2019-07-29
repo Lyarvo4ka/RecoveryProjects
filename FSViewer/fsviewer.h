@@ -30,6 +30,7 @@ public:
 	FSViewer(QWidget *parent = Q_NULLPTR);
 	~FSViewer();
 	void RecoverFile(const QString & folder_path, const FileSystem::FileEntry & file_entry);
+	void RecoverRAWFile(const QString& folder_path, const FileSystem::FileEntry& file_entry);
 	void RecoverFolder(const QString & folder_path, FileSystem::DirectoryEntry & folder_entry);
 	void RecoverFolder(const QString & folder_path, TableIndex * FolderIndex);
 

@@ -16,6 +16,15 @@ using namespace FileSystem;
 
 #include <QDir>
 
+
+#include "raw/StandartRaw.h"
+#include "JsonReader/JsonReader.h"
+
+#include <experimental/filesystem>
+
+namespace fs = std::experimental::filesystem;
+
+
 FSViewer::FSViewer(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -98,6 +107,75 @@ FSViewer::~FSViewer()
 	}
 }
 
+
+void FSViewer::RecoverRAWFile(const QString& folder_path, const FileSystem::FileEntry& file_entry)
+{
+	QDir currentDir(folder_path);
+
+	QFileInfo fileInfo(currentDir, QString::fromStdWString(file_entry->name()));
+
+
+	if (!currentDir.mkpath(folder_path))
+	{
+		qDebug("Error to create directory...");
+		return;
+	}
+
+	if ((file_entry->size() == 0) || (file_entry->size() == 4096 || file_entry->size() == 8192))
+	{
+		fs::path filePath(file_entry->name());
+		auto extension = filePath.extension().generic_string();
+
+		QList<JsonFileStruct> listFileStruct;
+
+		QString json_file = "sign.json";
+		QFile file(json_file);
+		if (!file.open(QIODevice::ReadOnly))
+		{
+			qInfo() << "Error to open file. \"" << file.fileName() << "\"";
+			return ;
+		}
+
+		auto json_str = file.readAll();
+		ReadJsonFIle(json_str, listFileStruct);
+		if (listFileStruct.empty())
+		{
+			qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
+			return ;
+		}
+
+		RAW::HeaderBase::Ptr headerBase = std::make_shared<RAW::HeaderBase>();
+		for (auto theFileStruct : listFileStruct)
+			headerBase->addFileFormat(toFileStruct(theFileStruct));
+
+		if (extension == "docx")
+		{
+			auto file_ptr = IO::makeFilePtr(LR"(z:\46659\46659.img)");
+			file_ptr->OpenRead();
+
+
+			auto fileStruct = headerBase->findByAlgorithmName(extension);
+			RAW::StandartRaw standart_raw(file_ptr);
+			standart_raw.setFooter(fileStruct->getFooter(), fileStruct->getFooterTailEndSize());
+			//standart_raw.se
+
+			auto target_file = IO::makeFilePtr(file_entry->name());
+			target_file->OpenCreate();
+
+
+
+			file_entry->cluster() * 
+			//standart_raw.SaveRawFile(target_file , )
+
+		}
+
+
+
+
+	}
+
+
+}
 
 void FSViewer::RecoverFile(const QString & folder_path, const FileSystem::FileEntry & file_entry)
 {

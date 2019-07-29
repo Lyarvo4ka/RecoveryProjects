@@ -1,0 +1,64 @@
+{
+    "zip": {
+      "algorithmName": "zip",
+      "category": "archive",
+      "header": [
+        {
+          "hexdata": "504B0304",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "504B0506",
+        "tailsize": 18
+      },
+      "extension": ".zip"
+    },
+    "rar": {
+      "algorithmName": "rar",
+      "category": "archive",
+      "header": [
+        {
+          "hexdata": "526172211A0700",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "C43D7B00400700"
+      },
+      "extension": ".rar"
+    },
+    "pdf":{
+      "algorithmName": "pdf",
+      "category": "office",
+      "header": [
+        {
+          "hexdata": "255044462D",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "2525454F460D0A00"
+      },
+      "extension": ".pdf"
+    
+    },
+    "rtf":{
+      "algorithmName": "rtf",
+      "category": "office",
+      "header": [
+        {
+          "hexdata": "7B5C727466",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "7D7D00"
+      },
+      "extension": ".rtf"    
+    }
+  }

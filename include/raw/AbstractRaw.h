@@ -266,6 +266,15 @@ namespace RAW
 			}
 			return nullptr;
 		}
+		FileStruct* findByAlgorithmName(const std::string algorithmName)
+		{
+			for (auto& file_struct : listHeaders_)
+			{
+				if (file_struct->getAlgorithmName().compare(algorithmName) == 0)
+					return file_struct.get();
+			}
+			nullptr;
+		}
 	};
 
 	class RawAlgorithm;
