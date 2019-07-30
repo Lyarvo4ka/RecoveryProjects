@@ -333,11 +333,17 @@ void FileSystem::FatFileSystem::read_folder( const DirectoryEntry & head_folder)
 {
 	std::shared_ptr<Cluster> folderCluster( new Cluster(BootSector_->cluster_size()));
 
+	auto max_cluster = FatTable_->size() / 4;
+
 	DWORD currentCluster = 0;
 	if ( head_folder->parent() == NULL)
 		currentCluster = BootSector_->root_cluster();
 	else
 		currentCluster = head_folder->cluster();
+
+
+	if (currentCluster > max_cluster)
+		return;
 
 	folderCluster->setNumber(currentCluster);
 
@@ -375,7 +381,7 @@ void FileSystem::FatFileSystem::read_folder( const DirectoryEntry & head_folder)
 	currentCluster = FatTable_->Next_Cluster(currentCluster);
 
 	// check if in range of fat area
-	auto max_cluster = FatTable_->size() * 4;
+
 
 	if ( currentCluster != end_cluster_fat32 )
 		do 
@@ -548,7 +554,7 @@ void FileSystem::FatFileSystem::addEntry(const wstring & nameEntry , msdos_dir_e
 			pDirEntry->date_access, 0, pDirEntry->time_create_ms ) );
 		current_folder_->add_folder(newDirectory);
 	}
-	if ( pDirEntry->attr == attr_file || pDirEntry->attr == attr_archive)
+	if ( pDirEntry->attr == attr_file || pDirEntry->attr == attr_archive || pDirEntry->attr == 0)
 	{
 		FileSystem::FileEntry newFileEntry(new FileNode(nameEntry.c_str(),pDirEntry->file_size));
 		newFileEntry->setCluster(clusterNumber);

@@ -73,16 +73,19 @@ namespace RAW
 				}
 			}
 
-			if (maxFileSize_ == 0)
-			{
-				wprintf(L"Error maximum target file size is 0.\n");
-				return 0;
-			}
+
 
 			
 			auto footer_data = footer_.get();;
 			if (!footer_data)
+			{
+				if (maxFileSize_ == 0)
+				{
+					wprintf(L"Error maximum target file size is 0.\n");
+					return 0;
+				}
 				return appendToFile(target_file, start_offset, maxFileSize_);;
+			}
 
 			uint32_t bytes_read = 0;
 			uint32_t bytes_written = 0;

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "BootSector.h"
+#include "io/constants.h"
 
 
 bool FileSystem::CheckSignature(const BYTE *BootSector)

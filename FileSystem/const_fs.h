@@ -33,7 +33,7 @@ namespace FileSystem
 	const string ntfs_name  =	"NTFS";
 	
 
-	const DWORD default_sector_size = 512;
+	//const DWORD default_sector_size = 512;
 
 	//	bad clusters marker
 	const WORD bad_cluster_fat12 = 0x0FF7;	

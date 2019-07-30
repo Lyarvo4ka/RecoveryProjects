@@ -33,6 +33,9 @@
     <ClInclude Include="..\include\raw\rawzip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\raw\oleraw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

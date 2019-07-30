@@ -7,7 +7,7 @@
 #include "FileSystem/VirtualReader.h"
 #include "FileSystem/fat_fs.h"
 
-#include "IO/constants.h"
+//#include "IO/constants.h"
 
 using namespace FileSystem;
 
@@ -33,10 +33,10 @@ FSViewer::FSViewer(QWidget *parent)
 	RecoverDialog_ = new RecoverDialog(this, &RecoverUi_);
 	RecoverUi_.setupUi(RecoverDialog_);
 
-	auto file_ptr = IO::makeFilePtr(LR"(z:\46659\46659.img)");
-	file_ptr->OpenRead();
+	source_file_ = IO::makeFilePtr(LR"(z:\46659\46659.img)");
+	source_file_->OpenRead();
 	
-	SectorReader sector_reader(new CSectorReader(file_ptr, 512));
+	SectorReader sector_reader(new CSectorReader(source_file_, 512));
 
 	DirectoryEntry root_folder(new DirectoryNode("root:"));
 
@@ -108,11 +108,28 @@ FSViewer::~FSViewer()
 }
 
 
+std::string getAlgorithmNameFromExtension(const std::string& extension)
+{
+	if (extension == ".docx" || extension == ".xlsx" || extension == ".pptx" || extension == ".zip")
+		return "zip";
+	if (extension == ".rtf")
+		return "rtf";
+	if (extension == ".pdf")
+		return "pdf";
+	if (extension == ".rar")
+		return "rar";
+	return "";
+	
+
+}
+
 void FSViewer::RecoverRAWFile(const QString& folder_path, const FileSystem::FileEntry& file_entry)
 {
 	QDir currentDir(folder_path);
 
 	QFileInfo fileInfo(currentDir, QString::fromStdWString(file_entry->name()));
+
+	constexpr uint64_t boot_offset = 9322496;
 
 
 	if (!currentDir.mkpath(folder_path))
@@ -148,32 +165,62 @@ void FSViewer::RecoverRAWFile(const QString& folder_path, const FileSystem::File
 		for (auto theFileStruct : listFileStruct)
 			headerBase->addFileFormat(toFileStruct(theFileStruct));
 
-		if (extension == "docx")
-		{
-			auto file_ptr = IO::makeFilePtr(LR"(z:\46659\46659.img)");
-			file_ptr->OpenRead();
+		auto algirthmName = getAlgorithmNameFromExtension(extension);
+		if (algirthmName.empty())
+			return;
+
+		auto fileStruct = headerBase->findByAlgorithmName(algirthmName);
+		if (!fileStruct)
+			return;
+
+		RAW::StandartRaw standart_raw(source_file_);
+		standart_raw.setFooter(fileStruct->getFooter(), fileStruct->getFooterTailEndSize());
+		standart_raw.setMaxFileSize(fileStruct->getMaxFileSize());
 
 
-			auto fileStruct = headerBase->findByAlgorithmName(extension);
-			RAW::StandartRaw standart_raw(file_ptr);
-			standart_raw.setFooter(fileStruct->getFooter(), fileStruct->getFooterTailEndSize());
-			//standart_raw.se
+		auto target_file = IO::File(fileInfo.absoluteFilePath().toStdWString());
+		target_file.OpenCreate();
+			
+		auto fat_fs = std::dynamic_pointer_cast<FileSystem::FatFileSystem>(abstract_fs);
+		auto start_sector = fat_fs->clusterSector(file_entry->cluster());
 
-			auto target_file = IO::makeFilePtr(file_entry->name());
-			target_file->OpenCreate();
+		uint64_t file_offset = (uint64_t)start_sector * default_sector_size + boot_offset;
 
+		standart_raw.SaveRawFile(target_file, file_offset);
 
-
-			file_entry->cluster() * 
-			//standart_raw.SaveRawFile(target_file , )
-
-		}
-
-
+		int k = 0;
+		k = 1;
 
 
 	}
 
+
+}
+
+void recoverWITH_FAT_table(const FileSystem::FileEntry& file_entry ,QFileInfo & fileInfo , FileSystem::AbstractFS & abstract_fs)
+{
+	DWORD bytesRead = 0;
+	file_entry->OpenFile();
+	//readSizeUsingTable
+	auto fat_fs = std::dynamic_pointer_cast<FatFileSystem>(abstract_fs);
+	if (fat_fs)
+	{
+		auto file_size = fat_fs->readSizeUsingTable(file_entry);
+		if (file_size > 0)
+		{
+			BYTE* read_data = new BYTE[file_size];
+
+			if (abstract_fs->ReadFile(file_entry, read_data, file_entry->size(), bytesRead))
+			{
+				qDebug("Read ok.");
+			}
+			QString filePath(fileInfo.absoluteFilePath());
+			IO::File target_file(fileInfo.absoluteFilePath().toStdWString());
+			target_file.OpenCreate();
+			target_file.WriteData(read_data, bytesRead);
+			delete read_data;
+		}
+	}
 
 }
 
@@ -192,28 +239,8 @@ void FSViewer::RecoverFile(const QString & folder_path, const FileSystem::FileEn
 
 	if ((file_entry->size() == 0) || (file_entry->size() == 4096 || file_entry->size() == 8192))
 	{
-		DWORD bytesRead = 0;
-		file_entry->OpenFile();
-		//readSizeUsingTable
-		auto fat_fs = std::dynamic_pointer_cast<FatFileSystem>(abstract_fs);
-		if (fat_fs)
-		{
-			auto file_size = fat_fs->readSizeUsingTable(file_entry);
-			if (file_size > 0)
-			{
-				BYTE * read_data = new BYTE[file_size];
-
-				if (abstract_fs->ReadFile(file_entry, read_data, file_entry->size(), bytesRead))
-				{
-					qDebug("Read ok.");
-				}
-				QString filePath(fileInfo.absoluteFilePath());
-				IO::File target_file(fileInfo.absoluteFilePath().toStdWString());
-				target_file.OpenCreate();
-				target_file.WriteData(read_data, bytesRead);
-				delete read_data;
-			}
-		}
+		//recoverWITH_FAT_table(file_entry, fileInfo, abstract_fs);
+		RecoverRAWFile(folder_path, file_entry);
 	}
 /*
 	QDir currentDir(folder_path);

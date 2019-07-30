@@ -14,6 +14,7 @@ class TableIndex;
 class TreeIndex;
 
 #include "FileSystem/AbstractFS.h"
+#include "io/constants.h"
 
 
 #include "ui_RecoverDialog.h"
@@ -66,6 +67,8 @@ private:
 
 	FolderModel * pFSmodel;
 	FS_Model * pFullMode;
+
+	IO::FilePtr source_file_;
 
 	FileSystem::AbstractFS abstract_fs;
 };

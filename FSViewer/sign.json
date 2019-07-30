@@ -13,6 +13,7 @@
         "hexdata": "504B0506",
         "tailsize": 18
       },
+      "maxfilesize": 4294967296,
       "extension": ".zip"
     },
     "rar": {
@@ -28,6 +29,7 @@
       "footer": {
         "hexdata": "C43D7B00400700"
       },
+      "maxfilesize": 4294967296,
       "extension": ".rar"
     },
     "pdf":{
@@ -43,6 +45,7 @@
       "footer": {
         "hexdata": "2525454F460D0A00"
       },
+      "maxfilesize": 4294967296,
       "extension": ".pdf"
     
     },
@@ -59,6 +62,7 @@
       "footer": {
         "hexdata": "7D7D00"
       },
+      "maxfilesize": 4294967296,
       "extension": ".rtf"    
     }
   }

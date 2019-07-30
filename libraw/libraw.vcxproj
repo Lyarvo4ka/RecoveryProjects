@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\raw\AbstractRaw.h" />
     <ClInclude Include="..\include\raw\factories.h" />
+    <ClInclude Include="..\include\raw\oleraw.h" />
     <ClInclude Include="..\include\raw\rawzip.h" />
     <ClInclude Include="..\include\raw\StandartRaw.h" />
     <ClInclude Include="framework.h" />

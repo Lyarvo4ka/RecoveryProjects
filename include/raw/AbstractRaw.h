@@ -273,7 +273,7 @@ namespace RAW
 				if (file_struct->getAlgorithmName().compare(algorithmName) == 0)
 					return file_struct.get();
 			}
-			nullptr;
+			return nullptr;
 		}
 	};
 
