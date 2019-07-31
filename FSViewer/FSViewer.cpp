@@ -118,6 +118,10 @@ std::string getAlgorithmNameFromExtension(const std::string& extension)
 		return "pdf";
 	if (extension == ".rar")
 		return "rar";
+	if (extension == ".doc" || extension == ".xls" || extension == ".ppt")
+		return "ole";
+	if (extension == ".jpg")
+		return "jpg";
 	return "";
 	
 
@@ -173,8 +177,16 @@ void FSViewer::RecoverRAWFile(const QString& folder_path, const FileSystem::File
 		if (!fileStruct)
 			return;
 
+		if (algirthmName == "pdf")
+		{
+			int k = 1;
+			k = 2;
+		}
+
 		RAW::StandartRaw standart_raw(source_file_);
-		standart_raw.setFooter(fileStruct->getFooter(), fileStruct->getFooterTailEndSize());
+		//const RAW::SignatureArray&  footers = fileStruct->getFooters();
+		standart_raw.setFooters(fileStruct->getFooters());
+		standart_raw.setTailSize(fileStruct->getFooterTailEndSize());
 		standart_raw.setMaxFileSize(fileStruct->getMaxFileSize());
 
 

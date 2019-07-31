@@ -46,6 +46,7 @@ struct SignatureHandle
 
 
 using ArrayOfHeader = QVector<SignatureHandle>;
+using ArrayOfFooter = QVector<SignatureHandle>;
 
 
 struct JsonFileStruct
@@ -54,7 +55,7 @@ struct JsonFileStruct
 	QString algorithmName;
 	QString category;
 	ArrayOfHeader headers;
-	SignatureHandle footer;
+	ArrayOfFooter footer;
 	qlonglong maxfilesize = 0;
 	qlonglong minfilesize = 0;
 	QString extension;
@@ -88,7 +89,7 @@ void ReadHadersOffset(const QJsonArray & json_array, ArrayOfHeader &header_array
 
 }
 
-void ReadFooter(const QJsonObject footer_object, SignatureHandle & footer)
+void ReadFooter(const QJsonObject footer_object, SignatureHandle& footer)
 {
 	auto text_value = footer_object.value(hexdata_txt);
 	if (!text_value.isUndefined())
@@ -117,6 +118,25 @@ void ReadFooter(const QJsonObject footer_object, SignatureHandle & footer)
 		footer.search_block = search_block_value.toInt();
 
 }
+
+
+void ReadFooters(const QJsonArray json_array, ArrayOfFooter & footer_array)
+{
+	for (int i = 0; i < json_array.size(); ++i)
+	{
+		auto theFooter = json_array.at(i);
+		SignatureHandle footerData;
+		if (theFooter.isObject())
+		{
+			ReadFooter(theFooter.toObject(), footerData);
+			footer_array.append(footerData);
+		}
+
+	}
+
+}
+
+
 
 void ReadJsonFIle(const QByteArray & byte_data, QList<JsonFileStruct> & parsedResult)
 {
@@ -158,7 +178,13 @@ void ReadJsonFIle(const QByteArray & byte_data, QList<JsonFileStruct> & parsedRe
 			auto footer_value = json_object.value(footer_txt);
 			if (footer_value.isObject())
 			{
-				ReadFooter(footer_value.toObject(), jsonFileStruct.footer);
+				SignatureHandle footerData;
+				ReadFooter(footer_value.toObject(), footerData);
+				jsonFileStruct.footer.append(footerData);
+			}
+			else if (footer_value.isArray())
+			{
+				ReadFooters(footer_value.toArray(), jsonFileStruct.footer);
 			}
 
 			auto maxsize_value = json_object.value(maxfilesize_txt);
@@ -214,20 +240,18 @@ RAW::FileStruct::Ptr toFileStruct(const JsonFileStruct & jsonFileStruct)
 	for (auto theHeader : jsonFileStruct.headers)
 	{
 		auto data_array = JsonToDataArray(theHeader);
-
-		uint8_t buff[20];
-		ZeroMemory(buff, 20);
-		memcpy(buff, data_array->data(), data_array->size());
-
 		file_struct->addSignature(std::move(data_array), theHeader.value_int);
 	}
 
-	if (!jsonFileStruct.footer.value_string.isEmpty())
+	if (!jsonFileStruct.footer.isEmpty())
 	{
-		auto data_array = JsonToDataArray(jsonFileStruct.footer);
-		file_struct->addFooter(data_array);
-		file_struct->setFooterTailEndSize(jsonFileStruct.footer.value_int);
-		file_struct->setFooterSearchOffset(jsonFileStruct.footer.offset, jsonFileStruct.footer.search_block);
+		for (auto& theFooter : jsonFileStruct.footer)
+		{
+			auto data_array = JsonToDataArray(theFooter);
+			file_struct->addFooter(std::move(data_array));
+			file_struct->setFooterTailEndSize(theFooter.value_int);
+			file_struct->setFooterSearchOffset(theFooter.offset, theFooter.search_block);
+		}
 
 	}
 	file_struct->setExtension(jsonFileStruct.extension.toStdWString());

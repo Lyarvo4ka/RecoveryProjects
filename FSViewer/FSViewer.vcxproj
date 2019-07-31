@@ -181,8 +181,14 @@
     <ProjectReference Include="..\FileSystem\FileSystem.vcxproj">
       <Project>{c1870a94-fc6e-4386-ae70-9257e9e3360c}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\JsonReader\JsonReader.vcxproj">
+      <Project>{6e837a5f-bd95-4036-a04d-c4b0f8733705}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\libio\libio.vcxproj">
       <Project>{b48c2c80-4bc5-40e7-8157-674b222f3321}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\libraw\libraw.vcxproj">
+      <Project>{fd026de7-713e-4a7d-bb5c-166ea7c7808b}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

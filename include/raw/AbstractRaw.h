@@ -16,6 +16,7 @@ namespace RAW
 
 
 	using SignatureArray = std::vector<DataArray::Ptr>;
+	using FotersArray = std::vector<DataArray>;
 
 	class SignatureOffset
 	{
@@ -107,7 +108,7 @@ namespace RAW
 		std::string algorithmName_;
 		std::string category_;
 		path_string extension_;
-		DataArray::Ptr footer_;
+		SignatureArray footers_;
 		uint32_t footerTailEndSize_ = 0;
 		uint64_t maxFileSize_ = 0;
 		uint64_t minFileSize_ = 0;
@@ -162,21 +163,22 @@ namespace RAW
 			headers_.emplace_back(std::move(signAndOffset));
 		}
 
-		void addFooter(DataArray::Ptr & footer)
+		void addFooter( DataArray::Ptr footer)
 		{
-			footer_ = std::move(footer);
+			footers_.emplace_back(std::move(footer));
+			//footer_ = std::move(footer);
 		}
-		void addFooter(ByteArray data, uint32_t size)
+		//void addFooter(ByteArray data, uint32_t size)
+		//{
+		//	footers_.emplace_back(makeDataArray(data, size));
+		//}
+		//void addFooter(const uint8_t const_data[], uint32_t size)
+		//{
+		//	footers_.emplace_back(makeDataArray(const_data, size));
+		//}
+		const SignatureArray & getFooters() const
 		{
-			footer_ = std::move(makeDataArray(data, size));
-		}
-		void addFooter(const uint8_t const_data[], uint32_t size)
-		{
-			footer_ = std::move(makeDataArray(const_data, size));
-		}
-		DataArray * getFooter() const 
-		{
-			return footer_.get();
+			return footers_;
 		}
 		void setFooterTailEndSize(uint32_t footerTailEndSize)
 		{

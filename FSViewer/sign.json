@@ -42,9 +42,18 @@
         }
       ],
 
-      "footer": {
-        "hexdata": "2525454F460D0A00"
-      },
+      "footer": 
+        [
+          {
+          "hexdata": "2525454F460D0A00"
+          },
+          {
+          "hexdata": "2525454F4600"
+          },
+          {
+          "hexdata":"2525454F460A"
+          }
+        ],
       "maxfilesize": 4294967296,
       "extension": ".pdf"
     
@@ -64,5 +73,41 @@
       },
       "maxfilesize": 4294967296,
       "extension": ".rtf"    
+    },
+    "office2003":
+    {
+      "algorithmName": "ole",
+      "category": "office",
+      "header": [
+        {
+          "hexdata": "D0CF11E0A1B11AE1",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "0100FEFF030A",
+        "tailsize":506
+      },
+      "maxfilesize": 4294967296,
+      "extension": ".msdoc"   
+    },
+    "jpg":
+    {
+       "algorithmName": "jpg",
+      "category": "image",
+      "header": [
+        {
+          "hexdata": "FFD8FF",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "FFD900"
+
+      },
+      "maxfilesize": 4294967296,
+      "extension": ".jpg"     
     }
   }

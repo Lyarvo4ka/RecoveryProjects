@@ -13,7 +13,7 @@ namespace RAW
 	{
 	public:
 		virtual ~RawFactory() {}
-		virtual RawAlgorithm * createRawAlgorithm(IODevicePtr) = 0;
+		virtual RawAlgorithm * createRawAlgorithm(IO::IODevicePtr) = 0;
 	};
 
 	using RawFactoryPtr = std::unique_ptr<RawFactory>;

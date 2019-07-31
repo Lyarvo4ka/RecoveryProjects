@@ -136,6 +136,7 @@ namespace RAW
 			this->ReadData(sector);
 
 			olecf_file_header* pOLE_header = (olecf_file_header*)sector.data();
+
 			//pOLE_header->ssat_sector_identifier
 
 			return 0;

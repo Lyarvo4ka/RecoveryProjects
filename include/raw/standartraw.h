@@ -10,7 +10,7 @@ namespace RAW
 		: public DefaultRaw
 	{
 	private:
-		IO::DataArray::Ptr footer_;
+		RAW::SignatureArray footers_;
 		uint32_t tailSize_ = 0;
 		uint64_t maxFileSize_ = 0;
 		uint32_t footer_offset_ = 0;
@@ -22,24 +22,15 @@ namespace RAW
 		{
 
 		}
-
-		void setFooter(DataArray * footer_data , const uint32_t tailSize)
+		void setFooters(const RAW::SignatureArray & footers_array)
 		{
-			if (footer_data)
+			for (const auto & footer : footers_array)
 			{
-				if (footer_data->size() > 0)
-				{
-					footer_ = makeDataArray(footer_data->size());
-					memcpy(footer_->data(), footer_data->data(), footer_data->size());
-				}
+				auto data_array = std::make_unique<IO::DataArray>( footer->size());
+				memcpy(data_array->data(), footer->data(), footer->size());
+				footers_.emplace_back(std::move(data_array));
 			}
-			setTailSize(tailSize);
 		}
-		DataArray * getFooter() const
-		{
-			return footer_.get();
-		}
-
 		void setTailSize(const uint32_t tailSize)
 		{
 			tailSize_ = tailSize;
@@ -76,8 +67,7 @@ namespace RAW
 
 
 			
-			auto footer_data = footer_.get();;
-			if (!footer_data)
+			if (footers_.empty())
 			{
 				if (maxFileSize_ == 0)
 				{
@@ -96,18 +86,18 @@ namespace RAW
 			uint32_t bytes_to_write = getBlockSize();
 			uint64_t written_size = 0;
 
-			uint32_t sizeToRead = getBlockSize() + calcToSectorSize(footer_data->size());
+			uint32_t sizeToRead = getBlockSize() /*+ calcToSectorSize(footer_data->size())*/;
 			auto buffer = makeDataArray(sizeToRead);
 
 			uint32_t footer_start = 0;
 
-			while (offset <this->getSize())
+			while (offset < this->getSize())
 			{
 				sizeToRead = calcBlockSize(offset, this->getSize(), sizeToRead);
-				  
+
 				setPosition(offset);
 				bytes_read = ReadData(buffer->data(), sizeToRead);
-				if (bytes_read == 0 )
+				if (bytes_read == 0)
 				{
 					//	????????????
 					wprintf(L"Error read block\n");
@@ -119,16 +109,21 @@ namespace RAW
 				else
 					footer_start = 0;
 
-				if (findFooter(*buffer.get(), bytes_read , *footer_data, footer_pos , footer_start))
+				for (const auto& footer : footers_)
 				{
-					uint32_t sizeToWrite = footer_pos + footer_data->size() + tailSize_;
-					target_file.setPosition(written_size);
-					bytes_written = target_file.WriteData(buffer->data(), sizeToWrite);
-					written_size += bytes_written;
-					bFoundFooter_ = true;
-					break;
+					auto tmp_start = footer_start;
+					if (findFooter(*buffer.get(), bytes_read, *footer.get(), footer_pos, tmp_start))
+					{
+						uint32_t sizeToWrite = footer_pos + footer->size() + tailSize_;
+						target_file.setPosition(written_size);
+						bytes_written = target_file.WriteData(buffer->data(), sizeToWrite);
+						written_size += bytes_written;
+						bFoundFooter_ = true;
+						break;
+					}
 				}
-
+				if (bFoundFooter_)
+					break;
 				if (bytes_read < getBlockSize() )
 					bytes_to_write = bytes_read;
 
@@ -170,8 +165,8 @@ namespace RAW
 		}
 		bool Verify(const IO::path_string & file_path) override
 		{
-			if ( footer_)
-				return bFoundFooter_;
+			//if ( footer_)
+			//	return bFoundFooter_;
 			return true;
 		}
 
@@ -331,96 +326,96 @@ namespace RAW
 		}
 	};
 
-	class OnlyHeadersRaw
-		: public StandartRaw
-	{
-	public:
-		OnlyHeadersRaw(IODevicePtr device)
-			: StandartRaw(device)
-		{
+	//class OnlyHeadersRaw
+	//	: public StandartRaw
+	//{
+	//public:
+	//	OnlyHeadersRaw(IODevicePtr device)
+	//		: StandartRaw(device)
+	//	{
 
-		}
+	//	}
 
-		bool Specify(const uint64_t header_offset) override
-		{
-			return true;
-		}
-		uint64_t SaveRawFile(File & target_file, const uint64_t start_offset)   override
-		{
-			if (!target_file.isOpen())
-			{
-				wprintf(L"File wasn't opened.\n Try to create file.");
-				if (!target_file.Open(OpenMode::Create))
-				{
-					wprintf(L"Error to create file.");
-					return 0;
-				}
-			}
+	//	bool Specify(const uint64_t header_offset) override
+	//	{
+	//		return true;
+	//	}
+	//	uint64_t SaveRawFile(File & target_file, const uint64_t start_offset)   override
+	//	{
+	//		if (!target_file.isOpen())
+	//		{
+	//			wprintf(L"File wasn't opened.\n Try to create file.");
+	//			if (!target_file.Open(OpenMode::Create))
+	//			{
+	//				wprintf(L"Error to create file.");
+	//				return 0;
+	//			}
+	//		}
 
-			auto footer_data = getFooter();
-			if (!footer_data)
-				return 0;
+	//		auto footer_data = getFooter();
+	//		if (!footer_data)
+	//			return 0;
 
-			uint32_t bytes_read = 0;
-			uint32_t bytes_written = 0;
+	//		uint32_t bytes_read = 0;
+	//		uint32_t bytes_written = 0;
 
-			uint64_t offset = start_offset;
+	//		uint64_t offset = start_offset;
 
-			uint32_t footer_pos = 0;
-			uint32_t bytes_to_write = getBlockSize();
-			uint64_t written_size = 0;
+	//		uint32_t footer_pos = 0;
+	//		uint32_t bytes_to_write = getBlockSize();
+	//		uint64_t written_size = 0;
 
-			uint32_t start_cmp = 0;
+	//		uint32_t start_cmp = 0;
 
-			auto buffer = makeDataArray(getBlockSize());
-			uint32_t sizeToRead = getBlockSize();
+	//		auto buffer = makeDataArray(getBlockSize());
+	//		uint32_t sizeToRead = getBlockSize();
 
-			while (offset < this->getSize())
-			{
-				sizeToRead = calcBlockSize(offset, this->getSize(), sizeToRead);
+	//		while (offset < this->getSize())
+	//		{
+	//			sizeToRead = calcBlockSize(offset, this->getSize(), sizeToRead);
 
-				setPosition(offset);
-				bytes_read = ReadData(buffer->data(), sizeToRead);
-				if (bytes_read == 0)
-				{
-					//	????????????
-					wprintf(L"Error read block\n");
-					break;
-				}
-				start_cmp = 0;
-				if (offset == start_offset)
-					start_cmp = getSectorSize();
-				for (footer_pos = start_cmp; footer_pos < bytes_read; footer_pos += getSectorSize())
-					if (memcmp(buffer->data() + footer_pos, footer_data->data(), footer_data->size()) == 0)
-					{
-						if (footer_pos > 0)
-						{
-							target_file.setPosition(written_size);
-							bytes_written = target_file.WriteData(buffer->data(), footer_pos);
-							written_size += bytes_written;
-						}
-						return written_size;
-					}
+	//			setPosition(offset);
+	//			bytes_read = ReadData(buffer->data(), sizeToRead);
+	//			if (bytes_read == 0)
+	//			{
+	//				//	????????????
+	//				wprintf(L"Error read block\n");
+	//				break;
+	//			}
+	//			start_cmp = 0;
+	//			if (offset == start_offset)
+	//				start_cmp = getSectorSize();
+	//			for (footer_pos = start_cmp; footer_pos < bytes_read; footer_pos += getSectorSize())
+	//				if (memcmp(buffer->data() + footer_pos, footer_data->data(), footer_data->size()) == 0)
+	//				{
+	//					if (footer_pos > 0)
+	//					{
+	//						target_file.setPosition(written_size);
+	//						bytes_written = target_file.WriteData(buffer->data(), footer_pos);
+	//						written_size += bytes_written;
+	//					}
+	//					return written_size;
+	//				}
 
-				if (bytes_read < getBlockSize())
-					bytes_to_write = bytes_read;
+	//			if (bytes_read < getBlockSize())
+	//				bytes_to_write = bytes_read;
 
-				target_file.setPosition(written_size);
-				bytes_written = target_file.WriteData(buffer->data(), bytes_to_write);
-				if (bytes_written == 0)
-				{
-					wprintf(L"Error write block\n");
-					break;
-				}
+	//			target_file.setPosition(written_size);
+	//			bytes_written = target_file.WriteData(buffer->data(), bytes_to_write);
+	//			if (bytes_written == 0)
+	//			{
+	//				wprintf(L"Error write block\n");
+	//				break;
+	//			}
 
-				offset += bytes_written;
-				written_size += bytes_written;
-			}
-			return written_size;
+	//			offset += bytes_written;
+	//			written_size += bytes_written;
+	//		}
+	//		return written_size;
 
-		}
+	//	}
 
-	};
+	//};
 
 
 };
