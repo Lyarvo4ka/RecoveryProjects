@@ -1,0 +1,13 @@
+{
+    "djvu": {
+      "algorithmName": "djvu",
+      "category": "office",
+      "header": [
+        {
+          "hexdata": "41542654464F524D",
+          "offset": 0
+        }
+      ],
+      "extension": ".djvu"
+    }
+}

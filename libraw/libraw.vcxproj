@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\raw\AbstractRaw.h" />
+    <ClInclude Include="..\include\raw\djvuraw.h" />
     <ClInclude Include="..\include\raw\factories.h" />
     <ClInclude Include="..\include\raw\oleraw.h" />
     <ClInclude Include="..\include\raw\rawzip.h" />

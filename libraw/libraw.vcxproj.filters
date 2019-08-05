@@ -36,6 +36,9 @@
     <ClInclude Include="..\include\raw\oleraw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\raw\djvuraw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
