@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="RawRecovery.h" />
+    <ClInclude Include="deviceitem.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
