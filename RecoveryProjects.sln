@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "console app", "console app"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RawRecoveryConsole", "RawRecoveryConsole\RawRecoveryConsole.vcxproj", "{DC3D0320-205B-4E81-B6D0-5DCB4B196E76}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApp", "ConsoleApp\ConsoleApp.vcxproj", "{A2EF600C-9B77-473A-8882-13E66970EAF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -79,6 +81,14 @@ Global
 		{DC3D0320-205B-4E81-B6D0-5DCB4B196E76}.Release|x64.ActiveCfg = Release|x64
 		{DC3D0320-205B-4E81-B6D0-5DCB4B196E76}.Release|x64.Build.0 = Release|x64
 		{DC3D0320-205B-4E81-B6D0-5DCB4B196E76}.Release|x86.ActiveCfg = Release|x64
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Debug|x64.ActiveCfg = Debug|x64
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Debug|x64.Build.0 = Debug|x64
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Debug|x86.ActiveCfg = Debug|Win32
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Debug|x86.Build.0 = Debug|Win32
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x64.ActiveCfg = Release|x64
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x64.Build.0 = Release|x64
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x86.ActiveCfg = Release|Win32
+		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +101,7 @@ Global
 		{FD026DE7-713E-4A7D-BB5C-166EA7C7808B} = {1AEC6750-5B55-444D-BBEC-9C16607F0EC9}
 		{6E837A5F-BD95-4036-A04D-C4B0F8733705} = {1AEC6750-5B55-444D-BBEC-9C16607F0EC9}
 		{DC3D0320-205B-4E81-B6D0-5DCB4B196E76} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
+		{A2EF600C-9B77-473A-8882-13E66970EAF0} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11E3E18F-0E47-494E-881A-A4A95B3B4D7F}
