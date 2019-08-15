@@ -12,7 +12,7 @@ namespace RAW
 	const uint32_t FAT_VAL_SIZE = 4;
 	const uint32_t FIRST_109_SECTORS = 109;
 
-
+	const uint32_t OLE_header_size = 512;
 	struct OLE_header
 	{
 		/* The magic signature of the OLECF compound file
@@ -116,7 +116,7 @@ namespace RAW
 		/* The number of MSAT sectors
 		 * Consists of 4 bytes
 		 */
-		uint32_t number_of_msat_sectors;
+		uint32_t number_of_dif_sectors;
 
 		/* The first 109 MSAT sector identifiers
 		 * Consists of 436 bytes
@@ -125,7 +125,7 @@ namespace RAW
 	};
 
 
-	//1. ssat_sector_identifier
+	class DIF_Sector;
 
 	class Sector
 	{
@@ -143,7 +143,7 @@ namespace RAW
 		{
 			return data_.data();
 		}
-		void setSectorNumber(const uint64_t sector_number)
+		void setNumber(const uint64_t sector_number)
 		{
 			number_ = sector_number;
 		}
@@ -159,31 +159,45 @@ namespace RAW
 		{
 			return data_.size();
 		}
+		DIF_Sector toDifSector()
+		{
+			return DIF_Sector(*this);
+		}
+
+
 
 	};
 
 	class DIF_Sector
 	{
-		DataArray sector_data_;
+		ByteArray data_;
+		uint32_t size_;
 	public:
-		DIF_Sector(const uint32_t sector_size = default_sector_size)
-			: sector_data_(sector_size)
-		{
+		//DIF_Sector(const uint32_t sector_size = default_sector_size)
+		//	: sector_data_(sector_size)
+		//{
 
-		}
-		ByteArray data()
+		//}
+		DIF_Sector(Sector& sector)
+			: data_(sector.data())
+			, size_(sector.size())
 		{
-			return sector_data_.data();
+			
+		}
+		uint32_t * data()
+		{
+			return (uint32_t*)data_;
 		}
 		uint32_t size() const
 		{
-			return sector_data_.size() - FAT_VAL_SIZE;
+			return (size_ - FAT_VAL_SIZE) / FAT_VAL_SIZE;
 		}
 		uint32_t next_chain() const
 		{
-			return sector_data_.data()[sector_data_.size() - 1];
+			return (uint32_t) &data_[size_ - FAT_VAL_SIZE];
 		}
 	};
+
 
 
 
@@ -195,14 +209,79 @@ namespace RAW
 		{
 //			std::transform(std::begin()table_.begin(), table_.end(),)
 			for (auto i = 0; i < sector.size(); i += FAT_VAL_SIZE)
-				table_.push_back(sector.data()[i]);
+			{
+				auto pVal = (uint32_t*)(sector.data() + i);
+				table_.push_back(*pVal);
+			}
+		}
+	};
+
+	class OLEReader
+	{
+		IO::IODevicePtr device_;
+		uint64_t offset_ = 0;
+		OLE_header ole_header_ = {0};
+		OLE_FAT ole_fat_table_;
+	public:
+		OLEReader(IO::IODevicePtr device , uint64_t offset = 0)
+			:device_(device)
+			, offset_(offset)
+		{}
+		void read()
+		{
+
+		}
+		uint64_t sectorToOffset(const Sector& sector)
+		{
+			return sector.offset() + OLE_header_size;
+		}
+		void readHeader(OLE_header &ole_header)
+		{
+			device_->setPosition(offset_);
+			device_->ReadData((ByteArray)&ole_header, OLE_header_size);
+		}
+
+		void readSector(Sector & sector)
+		{
+			auto offset = sectorToOffset(sector) + offset_;
+			device_->setPosition(offset);
+			device_->ReadData(sector.data(), sector.size());
+
+		}
+		void readFatTable(OLE_FAT & ole_fat_table)
+		{
+			for (auto iSector = 0; iSector < FIRST_109_SECTORS; ++iSector)
+			{
+				Sector sector(ole_header_.msat[iSector]);
+				if (sector.number() == FREE_SECTORS)
+					break;
+				readSector(sector);
+				ole_fat_table_.addSector(sector);
+			}
+			if (ole_header_.dif_sector_start != END_OF_CHAIN)
+			{
+				uint32_t sector_number = ole_header_.dif_sector_start;
+				for (auto iDifSector = 0; iDifSector < ole_header_.number_of_dif_sectors; ++iDifSector)
+				{
+					Sector sector(sector_number);
+					readSector(sector);
+					auto dif_sector = sector.toDifSector();
+					for (auto iSector = 0; iSector < dif_sector.size(); ++iSector)
+					{
+						sector.setNumber(*dif_sector.data[iSector]);
+						readSector(sector);
+					}
+					next_sector = dif_sector.next_chain();
+					// read DIF sector
+				}
+			}
 		}
 	};
 
 	void testOLE()
 	{
-		auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
-		//	auto filename = LR"(d:\ole_test\bigdoc.doc)";
+		//auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
+		auto filename = LR"(d:\ole_test\bigdoc.doc)";
 
 		OLE_FAT fat_table;
 
@@ -212,18 +291,7 @@ namespace RAW
 		file.ReadData(data_array);
 
 		auto ole_header = (RAW::OLE_header*)data_array.data();
-		for (auto iSector = 0; iSector < FIRST_109_SECTORS; ++iSector)
-		{
-			Sector sector(ole_header->msat[iSector]);
-			file.setPosition(sector.offset());
-			file.ReadData(sector.data(), sector.size());
-			fat_table.addSector(sector);
-		}
-		if (ole_header->dif_sector_start != END_OF_CHAIN)
-		{
-			
-			// read using DIF sectors
-		}
+
 	}
 
 	class OleRAW
