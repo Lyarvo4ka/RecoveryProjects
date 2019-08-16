@@ -22,6 +22,7 @@
 #include "raw\factories.h"
 #include "raw/StandartRaw.h"
 #include "raw/djvuraw.h"
+#include "raw/oleraw.h"
 //#include "IO\RawMTS.h"
 //#include "IO\RawMPEG.h"
 //#include "IO\QuickTime.h"
@@ -231,7 +232,9 @@ public:
 
 void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 {
-	factory_manager.Register("djvu", std::make_unique < RAW::DjvuRawFactory>());
+	//factory_manager.Register("djvu", std::make_unique < RAW::DjvuRawFactory>());
+	factory_manager.Register("ole", std::make_unique < RAW::OleRawFactory>());
+
 	//factory_manager.Register("Canon4FileFragmentRaw", std::make_unique<Canon4FileFragmentRawFactory>());
 	//Canon4FileFragmentRaw
 	//factory_manager.Register("7z", std::make_unique<IO::Raw7zFactory>());
@@ -342,7 +345,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "djvu.json";
+		QString json_file = "office_2003.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{

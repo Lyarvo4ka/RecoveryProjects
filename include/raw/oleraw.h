@@ -1,6 +1,9 @@
 #pragma once
 
 #include "AbstractRaw.h"
+#include "factories.h"
+
+#include <algorithm>
 
 namespace RAW
 {
@@ -125,7 +128,7 @@ namespace RAW
 	};
 
 
-	class DIF_Sector;
+	class DIF_Sector_ref;
 
 	class Sector
 	{
@@ -159,16 +162,13 @@ namespace RAW
 		{
 			return data_.size();
 		}
-		DIF_Sector toDifSector()
-		{
-			return DIF_Sector(*this);
-		}
 
+		DIF_Sector_ref toDifSector();
 
 
 	};
 
-	class DIF_Sector
+	class DIF_Sector_ref
 	{
 		ByteArray data_;
 		uint32_t size_;
@@ -178,13 +178,13 @@ namespace RAW
 		//{
 
 		//}
-		DIF_Sector(Sector& sector)
+		DIF_Sector_ref(Sector& sector)
 			: data_(sector.data())
 			, size_(sector.size())
 		{
 			
 		}
-		uint32_t * data()
+		uint32_t * data() const
 		{
 			return (uint32_t*)data_;
 		}
@@ -194,11 +194,15 @@ namespace RAW
 		}
 		uint32_t next_chain() const
 		{
-			return (uint32_t) &data_[size_ - FAT_VAL_SIZE];
+			auto val = (uint32_t *) (data_ + size_ - FAT_VAL_SIZE);
+			return  *val;
 		}
 	};
 
-
+	DIF_Sector_ref Sector::toDifSector()
+	{
+		return DIF_Sector_ref(*this);
+	}
 
 
 	class OLE_FAT
@@ -214,6 +218,22 @@ namespace RAW
 				table_.push_back(*pVal);
 			}
 		}
+		uint32_t getNumberSectorsFromFATTable()
+		{
+			uint32_t file_size = 0;
+			auto last = table_.size() - 1;
+			if (table_.at(last) == FREE_SECTORS)
+			{
+				auto findIter = std::find_if_not(std::rbegin(table_), std::rend(table_), [](int i) {return i == FREE_SECTORS; });
+				if (findIter != table_.rend())
+				{
+					auto numberOfSector = std::distance(std::begin(table_), findIter.base());
+					return numberOfSector;
+				}
+			}
+			return table_.size();
+		}
+
 	};
 
 	class OLEReader
@@ -222,6 +242,7 @@ namespace RAW
 		uint64_t offset_ = 0;
 		OLE_header ole_header_ = {0};
 		OLE_FAT ole_fat_table_;
+		uint64_t file_size_ = 0;
 	public:
 		OLEReader(IO::IODevicePtr device , uint64_t offset = 0)
 			:device_(device)
@@ -229,7 +250,17 @@ namespace RAW
 		{}
 		void read()
 		{
+			readHeader(ole_header_);
+			readFatTable(ole_fat_table_);
+			auto sectors_count = ole_fat_table_.getNumberSectorsFromFATTable();
+			file_size_ = (uint64_t)sectors_count * OLE_header_size + OLE_header_size;
+			int k = 0;
+			k = 1;
 
+		}
+		uint64_t getFileSize() const
+		{
+			return file_size_;
 		}
 		uint64_t sectorToOffset(const Sector& sector)
 		{
@@ -244,34 +275,56 @@ namespace RAW
 		void readSector(Sector & sector)
 		{
 			auto offset = sectorToOffset(sector) + offset_;
+			if (offset >= device_->Size())
+			{
+				int k = 0;
+				k = 1;
+			}
 			device_->setPosition(offset);
 			device_->ReadData(sector.data(), sector.size());
 
 		}
+		bool readAndAddSectorToFat(Sector & sector,OLE_FAT & ole_fat_table )
+		{
+			if (sector.number() == FREE_SECTORS)
+				return false;
+			readSector(sector);
+			ole_fat_table_.addSector(sector);
+			return true;
+		}
 		void readFatTable(OLE_FAT & ole_fat_table)
 		{
+			Sector sector;
+
 			for (auto iSector = 0; iSector < FIRST_109_SECTORS; ++iSector)
 			{
-				Sector sector(ole_header_.msat[iSector]);
-				if (sector.number() == FREE_SECTORS)
+				sector.setNumber(ole_header_.msat[iSector]);
+				if (!readAndAddSectorToFat(sector, ole_fat_table))
 					break;
-				readSector(sector);
-				ole_fat_table_.addSector(sector);
 			}
+			Sector difSector;
 			if (ole_header_.dif_sector_start != END_OF_CHAIN)
 			{
 				uint32_t sector_number = ole_header_.dif_sector_start;
 				for (auto iDifSector = 0; iDifSector < ole_header_.number_of_dif_sectors; ++iDifSector)
 				{
-					Sector sector(sector_number);
-					readSector(sector);
-					auto dif_sector = sector.toDifSector();
-					for (auto iSector = 0; iSector < dif_sector.size(); ++iSector)
+					difSector.setNumber(sector_number);
+					readSector(difSector);
+					auto dif_sector = difSector.toDifSector();
+					auto num_dif_sector = dif_sector.size();
+					for (auto iSector = 0; iSector < num_dif_sector; ++iSector)
 					{
-						sector.setNumber(*dif_sector.data[iSector]);
-						readSector(sector);
+						auto number = dif_sector.data() + iSector;
+						auto offset = sectorToOffset(*number);
+						if (offset >= device_->Size())
+						{
+							int k = 1;
+							k = 1;
+						}
+						sector.setNumber(*number);
+						readAndAddSectorToFat(sector, ole_fat_table);
 					}
-					next_sector = dif_sector.next_chain();
+					sector_number = dif_sector.next_chain();
 					// read DIF sector
 				}
 			}
@@ -281,22 +334,22 @@ namespace RAW
 	void testOLE()
 	{
 		//auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
-		auto filename = LR"(d:\ole_test\bigdoc.doc)";
+		auto filename = LR"(d:\ole_test\2222.doc)";
 
-		OLE_FAT fat_table;
+		auto filePtr = IO::makeFilePtr(filename);
+		filePtr->OpenRead();
 
-		IO::File file(filename);
-		file.OpenRead();
-		IO::DataArray data_array(default_sector_size);
-		file.ReadData(data_array);
+		OLEReader oleReader(filePtr);
+		oleReader.read();
 
-		auto ole_header = (RAW::OLE_header*)data_array.data();
-
+		int k = 0;
+		k = 1;
 	}
 
 	class OleRAW
 		: public DefaultRaw
 	{
+		uint64_t sizeToWrite = 0;
 	public:
 		OleRAW(IO::IODevicePtr device)
 			: DefaultRaw(device)
@@ -306,24 +359,34 @@ namespace RAW
 
 		uint64_t SaveRawFile(File& target_file, const uint64_t start_offset)   override
 		{
-			IO::DataArray sector(default_sector_size);
-
-			this->setPosition(start_offset);
-			this->ReadData(sector);
-
-			OLE_header* pOLE_header = (OLE_header*)sector.data();
-
-
+			if (sizeToWrite > 0)
+				return appendToFile(target_file, start_offset, sizeToWrite);
 
 			return 0;
 		}
 		bool Specify(const uint64_t start_offset)
 		{
+
+			OLEReader ole_reader(this->getDevice() , start_offset);
+			ole_reader.read();
+			sizeToWrite = ole_reader.getFileSize();
+			if (sizeToWrite == 0)
+				return false;
 			return true;
 		}
 
 
 
+	};
+
+	class OleRawFactory :
+		public RawFactory
+	{
+	public:
+		RawAlgorithm* createRawAlgorithm(IO::IODevicePtr device) override
+		{
+			return new OleRAW(device);
+		}
 	};
 
 }

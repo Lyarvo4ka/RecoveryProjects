@@ -400,6 +400,10 @@ namespace RAW
 		{
 
 		}
+		IODevicePtr getDevice()
+		{
+			return device_;
+		}
 		void setBlockSize(const uint32_t block_size)
 		{
 			this->block_size_ = block_size;
