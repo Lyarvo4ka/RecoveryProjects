@@ -1,7 +1,7 @@
 #pragma once
 
-#include "constants.h"
-#include "iodevice.h"
+#include "io/constants.h"
+#include "io/iodevice.h"
 //#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -19,14 +19,14 @@ namespace IO
 
 
 
-	inline path_string toWString(const std::string & oneByteString)
+	inline path_string toWString(const std::string& oneByteString)
 	{
 		return path_string(oneByteString.begin(), oneByteString.end());
 		//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 		//return converter.from_bytes(oneByteString);
 
 	}
-	inline path_string addBackSlash(const path_string & path_str)
+	inline path_string addBackSlash(const path_string& path_str)
 	{
 		path_string new_string(path_str);
 		if (*path_str.rbegin() != back_slash)
@@ -41,24 +41,24 @@ namespace IO
 		{
 			return boost::lexical_cast<std::string>(int_val);
 		}
-		catch (boost::bad_lexical_cast & ex)
+		catch (boost::bad_lexical_cast& ex)
 		{
 			std::cout << "cought error " << ex.what();
 		}
 		return "";
 	}
 
-	inline bool createFoldersFromPath(const path_string & path)
+	inline bool createFoldersFromPath(const path_string& path)
 	{
 
 		return false;
 	}
-	inline bool isDirectoryAttribute(const WIN32_FIND_DATA & attributes)
+	inline bool isDirectoryAttribute(const WIN32_FIND_DATA& attributes)
 	{
 		return (attributes.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 	}
 
-	inline bool isOneDotOrTwoDots(const path_string & name_string)
+	inline bool isOneDotOrTwoDots(const path_string& name_string)
 	{
 		if (name_string.compare(OneDot) == 0)
 			return true;
@@ -68,12 +68,12 @@ namespace IO
 	}
 
 
-	inline bool isPresentInList(const path_string & text_value, const path_list & listToFind)
+	inline bool isPresentInList(const path_string& text_value, const path_list& listToFind)
 	{
 		auto str = text_value;
 		boost::algorithm::to_lower(str);
 		//auto findIter = std::find(listToFind.begin(), listToFind.end(), str);
-		for (auto & theExt : listToFind)
+		for (auto& theExt : listToFind)
 		{
 			if (theExt.compare(str) == 0)
 				return true;
@@ -82,18 +82,18 @@ namespace IO
 		return false;
 	}
 
-	inline path_string getExtension(const path_string & file_name)
+	inline path_string getExtension(const path_string& file_name)
 	{
 		fs::path file_path(file_name);	// can crash ????
 		return file_path.extension().generic_wstring();
 	}
 
-	inline bool isOffice2003(const path_string & file_extension)
+	inline bool isOffice2003(const path_string& file_extension)
 	{
 		return isPresentInList(file_extension, listExtensions2003);
 	}
 
-	inline bool isOffice2007(const path_string & file_extension)
+	inline bool isOffice2007(const path_string& file_extension)
 	{
 		return isPresentInList(file_extension, listExtensions2007);
 	}
@@ -102,7 +102,7 @@ namespace IO
 	inline path_string toNumberString(const uint32_t number)
 	{
 		const int numValues = 11;
-		wchar_t buff[numValues] = {0};
+		wchar_t buff[numValues] = { 0 };
 		ZeroMemory(buff, sizeof(wchar_t) * numValues);
 
 		swprintf_s(buff, numValues, L"%.10u", number);
@@ -121,27 +121,27 @@ namespace IO
 		return number_str;
 	}
 
-	inline path_string toNumberExtension(const uint32_t number, const path_string & extension)
+	inline path_string toNumberExtension(const uint32_t number, const path_string& extension)
 	{
 		return toNumberString(number) + extension;
 	}
-	inline path_string toFullPath(const path_string & folder, const uint32_t number, const path_string & extension)
+	inline path_string toFullPath(const path_string& folder, const uint32_t number, const path_string& extension)
 	{
 		return addBackSlash(folder) + toNumberString(number) + extension;
 	}
-	inline path_string offsetToPath(const path_string & folder, const uint64_t byte_offset, const path_string & extension, uint32_t sector_size = 512)
+	inline path_string offsetToPath(const path_string& folder, const uint64_t byte_offset, const path_string& extension, uint32_t sector_size = 512)
 	{
 		return addBackSlash(folder) + toHexString(byte_offset/* / sector_size*/) + extension;
 	}
 
-	inline bool createDirectory(const path_string & folder, const path_string & new_folder, path_string & result_folder)
+	inline bool createDirectory(const path_string& folder, const path_string& new_folder, path_string& result_folder)
 	{
 		result_folder = addBackSlash(folder) + new_folder;
 		if (!fs::exists(result_folder))
 			return fs::create_directory(result_folder);
 	}
 
-	inline std::string getDateFromSystemtime(const SYSTEMTIME & system_time)
+	inline std::string getDateFromSystemtime(const SYSTEMTIME& system_time)
 	{
 		char tmp_buffer[255];
 		::GetDateFormatA(LOCALE_USER_DEFAULT, 0, &system_time, "yyyy-MM-dd", tmp_buffer, 255);
@@ -150,7 +150,7 @@ namespace IO
 		return tmp_str;
 	}
 
-	inline std::string getTimeFromSystemtime(const SYSTEMTIME & system_time)
+	inline std::string getTimeFromSystemtime(const SYSTEMTIME& system_time)
 	{
 		char tmp_buffer[255];
 		::GetTimeFormatA(LOCALE_USER_DEFAULT, 0, &system_time, "HH-mm-ss", tmp_buffer, 255);
@@ -159,12 +159,12 @@ namespace IO
 		return tmp_str;
 	}
 
-	inline std::string getDateAndTimeFromSystemtime(const SYSTEMTIME & system_time)
+	inline std::string getDateAndTimeFromSystemtime(const SYSTEMTIME& system_time)
 	{
 		return getDateFromSystemtime(system_time) + '-' + getTimeFromSystemtime(system_time);
 	}
 
-	inline std::string parse_string_date(const std::string & original_date)
+	inline std::string parse_string_date(const std::string& original_date)
 	{
 		// 2017-06-02T13:25:56+03:00
 		SYSTEMTIME sys_time = { 0 };
@@ -210,13 +210,13 @@ namespace IO
 		}
 		return counter;
 	}
-	inline uint32_t calc_nulls(const DataArray & data_array)
+	inline uint32_t calc_nulls(const DataArray& data_array)
 	{
 		return calc_nulls(data_array.data(), data_array.size());
 	}
 
 
-	inline void RenameMP4_date(const IO::path_string & filePath)
+	inline void RenameMP4_date(const IO::path_string& filePath)
 	{
 		//auto test_file = IO::makeFilePtr(filePath);
 		//const uint32_t date_offset = 0x126;
@@ -353,19 +353,19 @@ namespace IO
 		return true;
 	}
 	// path ....img016937500.bin
-	inline uint64_t fileNameToOffset(const IO::path_string & filePath, uint32_t skip_size = 3)
+	inline uint64_t fileNameToOffset(const IO::path_string& filePath, uint32_t skip_size = 3)
 	{
 		fs::path src_path(filePath);
 		//auto folder_path = src_path.parent_path().generic_string();
 		auto only_name_path = src_path.stem().generic_string();
 		//auto ext = src_path.extension().generic_string();
-		
+
 		uint64_t file_offset = 0;
 		std::string digits_string(only_name_path.substr(skip_size));
 		if (isDigitString(digits_string))
 		{
 			file_offset = std::stoll(digits_string);
-			
+
 		}
 		else
 		{
@@ -378,7 +378,7 @@ namespace IO
 
 
 
-	const uint8_t EIGHT_FF[] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF , 0x78 , 0xDA };
+	const uint8_t EIGHT_FF[] = { 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF , 0x78 , 0xDA };
 	const uint32_t EIGHT_FF_SIZE = SIZEOF_ARRAY(EIGHT_FF);
 
 	const uint32_t ACRONIS_BLOCK_SIZE = 256 * 1024;
@@ -388,10 +388,10 @@ namespace IO
 	private:
 		File file_;
 	public:
-		AcronisDecompress(const path_string & acronis_file)
+		AcronisDecompress(const path_string& acronis_file)
 			: file_(acronis_file)
 		{}
-		uint64_t find_8FF(const uint64_t start_offset )
+		uint64_t find_8FF(const uint64_t start_offset)
 		{
 			uint64_t offset = start_offset;
 			DataArray data_array(ACRONIS_BLOCK_SIZE);
@@ -415,21 +415,21 @@ namespace IO
 			return start_offset;
 		}
 
-		int decode_block(const uint64_t start_offset, const uint64_t end_offset, DataArray & dst_data_array);
+		int decode_block(const uint64_t start_offset, const uint64_t end_offset, DataArray& dst_data_array);
 
-		uint64_t saveToFile(const path_string & target_file_name, const uint64_t start_offset = 0)
+		uint64_t saveToFile(const path_string& target_file_name, const uint64_t start_offset = 0)
 		{
 			if (!this->file_.Open(OpenMode::OpenRead))
 			{
 				wprintf(L"Error open source file.\n");
-				return 0 ;
+				return 0;
 			}
 
 			File target_file(target_file_name);
 			if (!target_file.Open(OpenMode::Create))
 			{
 				wprintf(L"Error Create target file.\n");
-				return 0 ;
+				return 0;
 			}
 
 			uint64_t target_offset = 0;
@@ -442,7 +442,7 @@ namespace IO
 				if (new_block_offset == offset)
 				{
 					wprintf(L"Not found next 0xFFFFFFFFFF\n");
-					return 0 ;
+					return 0;
 				}
 
 				DataArray decompressed_data(ACRONIS_BLOCK_SIZE);
@@ -453,7 +453,7 @@ namespace IO
 					return new_block_offset;
 				}
 				target_file.setPosition(target_offset);
-				if ( target_file.WriteData(decompressed_data.data(), decompressed_data.size()) == 0)
+				if (target_file.WriteData(decompressed_data.data(), decompressed_data.size()) == 0)
 				{
 					wprintf(L"Error write to file.\n");
 				}
@@ -481,7 +481,7 @@ namespace IO
 		return alingToValue(offset, sector_size);
 	}
 
-	inline void replaceBadsFromOtherFile(const path_string & withBads_name, const path_string & withoutBads_name, const path_string & target_name)
+	inline void replaceBadsFromOtherFile(const path_string& withBads_name, const path_string& withoutBads_name, const path_string& target_name)
 	{
 		File withBads_file(withBads_name);
 		if (!withBads_file.Open(OpenMode::OpenRead))
@@ -489,7 +489,7 @@ namespace IO
 
 		File withoutBads_file(withoutBads_name);
 		if (!withoutBads_file.Open(OpenMode::OpenRead))
-			return ;
+			return;
 
 		File target_file(target_name);
 		if (!target_file.Open(OpenMode::Create))

@@ -5,6 +5,8 @@
 
 #include <algorithm>
 
+#include "io/finder.h"
+
 namespace RAW
 {
 	const uint32_t END_OF_CHAIN =	 0xFFFFFFFE;
@@ -16,6 +18,7 @@ namespace RAW
 	const uint32_t FIRST_109_SECTORS = 109;
 
 	const uint32_t OLE_header_size = 512;
+	const uint32_t DEFAULT_DIR_ENTRY_SIZE = 128;
 	struct OLE_header
 	{
 		/* The magic signature of the OLECF compound file
@@ -128,12 +131,64 @@ namespace RAW
 	};
 
 
+	const uint32_t DIR_NAME_MAXSIZE = 32*2;
+
+#pragma pack( 1 )
+	struct OleDirectoryEntry
+	{
+		/* The directory name
+		 */
+		uint8_t name[DIR_NAME_MAXSIZE];
+
+		/* The size of the directory name
+		 */
+		uint16_t name_size;
+
+		/* The type
+		 */
+		uint8_t type;
+
+		/* Value taken from DECOLOR
+		*/
+		uint8_t bFlag;
+
+		uint32_t leftSID;
+		uint32_t rigthSID;
+		uint32_t childSID;
+
+		uint8_t guid[16];
+		uint32_t userFlags;
+		/* Creation time
+		 */
+		uint64_t creation_time;
+
+		/* Modification time
+		 */
+		uint64_t modification_time;
+
+		/* The sector identifier
+		 */
+		uint32_t sector_start;
+
+		/* The size
+		 */
+		uint32_t size;
+
+		uint16_t propType;
+
+
+	};
+#pragma pack()
+	constexpr uint32_t sizeOfOleDirectoryEntry = sizeof(OleDirectoryEntry);
+
+
 	class DIF_Sector_ref;
 
 	class Sector
 	{
 		DataArray data_;
 		uint64_t number_ = 0;
+		bool valid_ = false;
 	public:
 		Sector(const uint32_t sector_number = 0 , const uint32_t sector_size = default_sector_size)
 			:data_(sector_size)
@@ -161,6 +216,14 @@ namespace RAW
 		uint32_t size() const
 		{
 			return data_.size();
+		}
+		void setValid(bool valid =true)
+		{
+			valid_ = valid;
+		}
+		bool isValid() const
+		{
+			return valid_;
 		}
 
 		DIF_Sector_ref toDifSector();
@@ -233,6 +296,12 @@ namespace RAW
 			}
 			return table_.size();
 		}
+		uint32_t getNextSector(const uint32_t current_sector) const
+		{
+			if (current_sector >= table_.size())
+				return END_OF_CHAIN;
+			return table_[current_sector];
+		}
 
 	};
 
@@ -243,6 +312,7 @@ namespace RAW
 		OLE_header ole_header_ = {0};
 		OLE_FAT ole_fat_table_;
 		uint64_t file_size_ = 0;
+		std::list<std::wstring> listEnries_;
 	public:
 		OLEReader(IO::IODevicePtr device , uint64_t offset = 0)
 			:device_(device)
@@ -276,13 +346,10 @@ namespace RAW
 		{
 			auto offset = sectorToOffset(sector) + offset_;
 			if (offset >= device_->Size())
-			{
-				int k = 0;
-				k = 1;
-			}
+				sector.setValid(false);
 			device_->setPosition(offset);
 			device_->ReadData(sector.data(), sector.size());
-
+			sector.setValid();
 		}
 		bool readAndAddSectorToFat(Sector & sector,OLE_FAT & ole_fat_table )
 		{
@@ -329,21 +396,75 @@ namespace RAW
 				}
 			}
 		}
+		const std::list<std::wstring>& getListEntries() const
+		{
+			return listEnries_;
+		}
+		void readRoot()
+		{
+			Sector sector(ole_header_.root_directory_sector_start);
+
+			while(true)
+			{
+				readSector(sector);
+				if (!sector.isValid())
+					break;
+
+				for (auto i = 0; i < sector.size(); i += DEFAULT_DIR_ENTRY_SIZE)
+				{
+					auto pDirData = sector.data() + i;
+					OleDirectoryEntry* pOleDirEntry = (OleDirectoryEntry*)pDirData;
+					auto ptrWchar = (wchar_t*)pOleDirEntry->name;
+					std::wstring name(ptrWchar);
+					listEnries_.push_back(name);
+					//std::wcout << name << std::endl;
+				}
+
+				auto next_sector = ole_fat_table_.getNextSector(sector.number());
+				if (next_sector == END_OF_CHAIN)
+					break;
+				sector.setNumber(next_sector);
+
+			}
+
+
+			
+		}
 	};
 
 	void testOLE()
 	{
-		//auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
-		auto filename = LR"(d:\ole_test\2222.doc)";
+		auto foldername = LR"(d:\incoming\46460\raw\)";
 
-		auto filePtr = IO::makeFilePtr(filename);
-		filePtr->OpenRead();
+		io::Finder finder;
+		finder.FindFiles(foldername);
 
-		OLEReader oleReader(filePtr);
-		oleReader.read();
+		for (auto &fileName : finder.getFiles())
+		{
 
-		int k = 0;
-		k = 1;
+			auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
+			//auto filename = LR"(d:\ole_test\Assy.dft)";
+
+			auto filePtr = IO::makeFilePtr(filename);
+			filePtr->OpenRead();
+
+			OLEReader oleReader(filePtr);
+			oleReader.read();
+			oleReader.readRoot();
+			filePtr->Close();
+
+			for (auto& valName : oleReader.getListEntries())
+			{
+				if (valName.compare(L"Workbook") == 0)
+				{
+
+					int k = 0;
+					k = 1;
+				}
+			}
+
+		}
+
 	}
 
 	class OleRAW
