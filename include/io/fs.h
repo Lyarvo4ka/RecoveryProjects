@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io/constants.h"
-//#include "utility.h"
+#include "utility.h"
 #include <memory>
 
 #include <experimental/filesystem>

@@ -8,9 +8,9 @@
 #include <boost/algorithm/string.hpp>
 #include <algorithm>
 
-#include "IODevice.h"
+#include "iodevice.h"
 
-namespace io
+namespace IO
 {
 	class Finder
 	{

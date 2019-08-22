@@ -328,6 +328,11 @@ namespace RAW
 			k = 1;
 
 		}
+		bool findKeywordEntry(std::wstring_view entry_keyword)
+		{
+			auto findIter = std::find(std::begin(listEnries_), std::end(listEnries_), entry_keyword);
+			return findIter != listEnries_.end();
+		}
 		uint64_t getFileSize() const
 		{
 			return file_size_;
@@ -345,11 +350,15 @@ namespace RAW
 		void readSector(Sector & sector)
 		{
 			auto offset = sectorToOffset(sector) + offset_;
-			if (offset >= device_->Size())
+			if (offset < device_->Size())
+			{
+				device_->setPosition(offset);
+				device_->ReadData(sector.data(), sector.size());
+				sector.setValid();
+			}
+			else
 				sector.setValid(false);
-			device_->setPosition(offset);
-			device_->ReadData(sector.data(), sector.size());
-			sector.setValid();
+
 		}
 		bool readAndAddSectorToFat(Sector & sector,OLE_FAT & ole_fat_table )
 		{
@@ -432,40 +441,6 @@ namespace RAW
 		}
 	};
 
-	void testOLE()
-	{
-		auto foldername = LR"(d:\incoming\46460\raw\)";
-
-		io::Finder finder;
-		finder.FindFiles(foldername);
-
-		for (auto &fileName : finder.getFiles())
-		{
-
-			auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
-			//auto filename = LR"(d:\ole_test\Assy.dft)";
-
-			auto filePtr = IO::makeFilePtr(filename);
-			filePtr->OpenRead();
-
-			OLEReader oleReader(filePtr);
-			oleReader.read();
-			oleReader.readRoot();
-			filePtr->Close();
-
-			for (auto& valName : oleReader.getListEntries())
-			{
-				if (valName.compare(L"Workbook") == 0)
-				{
-
-					int k = 0;
-					k = 1;
-				}
-			}
-
-		}
-
-	}
 
 	class OleRAW
 		: public DefaultRaw
@@ -510,4 +485,101 @@ namespace RAW
 		}
 	};
 
+	constexpr std::wstring_view Workbook_text = L"Workbook";
+	constexpr std::wstring_view WorkDocument_text = L"WordDocument";
+	constexpr std::wstring_view PowerPoint_text = L"PowerPoint Document";
+	constexpr std::wstring_view FamilyMembers_text = L"FamilyMembers";
+	constexpr std::wstring_view JDraftViewerInfo_text = L"JDraftViewerInfo";
+	constexpr std::wstring_view IOT_text = L"IOT";
+
+	static std::list< std::wstring_view> listOleKeywords = { Workbook_text ,WorkDocument_text,PowerPoint_text ,FamilyMembers_text ,JDraftViewerInfo_text , IOT_text };
+
+	path_string getExtensionFromKeyword(std::wstring_view keyword)
+	{
+		if (keyword == Workbook_text)
+			return L".xls";
+		else if (keyword == WorkDocument_text)
+			return L".doc";
+		else if (keyword == PowerPoint_text)
+			return L".ppt";
+		else if (keyword == FamilyMembers_text)
+			return L".par";
+		else if (keyword == JDraftViewerInfo_text)
+			return L".dft";
+		else if (keyword == IOT_text)
+			return L".dft";
+
+		return L"";
+	}
+
+	class OleAnalyzer
+	{
+		std::wstring extension_;
+	public:
+		void analyze(const path_string& file_path)
+		{
+			auto filePtr = IO::makeFilePtr(file_path);
+			filePtr->OpenRead();
+
+			OLEReader oleReader(filePtr);
+			oleReader.read();
+			oleReader.readRoot();
+			filePtr->Close();
+
+			for (auto& keyword_entry : listOleKeywords)
+			{
+				if (oleReader.findKeywordEntry(keyword_entry))
+				{
+					auto new_extension = getExtensionFromKeyword(keyword_entry);
+					if (!new_extension.empty())
+					{
+						extension_ = new_extension;
+						break;
+					}
+				}
+			}
+			//auto new_extemsion = getExtensionFromKeyword()
+
+		}
+		std::wstring get_extension() const
+		{
+			return extension_;
+		}
+	};
+
+
+
+	void testOLE()
+	{
+		auto foldername = LR"(d:\incoming\46460\raw\)";
+
+		IO::Finder finder;
+		finder.FindFiles(foldername);
+
+		for (auto& fileName : finder.getFiles())
+		{
+
+			//auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
+			//auto filename = LR"(d:\ole_test\Assy.dft)";
+
+			auto filePtr = IO::makeFilePtr(fileName);
+			filePtr->OpenRead();
+
+			OLEReader oleReader(filePtr);
+			oleReader.read();
+			oleReader.readRoot();
+			filePtr->Close();
+
+			OleAnalyzer ole_analyzer;
+			ole_analyzer.analyze(fileName);
+			auto new_extension = ole_analyzer.get_extension();
+
+			if (!new_extension.empty())
+				fs::rename(fileName, fileName + new_extension);
+
+
+
+		}
+
+	}
 }
