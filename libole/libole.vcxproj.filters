@@ -21,45 +21,24 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\io\constants.h">
+    <ClInclude Include="..\include\ole\libole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\io\error.h">
+    <ClInclude Include="..\include\ole\oleconstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\io\iodevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\physicaldrive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\dbf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\fs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\finder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\dataarray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\io\ioengine.h">
+    <ClInclude Include="..\include\ole\libstructstorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="libole.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ioengine.cpp">
+    <ClCompile Include="libstructstorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

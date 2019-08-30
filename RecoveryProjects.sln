@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RawRecoveryConsole", "RawRe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApp", "ConsoleApp\ConsoleApp.vcxproj", "{A2EF600C-9B77-473A-8882-13E66970EAF0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libole", "libole\libole.vcxproj", "{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -89,6 +91,14 @@ Global
 		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x64.Build.0 = Release|x64
 		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x86.ActiveCfg = Release|Win32
 		{A2EF600C-9B77-473A-8882-13E66970EAF0}.Release|x86.Build.0 = Release|Win32
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Debug|x64.ActiveCfg = Debug|x64
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Debug|x64.Build.0 = Debug|x64
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Debug|x86.ActiveCfg = Debug|Win32
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Debug|x86.Build.0 = Debug|Win32
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x64.ActiveCfg = Release|x64
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x64.Build.0 = Release|x64
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x86.ActiveCfg = Release|Win32
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +112,7 @@ Global
 		{6E837A5F-BD95-4036-A04D-C4B0F8733705} = {1AEC6750-5B55-444D-BBEC-9C16607F0EC9}
 		{DC3D0320-205B-4E81-B6D0-5DCB4B196E76} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
 		{A2EF600C-9B77-473A-8882-13E66970EAF0} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
+		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB} = {1AEC6750-5B55-444D-BBEC-9C16607F0EC9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11E3E18F-0E47-494E-881A-A4A95B3B4D7F}
