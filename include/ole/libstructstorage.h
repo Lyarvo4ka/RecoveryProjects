@@ -5,23 +5,21 @@
 
 #include <Windows.h>
 #include <string>
-#include "libstructstorage_global.h"
 
 #include "Objbase.h"
 #include "Objidl.h"
 
-//#include "IOLibrary/IODevice.h"
 
-std::string LIBSTRUCTSTORAGE_API getTimeFromFileTime(const FILETIME & file_time);
-std::string LIBSTRUCTSTORAGE_API getDateFromFileTime(const FILETIME & file_time);
-std::string LIBSTRUCTSTORAGE_API getDateTimeFromFileTime(const FILETIME & file_time);
-SYSTEMTIME LIBSTRUCTSTORAGE_API toSysTime(const FILETIME & file_time);
+std::string getTimeFromFileTime(const FILETIME & file_time);
+std::string getDateFromFileTime(const FILETIME & file_time);
+std::string getDateTimeFromFileTime(const FILETIME & file_time);
+SYSTEMTIME toSysTime(const FILETIME & file_time);
 
-std::string LIBSTRUCTSTORAGE_API toString(WORD nYear, const int size);
+std::string toString(WORD nYear, const int size);
 
 
-std::string LIBSTRUCTSTORAGE_API toYearString(WORD nYear);
-std::string LIBSTRUCTSTORAGE_API toStringDate(WORD nDateTime);
+std::string toYearString(WORD nYear);
+std::string toStringDate(WORD nDateTime);
 
 
 class FileDateTime

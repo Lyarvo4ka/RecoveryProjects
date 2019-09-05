@@ -32,11 +32,11 @@ namespace RAW
 		bool Specify(const uint64_t start_offset)
 		{
 
-			OLEReader ole_reader(this->getDevice() , start_offset);
-			ole_reader.read();
-			sizeToWrite = ole_reader.getFileSize();
-			if (sizeToWrite == 0)
-				return false;
+			//OLEReader ole_reader(this->getDevice() , start_offset);
+			//ole_reader.read();
+			//sizeToWrite = ole_reader.getFileSize();
+			//if (sizeToWrite == 0)
+			//	return false;
 			return true;
 		}
 
@@ -90,23 +90,23 @@ namespace RAW
 			auto filePtr = IO::makeFilePtr(file_path);
 			filePtr->OpenRead();
 
-			OLEReader oleReader(filePtr);
-			oleReader.read();
-			oleReader.readRoot();
-			filePtr->Close();
+			//OLEReader oleReader(filePtr);
+			//oleReader.read();
+			//oleReader.readRoot();
+			//filePtr->Close();
 
-			for (auto& keyword_entry : listOleKeywords)
-			{
-				if (oleReader.findKeywordEntry(keyword_entry))
-				{
-					auto new_extension = getExtensionFromKeyword(keyword_entry);
-					if (!new_extension.empty())
-					{
-						extension_ = new_extension;
-						break;
-					}
-				}
-			}
+			//for (auto& keyword_entry : listOleKeywords)
+			//{
+			//	if (oleReader.findKeywordEntry(keyword_entry))
+			//	{
+			//		auto new_extension = getExtensionFromKeyword(keyword_entry);
+			//		if (!new_extension.empty())
+			//		{
+			//			extension_ = new_extension;
+			//			break;
+			//		}
+			//	}
+			//}
 			//auto new_extemsion = getExtensionFromKeyword()
 
 		}
@@ -118,37 +118,37 @@ namespace RAW
 
 
 
-	void testOLE()
-	{
-		auto foldername = LR"(d:\incoming\46460\raw\)";
+	//void testOLE()
+	//{
+	//	auto foldername = LR"(d:\incoming\46460\raw\)";
 
-		IO::Finder finder;
-		finder.FindFiles(foldername);
+	//	IO::Finder finder;
+	//	finder.FindFiles(foldername);
 
-		for (auto& fileName : finder.getFiles())
-		{
+	//	for (auto& fileName : finder.getFiles())
+	//	{
 
-			//auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
-			//auto filename = LR"(d:\ole_test\Assy.dft)";
+	//		//auto filename = LR"(d:\ole_test\2012-08-05-10-29-0000344.doc)";
+	//		//auto filename = LR"(d:\ole_test\Assy.dft)";
 
-			auto filePtr = IO::makeFilePtr(fileName);
-			filePtr->OpenRead();
+	//		auto filePtr = IO::makeFilePtr(fileName);
+	//		filePtr->OpenRead();
 
-			OLEReader oleReader(filePtr);
-			oleReader.read();
-			oleReader.readRoot();
-			filePtr->Close();
+	//		OLEReader oleReader(filePtr);
+	//		oleReader.read();
+	//		oleReader.readRoot();
+	//		filePtr->Close();
 
-			OleAnalyzer ole_analyzer;
-			ole_analyzer.analyze(fileName);
-			auto new_extension = ole_analyzer.get_extension();
+	//		OleAnalyzer ole_analyzer;
+	//		ole_analyzer.analyze(fileName);
+	//		auto new_extension = ole_analyzer.get_extension();
 
-			if (!new_extension.empty())
-				fs::rename(fileName, fileName + new_extension);
+	//		if (!new_extension.empty())
+	//			fs::rename(fileName, fileName + new_extension);
 
 
 
-		}
+	//	}
 
-	}
+	//}
 }
