@@ -165,6 +165,7 @@
     <ClInclude Include="..\include\io\error.h" />
     <ClInclude Include="..\include\io\finder.h" />
     <ClInclude Include="..\include\io\fs.h" />
+    <ClInclude Include="..\include\io\functions.h" />
     <ClInclude Include="..\include\io\iodevice.h" />
     <ClInclude Include="..\include\io\ioengine.h" />
     <ClInclude Include="..\include\io\physicaldrive.h" />

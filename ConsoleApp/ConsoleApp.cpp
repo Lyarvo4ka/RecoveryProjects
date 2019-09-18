@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "raw/oleraw.h"
+#include "io/functions.h"
 
 const char s_ftyp[] = "ftyp";
 const char s_moov[] = "moov";
@@ -105,13 +106,56 @@ void testMP4_signature(const IO::path_string& folder)
 	}
 }
 
+void add_service(const IO::path_string& src_filename, const IO::path_string& dst_filename)
+{
+	const uint32_t fullpage_size = 18432;
+	const uint32_t numof_pages = 16;
+	const uint32_t data_size = 1024;
+
+	const uint32_t src_page_size = 16384;
+
+	IO::DataArray target(fullpage_size);
+	IO::DataArray source(src_page_size);
+
+	IO::File src(src_filename);
+	src.OpenRead();
+
+	IO::File dst(dst_filename);
+	dst.OpenCreate();
+
+	const uint32_t first_offset = data_size + 113;
+	uint32_t cur_offset = 0;
+	while (cur_offset < src.Size())
+	{
+		src.ReadData(source);
+
+		memset(target.data(), 0xFF, fullpage_size);
+		memcpy(target.data(), source.data(), data_size);
+
+		for (auto i = 0; i < 15; ++i)
+		{
+			auto src_offset = data_size * (i + 1);
+			auto dst_offset = first_offset + (data_size + 109) * i ;
+			memcpy(target.data() + dst_offset, source.data() + src_offset, data_size);
+
+		}
+		dst.WriteData(target.data(), target.size());
+		cur_offset += source.size();
+	}
+
+
+
+
+
+}
+
+
 int main()
 {
+	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");
+	IO::calcNullsForFolder(LR"(d:\PaboTa\46950\sample\)" , 131072);
 	//RAW::testOLE();
-	setlocale(LC_ALL, "Russian");
-	testMP4_signature(LR"(f:\46910\)");
 
-    std::cout << "Hello World!\n";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

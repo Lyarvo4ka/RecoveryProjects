@@ -39,6 +39,12 @@
     <ClInclude Include="..\include\raw\djvuraw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\raw\QuickTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\raw\GoPro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
