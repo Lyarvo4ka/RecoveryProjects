@@ -389,7 +389,33 @@ namespace RAW
 		}
 	};
 
+	const uint32_t GP_ID_SIZE = 20;
+	const uint32_t GP_ID_OFFSET = 176;
+	//using GP_ID = DataArray(GP_ID_SIZE);
 
+
+	QuickTimeList read_FTYP_MDAT(IODevicePtr device, const uint64_t start_offset)
+	{
+		QuickTimeList qt_list;
+		QuickTimeRaw qt_raw(device);
+		auto ftyp_offset = start_offset;
+		auto ftyp_handle = qt_raw.readQtAtom(ftyp_offset);
+		if (ftyp_handle.isValid() && ftyp_handle.compareKeyword(s_ftyp))
+		{
+			qt_list.push_back(ftyp_handle);
+
+			auto mdat_offset = ftyp_offset + ftyp_handle.size();
+			auto mdat_handle = qt_raw.readQtAtom(mdat_offset);
+			if (mdat_handle.isValid() && mdat_handle.compareKeyword(s_mdat))
+				qt_list.push_back(mdat_handle);
+
+		}
+	}
+
+	void AnalyzeGP(IODevicePtr device , File& target_file, const uint64_t start_offset)
+	{
+
+	}
 
 
 
