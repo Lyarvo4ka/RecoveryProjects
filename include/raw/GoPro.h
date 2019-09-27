@@ -13,6 +13,8 @@ namespace fs = std::experimental::filesystem;
 
 namespace RAW
 {
+	const uint32_t GP_ID_SIZE = 20;
+	const uint32_t GP_ID_OFFSET = 176;
 
 	const uint32_t default_nulls_boder = 230;//187;
 	const uint32_t default_number_together = 16;
@@ -389,8 +391,7 @@ namespace RAW
 		}
 	};
 
-	const uint32_t GP_ID_SIZE = 20;
-	const uint32_t GP_ID_OFFSET = 176;
+
 	//using GP_ID = DataArray(GP_ID_SIZE);
 
 
@@ -399,26 +400,57 @@ namespace RAW
 		QuickTimeList qt_list;
 		QuickTimeRaw qt_raw(device);
 		auto ftyp_offset = start_offset;
-		auto ftyp_handle = qt_raw.readQtAtom(ftyp_offset);
-		if (ftyp_handle.isValid() && ftyp_handle.compareKeyword(s_ftyp))
+		auto ftyp_handle = qt_raw.readQtAtomAndCompareTo(ftyp_offset, s_ftyp);
+		if (ftyp_handle.isValid())
 		{
 			qt_list.push_back(ftyp_handle);
 
 			auto mdat_offset = ftyp_offset + ftyp_handle.size();
-			auto mdat_handle = qt_raw.readQtAtom(mdat_offset);
-			if (mdat_handle.isValid() && mdat_handle.compareKeyword(s_mdat))
+			auto mdat_handle = qt_raw.readQtAtomAndCompareTo(mdat_offset, s_mdat);
+			if (mdat_handle.isValid())
 				qt_list.push_back(mdat_handle);
 
 		}
+		return qt_list;
 	}
 
-	void AnalyzeGP(IODevicePtr device , File& target_file, const uint64_t start_offset)
+
+
+	class GoProData
 	{
+		DataArray::Ptr id_;
+		STCO_Table tableInfo_;
+		std::vector<uint32_t> table_;
+	public:
+		void setID(DataArray::Ptr id_data)
+		{
+			id_ = std::move(id_data);
+		}
+	};
+
+
+	void AnalyzeGP(IODevicePtr device, File& target_file, const uint64_t start_offset)
+	{
+		uint32_t cluster_size = 131072;
+
+		auto atom_list = read_FTYP_MDAT(device, start_offset);
+
+		uint32_t moov_pos = start_offset;
+		for (auto& qt_atom : atom_list)
+			moov_pos += qt_atom.size();
+
+
+		GoProData gp_data;
+		auto id_data = makeDataArray(GP_ID_SIZE);
+		device->setPosition(start_offset + GP_ID_OFFSET);
+		device->ReadData(id_data->data(), id_data->size());
+		gp_data.setID(std::move(id_data));
+
+
+		// calc moov_pos
+
 
 	}
-
-
-
 	class GoProRaw
 		: public QuickTimeRaw
 	{

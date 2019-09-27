@@ -198,6 +198,10 @@ namespace RAW
 		{
 			valid_ = true;
 		}
+		void setInvalid()
+		{
+			valid_ = false;
+		}
 		bool isValid() const
 		{
 			return valid_;
@@ -270,6 +274,13 @@ namespace RAW
 				return QtHandle();
 
 			atom_handle.setSize(atom_size);
+			return atom_handle;
+		}
+		QtHandle readQtAtomAndCompareTo(const uint64_t start_offset , const std::string & keyword_name)
+		{
+			auto atom_handle = readQtAtom(start_offset);
+			if (!atom_handle.compareKeyword(keyword_name))
+				atom_handle.setInvalid();
 			return atom_handle;
 		}
 		uint64_t readAllQtAtoms(const uint64_t start_offset, QuickTimeList& keywordsList)
