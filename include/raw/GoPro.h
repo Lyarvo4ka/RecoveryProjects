@@ -422,11 +422,37 @@ namespace RAW
 		STCO_Table tableInfo_;
 		std::vector<uint32_t> table_;
 	public:
+		using Ptr = std::unique_ptr< GoProData>;
 		void setID(DataArray::Ptr id_data)
 		{
 			id_ = std::move(id_data);
 		}
 	};
+
+
+	class GPDataInfo
+	{
+		GoProData::Ptr mp4_;
+		GoProData::Ptr lrv_;
+	public:
+		void ReadGoProData(IODevicePtr device, const uint64_t start_offset, GoProData& gp_data)
+		{
+			auto id_data = makeDataArray(GP_ID_SIZE);
+			device->setPosition(start_offset + GP_ID_OFFSET);
+			device->ReadData(id_data->data(), id_data->size());
+			gp_data.setID(std::move(id_data));
+
+		}
+		void addMp4Data(GoProData::Ptr gp_data)
+		{
+			mp4_ = std::move(gp_data);
+		}
+		void addLRVData(GoProData::Ptr gp_data)
+		{
+			lrv_ = std::move(gp_data);
+		}
+	};
+
 
 
 	void AnalyzeGP(IODevicePtr device, File& target_file, const uint64_t start_offset)
@@ -441,13 +467,28 @@ namespace RAW
 
 
 		GoProData gp_data;
-		auto id_data = makeDataArray(GP_ID_SIZE);
-		device->setPosition(start_offset + GP_ID_OFFSET);
-		device->ReadData(id_data->data(), id_data->size());
-		gp_data.setID(std::move(id_data));
+		ReadGoProData(device, start_offset , gp_data);
 
+		DataArray cluster(cluster_size);
+		// find next QT header this must LRV(LowQuality)
+		uint64_t offset = start_offset + cluster_size;
+		while (offset < device->Size())
+		{
+			device->setPosition(offset);
+			device->ReadData(cluster.data(), cluster.size());
 
-		// calc moov_pos
+			for (uint32_t iSector = 0; iSector < cluster.size(); iSector += default_sector_size)
+			{
+				auto blockQt = (qt_block_t*)(cluster.data() + iSector);
+				if (cmp_keyword(*blockQt, s_ftyp))
+				{
+					uint64_t lrv_offset = offset + iSector;
+					GoProData lrv_data;
+					ReadGoProData(device, lrv_offset , lrv_data);
+
+				}
+			}
+		}
 
 
 	}
