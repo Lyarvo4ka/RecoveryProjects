@@ -415,42 +415,91 @@ namespace RAW
 	}
 
 
+	class MoovData
+	{
+		STCO_Table tableInfo_;
+		std::vector<uint32_t> table_;
+		uint64_t moov_offset_;
+
+	public:
+		void setMoovOffset(const uint64_t moov_offset)
+		{
+			moov_offset_ = moov_offset;
+		}
+	};
 
 	class GoProData
 	{
 		DataArray::Ptr id_;
-		STCO_Table tableInfo_;
-		std::vector<uint32_t> table_;
+
+		uint64_t offset_;
 	public:
 		using Ptr = std::unique_ptr< GoProData>;
 		void setID(DataArray::Ptr id_data)
 		{
 			id_ = std::move(id_data);
 		}
+		void setOffset(const uint64_t offset)
+		{
+			offset_ = offset;
+		}
+		uint64_t offset() const
+		{
+			return offset_;
+		}
+
+		DataArray* getID() const
+		{
+			return id_.get();
+		}
 	};
 
 
 	class GPDataInfo
 	{
+		IODevicePtr device_;
 		GoProData::Ptr mp4_;
 		GoProData::Ptr lrv_;
 	public:
-		void ReadGoProData(IODevicePtr device, const uint64_t start_offset, GoProData& gp_data)
+		GPDataInfo(IODevicePtr device)
+			: device_(device)
+		{
+		}
+		void readGoProData( const uint64_t start_offset, GoProData& gp_data)
 		{
 			auto id_data = makeDataArray(GP_ID_SIZE);
-			device->setPosition(start_offset + GP_ID_OFFSET);
-			device->ReadData(id_data->data(), id_data->size());
+			device_->setPosition(start_offset + GP_ID_OFFSET);
+			device_->ReadData(id_data->data(), id_data->size());
 			gp_data.setID(std::move(id_data));
 
 		}
-		void addMp4Data(GoProData::Ptr gp_data)
+		void readMp4Data(const uint64_t start_offset)
 		{
-			mp4_ = std::move(gp_data);
+			mp4_ = std::make_unique< GoProData>();
+			readGoProData(start_offset, *mp4_.get());
+			mp4_->setOffset(start_offset);
+
+	
 		}
-		void addLRVData(GoProData::Ptr gp_data)
+		void readLRVData(const uint64_t start_offset)
 		{
-			lrv_ = std::move(gp_data);
+			lrv_ = std::make_unique< GoProData>();
+			readGoProData(start_offset, *lrv_.get());
+			lrv_->setOffset(start_offset);
 		}
+		bool compare_IDs()
+		{
+			return mp4_->getID()->compareData(*lrv_->getID());
+		}
+		GoProData* getMP4()
+		{
+			return mp4_.get();
+		}
+		GoProData* getLRV()
+		{
+			return lrv_.get();
+		}
+		
 	};
 
 
@@ -466,8 +515,8 @@ namespace RAW
 			moov_pos += qt_atom.size();
 
 
-		GoProData gp_data;
-		ReadGoProData(device, start_offset , gp_data);
+		GPDataInfo gp_info(device);
+		gp_info.readMp4Data(start_offset);
 
 		DataArray cluster(cluster_size);
 		// find next QT header this must LRV(LowQuality)
@@ -483,13 +532,32 @@ namespace RAW
 				if (cmp_keyword(*blockQt, s_ftyp))
 				{
 					uint64_t lrv_offset = offset + iSector;
-					GoProData lrv_data;
-					ReadGoProData(device, lrv_offset , lrv_data);
+					gp_info.readLRVData(lrv_offset);
 
 				}
 			}
 		}
-
+		if (gp_info.compare_IDs())
+		{
+			auto find_offset = gp_info.getMP4()->offset();
+			DataArray cluster(cluster_size);
+			uint32_t find_pos = 0;
+			while (find_offset < device->Size())
+			{
+				device->setPosition(find_offset);
+				device->ReadData(cluster.data() , cluster.size());
+				find_pos = 0;
+				if (findMOOV_signature(cluster, find_pos))
+				{
+					auto moov_offset = find_offset + find_pos;
+					MoovData moovData;
+					moovData.setMoovOffset(moov_offset);
+				}
+			}
+			// start to find moov atom 
+			// 1 should for MP4
+			// 2 should for LRV
+		}
 
 	}
 	class GoProRaw
