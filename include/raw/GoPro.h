@@ -38,7 +38,7 @@ namespace RAW
 	};
 #pragma pack()
 
-	inline void createMarkerMapSTCO(const path_string & fileName, const uint32_t cluster_size)
+	inline void createMarkerMapSTCO(const path_string& fileName, const uint32_t cluster_size)
 	{
 		const std::string_view gp_keyword = "GP";
 
@@ -83,15 +83,15 @@ namespace RAW
 		qtFile.setPosition(table_pos - qt_keyword_size);
 
 		qt_block_t stco_block = { 0 };
-		qtFile.ReadData((ByteArray)&stco_block, sizeof(qt_block_t));
+		qtFile.ReadData((ByteArray)& stco_block, sizeof(qt_block_t));
 		toBE32(stco_block.block_size);
 
 		DataArray stco_data(stco_block.block_size);
 		qtFile.setPosition(table_pos - qt_keyword_size);
 		qtFile.ReadData(stco_data);
 
-		STCO_Table * pSCTO_Table = (STCO_Table *)stco_data.data();
-		uint32_t * posPointer = (uint32_t *)(stco_data.data() + sizeof(STCO_Table));
+		STCO_Table* pSCTO_Table = (STCO_Table*)stco_data.data();
+		uint32_t* posPointer = (uint32_t*)(stco_data.data() + sizeof(STCO_Table));
 
 		auto numberOf = pSCTO_Table->number_of_endries;
 
@@ -157,7 +157,7 @@ namespace RAW
 		File goProFile_;
 		bool bValid_ = false;
 	public:
-		GoProAnalyzer(const path_string & file_name)
+		GoProAnalyzer(const path_string& file_name)
 			: fileName_(file_name)
 			, goProFile_(file_name)
 		{
@@ -182,7 +182,7 @@ namespace RAW
 		{
 			goProFile_.Close();
 		}
-		bool find_stco_table(uint32_t & table_offset)
+		bool find_stco_table(uint32_t& table_offset)
 		{
 
 			uint64_t offset = goProFile_.Size() - getBlockSize();
@@ -208,10 +208,10 @@ namespace RAW
 			return false;
 		}
 
-		void Analyze(const IO::path_string & file_name) override
+		void Analyze(const IO::path_string& file_name) override
 		{
 			const std::string_view gp_keyword = "GP";
-			
+
 			goProFile_.OpenRead();
 
 			auto file_size = goProFile_.Size();
@@ -229,7 +229,7 @@ namespace RAW
 			goProFile_.setPosition(table_pos - qt_keyword_size);
 
 			qt_block_t stco_block = { 0 };
-			goProFile_.ReadData((ByteArray)&stco_block, sizeof(qt_block_t));
+			goProFile_.ReadData((ByteArray)& stco_block, sizeof(qt_block_t));
 			toBE32(stco_block.block_size);
 			if (stco_block.block_size > file_size)
 				return;
@@ -243,8 +243,8 @@ namespace RAW
 
 			goProFile_.setPosition(table_pos - qt_keyword_size);
 			goProFile_.ReadData(stco_data);
-			STCO_Table * pSCTO_Table = reinterpret_cast<STCO_Table*>(stco_data.data());
-			uint32_t * posPointer = reinterpret_cast<uint32_t *>(stco_data.data() + sizeof(STCO_Table));
+			STCO_Table* pSCTO_Table = reinterpret_cast<STCO_Table*>(stco_data.data());
+			uint32_t* posPointer = reinterpret_cast<uint32_t*>(stco_data.data() + sizeof(STCO_Table));
 
 			auto numberOf = pSCTO_Table->number_of_endries;
 
@@ -293,11 +293,11 @@ namespace RAW
 		{
 			endChunk_ = std::move(end_chunk);
 		}
-		DataArray * getEndChunk() const
+		DataArray* getEndChunk() const
 		{
 			return endChunk_.get();
 		}
-		DataArray * getMoovData() const
+		DataArray* getMoovData() const
 		{
 			return moovData_.get();
 		}
@@ -341,7 +341,7 @@ namespace RAW
 		{
 			return std::count_if(startIter, startIter + number_together_, [=](const uint32_t nulls_val) {
 				return nulls_val > nulls_border_;
-			});
+				});
 			return 0;
 		}
 		uint32_t countOfSixteen(const size_t position)
@@ -417,37 +417,52 @@ namespace RAW
 
 	class MoovData
 	{
+		QtHandle moovHandle_;
 		STCO_Table tableInfo_;
 		std::vector<uint32_t> table_;
-		uint64_t moov_offset_;
 
 	public:
-		void setMoovOffset(const uint64_t moov_offset)
+		MoovData(const QtHandle& moov_handle)
+			:moovHandle_(moov_handle)
 		{
-			moov_offset_ = moov_offset;
+
+		}
+		const QtHandle& getHandle() const
+		{
+			return moovHandle_;
+		}
+		void setSTCO_table(const STCO_Table& stco_table)
+		{
+			tableInfo_ = stco_table;
 		}
 	};
 
 	class GoProData
 	{
 		DataArray::Ptr id_;
+		QtHandle ftypHandle_;
 
-		uint64_t offset_;
 	public:
 		using Ptr = std::unique_ptr< GoProData>;
+		GoProData(const QtHandle& ftyp_handle)
+			:ftypHandle_(ftyp_handle)
+		{
+
+		}
 		void setID(DataArray::Ptr id_data)
 		{
 			id_ = std::move(id_data);
 		}
-		void setOffset(const uint64_t offset)
+		const QtHandle& getHandle() const
 		{
-			offset_ = offset;
+			return ftypHandle_;
 		}
-		uint64_t offset() const
+		bool compareIDs(const GoProData& compareTo) const
 		{
-			return offset_;
+			if (id_->size() != compareTo.getID()->size())
+				return memcmp(id_->data(), compareTo.getID()->data(), id_->size()) == 0;
+			return false;
 		}
-
 		DataArray* getID() const
 		{
 			return id_.get();
@@ -455,111 +470,135 @@ namespace RAW
 	};
 
 
-	class GPDataInfo
+
+
+	class GP_Analyzer
 	{
 		IODevicePtr device_;
+		uint32_t cluster_size_ = 131072;
 		GoProData::Ptr mp4_;
 		GoProData::Ptr lrv_;
+
 	public:
-		GPDataInfo(IODevicePtr device)
-			: device_(device)
+		GP_Analyzer(IODevicePtr device)
+			:device_(device)
+		{}
+		void AnalyzeGP( File& target_file, const uint64_t start_offset)
 		{
-		}
-		void readGoProData( const uint64_t start_offset, GoProData& gp_data)
-		{
-			auto id_data = makeDataArray(GP_ID_SIZE);
-			device_->setPosition(start_offset + GP_ID_OFFSET);
-			device_->ReadData(id_data->data(), id_data->size());
-			gp_data.setID(std::move(id_data));
+			auto atom_list = read_FTYP_MDAT(device_, start_offset);
 
-		}
-		void readMp4Data(const uint64_t start_offset)
-		{
-			mp4_ = std::make_unique< GoProData>();
-			readGoProData(start_offset, *mp4_.get());
-			mp4_->setOffset(start_offset);
-
-	
-		}
-		void readLRVData(const uint64_t start_offset)
-		{
-			lrv_ = std::make_unique< GoProData>();
-			readGoProData(start_offset, *lrv_.get());
-			lrv_->setOffset(start_offset);
-		}
-		bool compare_IDs()
-		{
-			return mp4_->getID()->compareData(*lrv_->getID());
-		}
-		GoProData* getMP4()
-		{
-			return mp4_.get();
-		}
-		GoProData* getLRV()
-		{
-			return lrv_.get();
-		}
-		
-	};
+			uint32_t moov_pos = start_offset;
+			for (auto& qt_atom : atom_list)
+				moov_pos += qt_atom.size();
 
 
-
-	void AnalyzeGP(IODevicePtr device, File& target_file, const uint64_t start_offset)
-	{
-		uint32_t cluster_size = 131072;
-
-		auto atom_list = read_FTYP_MDAT(device, start_offset);
-
-		uint32_t moov_pos = start_offset;
-		for (auto& qt_atom : atom_list)
-			moov_pos += qt_atom.size();
+			mp4_ = readGoProData(start_offset);
 
 
-		GPDataInfo gp_info(device);
-		gp_info.readMp4Data(start_offset);
+			// find next QT header this must LRV(LowQuality)
+			uint64_t offset = start_offset + cluster_size_;
+			uint64_t lrv_offset = 0;
+			if (!findNextQtHeader(offset , lrv_offset))
+				return ;
 
-		DataArray cluster(cluster_size);
-		// find next QT header this must LRV(LowQuality)
-		uint64_t offset = start_offset + cluster_size;
-		while (offset < device->Size())
-		{
-			device->setPosition(offset);
-			device->ReadData(cluster.data(), cluster.size());
+			lrv_ = readGoProData(lrv_offset);
 
-			for (uint32_t iSector = 0; iSector < cluster.size(); iSector += default_sector_size)
+			if (mp4_->compareIDs(*lrv_.get())
 			{
-				auto blockQt = (qt_block_t*)(cluster.data() + iSector);
-				if (cmp_keyword(*blockQt, s_ftyp))
-				{
-					uint64_t lrv_offset = offset + iSector;
-					gp_info.readLRVData(lrv_offset);
+				// start to find moov atom 
+				// 1 should for MP4
+				// 2 should for LRV
 
-				}
+				auto mp4_moov_offset = mp4_->getHandle().offset();
+
 			}
+
 		}
-		if (gp_info.compare_IDs())
+		void findMOOV(const uint64_t start_offset)
 		{
-			auto find_offset = gp_info.getMP4()->offset();
-			DataArray cluster(cluster_size);
+			auto find_offset = start_offset;
+			DataArray cluster(cluster_size_);
 			uint32_t find_pos = 0;
-			while (find_offset < device->Size())
+			while (find_offset < device_->Size())
 			{
-				device->setPosition(find_offset);
-				device->ReadData(cluster.data() , cluster.size());
+				device_->setPosition(find_offset);
+				device_->ReadData(cluster.data(), cluster.size());
 				find_pos = 0;
 				if (findMOOV_signature(cluster, find_pos))
 				{
 					auto moov_offset = find_offset + find_pos;
-					MoovData moovData;
-					moovData.setMoovOffset(moov_offset);
+					QuickTimeRaw qt_raw(device_);
+					auto moov_handle = qt_raw.readQtAtom(moov_offset);
+					if (moov_handle.isValid())
+					{
+						MoovData moovData(moov_handle);
+						uint64_t moov_start = moovData.getHandle().offset();
+						
+						DataArray moov_data(moovData.getHandle().size());
+						device_->setPosition(moov_start);
+						device_->ReadData(moov_data.data() , moov_data.size());
+						uint32_t table_pos = 0;
+						if (findTextTnBlockFromEnd(moov_data, stco_table_name, table_pos))
+						{
+							table_pos = offset + cluster_size - table_pos - 4;
+						}
+
+					}
+
 				}
 			}
-			// start to find moov atom 
-			// 1 should for MP4
-			// 2 should for LRV
+
+		}
+		bool findNextQtHeader( const uint64_t next_offset , uint64_t &found_pos)
+		{
+			auto offset = next_offset;
+			DataArray cluster(cluster_size_);
+			while (offset < device_->Size())
+			{
+				device_->setPosition(offset);
+				device_->ReadData(cluster.data(), cluster.size());
+
+				for (uint32_t iSector = 0; iSector < cluster.size(); iSector += default_sector_size)
+				{
+					auto blockQt = (qt_block_t*)(cluster.data() + iSector);
+					if (cmp_keyword(*blockQt, s_ftyp))
+					{
+						uint64_t found_pos = offset + iSector;
+						return true;
+
+
+					}
+				}
+				offset += cluster.size();
+			}
+			return false;
+		}
+		GoProData::Ptr readGoProData(const uint64_t start_offset)
+		{
+			QuickTimeRaw qt_raw(device_);
+
+			auto ftyp_handle = qt_raw.readQtAtom(start_offset);
+			auto gp_data = std::make_unique< GoProData>(ftyp_handle);
+
+			auto id_data = makeDataArray(GP_ID_SIZE);
+			device_->setPosition(start_offset + GP_ID_OFFSET);
+			device_->ReadData(id_data->data(), id_data->size());
+			gp_data->setID(std::move(id_data));
+			return gp_data;
+
+		}
+		void readMp4Data(const uint64_t start_offset)
+		{
+			mp4_ = readGoProData(start_offset);
+		}
+		void readLRVData(const uint64_t start_offset)
+		{
+			lrv_ = readGoProData(start_offset);
 		}
 
-	}
+
+	};
+
 	class GoProRaw
 		: public QuickTimeRaw
 	{

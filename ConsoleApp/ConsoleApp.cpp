@@ -5,106 +5,106 @@
 
 #include "raw/oleraw.h"
 #include "io/functions.h"
-
-const char s_ftyp[] = "ftyp";
-const char s_moov[] = "moov";
-const char s_mdat[] = "mdat";
-const char s_wide[] = "wide";
-const char s_skip[] = "skip";
-const char s_free[] = "free";
-const char s_pnot[] = "pnot";
-const char s_prfl[] = "prfl";
-const char s_mvhd[] = "mvhd";
-const char s_clip[] = "clip";
-const char s_trak[] = "trak";
-const char s_udta[] = "udta";
-const char s_ctab[] = "ctab";
-const char s_cmov[] = "cmov";
-const char s_rmra[] = "rmra";
-const char s_uuid[] = "uuid";
-const char s_meta[] = "meta";
-
-
-inline bool isQtSignature(const uint8_t* qt_header, const uint32_t size)
-{
-	if (memcmp(qt_header, s_ftyp, size) == 0)
-		return true;
-	else if (memcmp(qt_header, s_moov, size) == 0)
-		return true;
-	else if (memcmp(qt_header, s_mdat, size) == 0)
-		return true;
-	else if (memcmp(qt_header, s_wide, size) == 0)
-		return true;
-
-
-	return false;
-}
-
-inline void testSignatureMP4(const IO::path_string& filePath)
-{
-	auto test_file = IO::makeFilePtr(filePath);
-	const uint32_t offset = 4;
-	const uint32_t header_size = 4;
-	uint8_t buff[header_size];
-	ZeroMemory(buff, header_size);
-	if (test_file->Open(IO::OpenMode::OpenRead))
-	{
-		if (test_file->Size() >= header_size)
-		{
-			test_file->setPosition(offset);
-			test_file->ReadData(buff, header_size);
-			test_file->Close();
-
-			if (isQtSignature(buff, header_size) == false)
-			{
-				auto new_file_name = filePath + L".bad_file";
-				std::wcout << new_file_name.c_str() << std::endl;
-				fs::rename(filePath, new_file_name);
-			}
-		}
-
-	}
-
-
-}
-
-
-void testMP4_signature(const IO::path_string& folder)
-{
-	IO::Finder finder;
-	finder.add_extension(L".mov");
-	finder.add_extension(L".mp4");
-	finder.add_extension(L".3gp");
-	finder.add_extension(L".3gpp");
-	finder.add_extension(L".m4a");
-	//finder.add_extension(L".msdoc");
-	finder.FindFiles(folder);
-	auto fileList = finder.getFiles();
-
-	for (auto& theFile : fileList)
-	{
-		try {
-			std::wcout << theFile.c_str();
-			testSignatureMP4(theFile);
-			std::wcout <<L" - OK" <<std::endl;
-		}
-		catch (IO::Error::IOErrorException& ex)
-		{
-			const char* text = ex.what();
-			std::cout << " Cougth exception " << text;
-
-		}
-		catch (fs::filesystem_error &fs_error)
-		{
-			std::cout << " Cougth exception " << fs_error.what();
-			int k = 1;
-			k = 2;
-
-		}
-
-
-	}
-}
+//
+//const char s_ftyp[] = "ftyp";
+//const char s_moov[] = "moov";
+//const char s_mdat[] = "mdat";
+//const char s_wide[] = "wide";
+//const char s_skip[] = "skip";
+//const char s_free[] = "free";
+//const char s_pnot[] = "pnot";
+//const char s_prfl[] = "prfl";
+//const char s_mvhd[] = "mvhd";
+//const char s_clip[] = "clip";
+//const char s_trak[] = "trak";
+//const char s_udta[] = "udta";
+//const char s_ctab[] = "ctab";
+//const char s_cmov[] = "cmov";
+//const char s_rmra[] = "rmra";
+//const char s_uuid[] = "uuid";
+//const char s_meta[] = "meta";
+//
+//
+//inline bool isQtSignature(const uint8_t* qt_header, const uint32_t size)
+//{
+//	if (memcmp(qt_header, s_ftyp, size) == 0)
+//		return true;
+//	else if (memcmp(qt_header, s_moov, size) == 0)
+//		return true;
+//	else if (memcmp(qt_header, s_mdat, size) == 0)
+//		return true;
+//	else if (memcmp(qt_header, s_wide, size) == 0)
+//		return true;
+//
+//
+//	return false;
+//}
+//
+//inline void testSignatureMP4(const IO::path_string& filePath)
+//{
+//	auto test_file = IO::makeFilePtr(filePath);
+//	const uint32_t offset = 4;
+//	const uint32_t header_size = 4;
+//	uint8_t buff[header_size];
+//	ZeroMemory(buff, header_size);
+//	if (test_file->Open(IO::OpenMode::OpenRead))
+//	{
+//		if (test_file->Size() >= header_size)
+//		{
+//			test_file->setPosition(offset);
+//			test_file->ReadData(buff, header_size);
+//			test_file->Close();
+//
+//			if (isQtSignature(buff, header_size) == false)
+//			{
+//				auto new_file_name = filePath + L".bad_file";
+//				std::wcout << new_file_name.c_str() << std::endl;
+//				fs::rename(filePath, new_file_name);
+//			}
+//		}
+//
+//	}
+//
+//
+//}
+//
+//
+//void testMP4_signature(const IO::path_string& folder)
+//{
+//	IO::Finder finder;
+//	finder.add_extension(L".mov");
+//	finder.add_extension(L".mp4");
+//	finder.add_extension(L".3gp");
+//	finder.add_extension(L".3gpp");
+//	finder.add_extension(L".m4a");
+//	//finder.add_extension(L".msdoc");
+//	finder.FindFiles(folder);
+//	auto fileList = finder.getFiles();
+//
+//	for (auto& theFile : fileList)
+//	{
+//		try {
+//			std::wcout << theFile.c_str();
+//			testSignatureMP4(theFile);
+//			std::wcout <<L" - OK" <<std::endl;
+//		}
+//		catch (IO::Error::IOErrorException& ex)
+//		{
+//			const char* text = ex.what();
+//			std::cout << " Cougth exception " << text;
+//
+//		}
+//		catch (fs::filesystem_error &fs_error)
+//		{
+//			std::cout << " Cougth exception " << fs_error.what();
+//			int k = 1;
+//			k = 2;
+//
+//		}
+//
+//
+//	}
+//}
 
 void add_service(const IO::path_string& src_filename, const IO::path_string& dst_filename)
 {
@@ -149,11 +149,20 @@ void add_service(const IO::path_string& src_filename, const IO::path_string& dst
 
 }
 
+#include "raw/GoPro.h"
 
 int main()
 {
+	auto fileName = LR"(d:\PaboTa\46950\46950)";
+	auto file_ptr = IO::makeFilePtr(fileName);
+	file_ptr->OpenRead();
+	IO::File target_file(LR"(d:\PaboTa\46950\test.bin)");
+	target_file.OpenCreate();
+	uint64_t start_offset = 34996224;
+	RAW::AnalyzeGP(file_ptr, target_file, start_offset);
+
 	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");
-	IO::calcNullsForFolder(LR"(d:\PaboTa\46950\sample\)" , 131072);
+	//IO::calcNullsForFolder(LR"(d:\PaboTa\46950\sample\)" , 131072);
 	//RAW::testOLE();
 
 }
