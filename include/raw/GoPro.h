@@ -13,8 +13,8 @@ namespace fs = std::experimental::filesystem;
 
 namespace RAW
 {
-	const uint32_t GP_ID_SIZE = 20;
-	const uint32_t GP_ID_OFFSET = 176;
+	const uint32_t GP_ID_SIZE = 34;
+	const uint32_t GP_ID_OFFSET = 256;
 
 	const uint32_t default_nulls_boder = 230;//187;
 	const uint32_t default_number_together = 16;
@@ -422,7 +422,7 @@ namespace RAW
 		std::vector<uint32_t> table_;
 
 	public:
-		MoovData(const QtHandle& moov_handle)
+		MoovData(const QtHandle& moov_handle = QtHandle())
 			:moovHandle_(moov_handle)
 		{
 
@@ -435,13 +435,19 @@ namespace RAW
 		{
 			tableInfo_ = stco_table;
 		}
+		void addValuesToTable(uint32_t* values , uint32_t numberOf)
+		{
+			table_.clear();
+			table_.reserve(numberOf);
+			std::copy(&values[0], &values[numberOf], std::back_inserter(table_));
+			std::for_each(std::begin(table_), std::end(table_), [](uint32_t& val) { toBE32(val); });
+		}
 	};
 
 	class GoProData
 	{
 		DataArray::Ptr id_;
 		QtHandle ftypHandle_;
-
 	public:
 		using Ptr = std::unique_ptr< GoProData>;
 		GoProData(const QtHandle& ftyp_handle)
@@ -459,7 +465,7 @@ namespace RAW
 		}
 		bool compareIDs(const GoProData& compareTo) const
 		{
-			if (id_->size() != compareTo.getID()->size())
+			if (id_->size() == compareTo.getID()->size())
 				return memcmp(id_->data(), compareTo.getID()->data(), id_->size()) == 0;
 			return false;
 		}
@@ -478,11 +484,16 @@ namespace RAW
 		uint32_t cluster_size_ = 131072;
 		GoProData::Ptr mp4_;
 		GoProData::Ptr lrv_;
+		MoovData mp4Moov_;
+		MoovData lrvMoov_;
 
 	public:
 		GP_Analyzer(IODevicePtr device)
 			:device_(device)
-		{}
+		{
+			mp4Moov_ = MoovData(QtHandle());
+			lrvMoov_ = MoovData(QtHandle());
+		}
 		void AnalyzeGP( File& target_file, const uint64_t start_offset)
 		{
 			auto atom_list = read_FTYP_MDAT(device_, start_offset);
@@ -503,18 +514,27 @@ namespace RAW
 
 			lrv_ = readGoProData(lrv_offset);
 
-			if (mp4_->compareIDs(*lrv_.get())
+			if (mp4_->compareIDs(*lrv_.get()))
 			{
 				// start to find moov atom 
 				// 1 should for MP4
 				// 2 should for LRV
 
-				auto mp4_moov_offset = mp4_->getHandle().offset();
+				auto mp4_startToFindOffset = mp4_->getHandle().offset();
+				mp4Moov_ = findMOOVData(mp4_startToFindOffset);
+				if (!mp4Moov_.getHandle().isValid())
+					return;
+
+				auto lrv_startToFindOffset = mp4Moov_.getHandle().offset() + mp4Moov_.getHandle().size();
+
+				lrvMoov_ = findMOOVData(lrv_startToFindOffset);
+				if (!lrvMoov_.getHandle().isValid())
+					return;
 
 			}
 
 		}
-		void findMOOV(const uint64_t start_offset)
+		MoovData findMOOVData(const uint64_t start_offset)
 		{
 			auto find_offset = start_offset;
 			DataArray cluster(cluster_size_);
@@ -526,7 +546,7 @@ namespace RAW
 				find_pos = 0;
 				if (findMOOV_signature(cluster, find_pos))
 				{
-					auto moov_offset = find_offset + find_pos;
+					auto moov_offset = find_offset + find_pos - 4;
 					QuickTimeRaw qt_raw(device_);
 					auto moov_handle = qt_raw.readQtAtom(moov_offset);
 					if (moov_handle.isValid())
@@ -540,14 +560,23 @@ namespace RAW
 						uint32_t table_pos = 0;
 						if (findTextTnBlockFromEnd(moov_data, stco_table_name, table_pos))
 						{
-							table_pos = offset + cluster_size - table_pos - 4;
+							table_pos -= 4;
+							auto stco_table_info = (STCO_Table*)(moov_data.data() + table_pos);
+							toBE32(stco_table_info->number_of_endries);
+							moovData.setSTCO_table(*stco_table_info);
+							auto pTableValues = (uint32_t*)(moov_data.data() + table_pos + sizeof(STCO_Table));
+							moovData.addValuesToTable(pTableValues, stco_table_info->number_of_endries);
+							
+
+							return moovData;
 						}
 
 					}
 
 				}
+				find_offset += cluster_size_;
 			}
-
+			return MoovData(QtHandle());
 		}
 		bool findNextQtHeader( const uint64_t next_offset , uint64_t &found_pos)
 		{
@@ -563,7 +592,7 @@ namespace RAW
 					auto blockQt = (qt_block_t*)(cluster.data() + iSector);
 					if (cmp_keyword(*blockQt, s_ftyp))
 					{
-						uint64_t found_pos = offset + iSector;
+						found_pos = offset + iSector;
 						return true;
 
 

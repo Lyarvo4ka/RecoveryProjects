@@ -112,7 +112,7 @@ namespace RAW
 
 			if (memcmp(data_array.data() + temp_pos, textToFind.data(), textToFind.length()) == 0)
 			{
-				position = pos;
+				position = temp_pos;
 				return true;
 			}
 		}

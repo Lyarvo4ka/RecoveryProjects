@@ -27,6 +27,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApp", "ConsoleApp\Co
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libole", "libole\libole.vcxproj", "{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{5904B0C6-85D0-477B-A757-7BB81F0A6D17}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libiotest", "test\libiotest\libiotest.vcxproj", "{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -99,6 +103,14 @@ Global
 		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x64.Build.0 = Release|x64
 		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x86.ActiveCfg = Release|Win32
 		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB}.Release|x86.Build.0 = Release|Win32
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Debug|x64.ActiveCfg = Debug|x64
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Debug|x64.Build.0 = Debug|x64
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Debug|x86.ActiveCfg = Debug|Win32
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Debug|x86.Build.0 = Debug|Win32
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Release|x64.ActiveCfg = Release|x64
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Release|x64.Build.0 = Release|x64
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Release|x86.ActiveCfg = Release|Win32
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +125,7 @@ Global
 		{DC3D0320-205B-4E81-B6D0-5DCB4B196E76} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
 		{A2EF600C-9B77-473A-8882-13E66970EAF0} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
 		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB} = {1AEC6750-5B55-444D-BBEC-9C16607F0EC9}
+		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41} = {5904B0C6-85D0-477B-A757-7BB81F0A6D17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11E3E18F-0E47-494E-881A-A4A95B3B4D7F}

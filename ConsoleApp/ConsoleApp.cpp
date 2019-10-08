@@ -159,7 +159,9 @@ int main()
 	IO::File target_file(LR"(d:\PaboTa\46950\test.bin)");
 	target_file.OpenCreate();
 	uint64_t start_offset = 34996224;
-	RAW::AnalyzeGP(file_ptr, target_file, start_offset);
+	RAW::GP_Analyzer gp_analyzer(file_ptr);
+	gp_analyzer.AnalyzeGP(target_file, start_offset);
+
 
 	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");
 	//IO::calcNullsForFolder(LR"(d:\PaboTa\46950\sample\)" , 131072);
