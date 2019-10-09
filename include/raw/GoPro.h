@@ -9,6 +9,8 @@
 
 #include <experimental/filesystem>
 
+#include "io/functions.h"
+
 namespace fs = std::experimental::filesystem;
 
 namespace RAW
@@ -418,7 +420,7 @@ namespace RAW
 	class MoovData
 	{
 		QtHandle moovHandle_;
-		STCO_Table tableInfo_;
+		STCO_Table tableInfo_ = {0};
 		std::vector<uint32_t> table_;
 
 	public:
@@ -441,6 +443,10 @@ namespace RAW
 			table_.reserve(numberOf);
 			std::copy(&values[0], &values[numberOf], std::back_inserter(table_));
 			std::for_each(std::begin(table_), std::end(table_), [](uint32_t& val) { toBE32(val); });
+		}
+		const std::vector<uint32_t>& getTable() const
+		{
+			return table_;
 		}
 	};
 
@@ -486,6 +492,7 @@ namespace RAW
 		GoProData::Ptr lrv_;
 		MoovData mp4Moov_;
 		MoovData lrvMoov_;
+		FilePtr tempFilePtr_;
 
 	public:
 		GP_Analyzer(IODevicePtr device)
@@ -509,6 +516,7 @@ namespace RAW
 			// find next QT header this must LRV(LowQuality)
 			uint64_t offset = start_offset + cluster_size_;
 			uint64_t lrv_offset = 0;
+
 			if (!findNextQtHeader(offset , lrv_offset))
 				return ;
 
@@ -530,6 +538,36 @@ namespace RAW
 				lrvMoov_ = findMOOVData(lrv_startToFindOffset);
 				if (!lrvMoov_.getHandle().isValid())
 					return;
+
+				auto tempFilepath = target_file.getFileName() + L".temp";
+				tempFilePtr_ = makeFilePtr(tempFilepath);
+				tempFilePtr_->OpenCreate();
+
+				uint64_t end_offset = lrvMoov_.getHandle().offset() + lrvMoov_.getHandle().size();
+				end_offset /= cluster_size_;
+				end_offset += 1;
+				end_offset *= cluster_size_;
+
+				uint64_t temp_file_size = end_offset - start_offset;
+
+				appendDataToFile(device_, start_offset, *tempFilePtr_.get(), temp_file_size);
+
+				uint32_t clusters = temp_file_size / cluster_size_;
+
+				uint64_t lrv_start_offset = lrv_offset - start_offset;
+				uint32_t lrv_start_cluster = lrv_start_offset / cluster_size_;
+
+				std::vector<uint32_t> cluster_map(clusters, 0);
+				cluster_map.at(lrv_start_cluster) = 1;
+
+				for (auto iPos : lrvMoov_.getTable())
+				{
+					uint32_t curCluster = iPos / cluster_size_;
+				}
+
+
+				int k = 1;
+				k = 2;
 
 			}
 
