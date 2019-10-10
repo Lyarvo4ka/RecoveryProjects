@@ -153,12 +153,12 @@ void add_service(const IO::path_string& src_filename, const IO::path_string& dst
 
 int main()
 {
-	auto fileName = LR"(d:\PaboTa\46950\46950)";
+	auto fileName = LR"(e:\46950\Free_space.bin)";
 	auto file_ptr = IO::makeFilePtr(fileName);
 	file_ptr->OpenRead();
-	IO::File target_file(LR"(d:\PaboTa\46950\test.bin)");
+	IO::File target_file(LR"(d:\PaboTa\46950\test.mp4)");
 	target_file.OpenCreate();
-	uint64_t start_offset = 34996224;
+	uint64_t start_offset = 10675814400;
 	RAW::GP_Analyzer gp_analyzer(file_ptr);
 	gp_analyzer.AnalyzeGP(target_file, start_offset);
 

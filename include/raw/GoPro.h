@@ -21,6 +21,8 @@ namespace RAW
 	const uint32_t default_nulls_boder = 230;//187;
 	const uint32_t default_number_together = 16;
 	const uint32_t GP_TOGHER_LIMIT = 5;
+	const std::string_view gp_keyword = "GP";
+
 
 	inline static std::string clusterNullsToSstring(const uint32_t cluster_number, const uint32_t number_nulls)
 	{
@@ -42,7 +44,6 @@ namespace RAW
 
 	inline void createMarkerMapSTCO(const path_string& fileName, const uint32_t cluster_size)
 	{
-		const std::string_view gp_keyword = "GP";
 
 		auto txt_file_name = fileName + L".txt";
 		File txt_file(txt_file_name);
@@ -423,6 +424,9 @@ namespace RAW
 		STCO_Table tableInfo_ = {0};
 		std::vector<uint32_t> table_;
 
+		size_t curElement_ = 0;
+		uint32_t curCluster_ = 0;
+
 	public:
 		MoovData(const QtHandle& moov_handle = QtHandle())
 			:moovHandle_(moov_handle)
@@ -447,6 +451,25 @@ namespace RAW
 		const std::vector<uint32_t>& getTable() const
 		{
 			return table_;
+		}
+		bool cmpWithTableOffset(const DataArray &cluster )
+		{
+			bool isLRV = false;
+			while (curElement_ < table_.size())
+			{
+				auto pos = table_.at(curElement_) % cluster.size();
+				if (memcmp(cluster.data() + pos, gp_keyword.data(), gp_keyword.size()) == 0)
+					isLRV = true;
+				else
+					break;
+
+				++curElement_;
+
+			}
+			if (isLRV)
+				++curCluster_;
+
+			return isLRV;
 		}
 	};
 
@@ -493,6 +516,8 @@ namespace RAW
 		MoovData mp4Moov_;
 		MoovData lrvMoov_;
 		FilePtr tempFilePtr_;
+		DataArray::Ptr endData_;
+		DataArray::Ptr moovBlock_;
 
 	public:
 		GP_Analyzer(IODevicePtr device)
@@ -507,7 +532,11 @@ namespace RAW
 
 			uint32_t moov_pos = start_offset;
 			for (auto& qt_atom : atom_list)
-				moov_pos += qt_atom.size();
+			{
+				auto tmp = qt_atom.size();
+				toBE64(tmp);
+				moov_pos += tmp;
+			}
 
 
 			mp4_ = readGoProData(start_offset);
@@ -532,6 +561,10 @@ namespace RAW
 				mp4Moov_ = findMOOVData(mp4_startToFindOffset);
 				if (!mp4Moov_.getHandle().isValid())
 					return;
+
+				
+
+				
 
 				auto lrv_startToFindOffset = mp4Moov_.getHandle().offset() + mp4Moov_.getHandle().size();
 
@@ -558,12 +591,48 @@ namespace RAW
 				uint32_t lrv_start_cluster = lrv_start_offset / cluster_size_;
 
 				std::vector<uint32_t> cluster_map(clusters, 0);
-				cluster_map.at(lrv_start_cluster) = 1;
 
-				for (auto iPos : lrvMoov_.getTable())
+				DataArray cluster(cluster_size_);
+
+				uint64_t lrv_cur_pos = lrv_offset;
+				for (auto i = lrv_start_cluster; i < cluster_map.size(); ++i)
 				{
-					uint32_t curCluster = iPos / cluster_size_;
+					if ((lrv_cur_pos + cluster_size_) > device_->Size())
+						break;
+
+					device_->setPosition(lrv_cur_pos);
+					device_->ReadData(cluster.data(), cluster.size());
+					if (lrvMoov_.cmpWithTableOffset(cluster))
+						cluster_map.at(i) = 1;
+					lrv_cur_pos += cluster_size_;
 				}
+
+				auto mp4_offset = start_offset;
+				for (auto i = 0; i < cluster_map.size(); ++i)
+				{
+					uint64_t read_pos = start_offset + i * cluster_size_;
+					if (cluster_map.at(i) == 0)
+					{
+						device_->setPosition(read_pos);
+						device_->ReadData(cluster.data(), cluster.size());
+						target_file.WriteData(cluster.data(), cluster.size());
+
+					}
+
+				}
+
+
+				//uint64_t end_size = mp4_startToFindOffset % cluster_size_;
+				//endData_ = makeDataArray(end_size);
+				//device_->setPosition(mp4_startToFindOffset - end_size);
+				//device_->ReadData(endData_->data(), endData_->size());
+
+
+				moovBlock_ = makeDataArray(mp4Moov_.getHandle().size());
+				device_->setPosition(mp4_startToFindOffset);
+				device_->ReadData(moovBlock_->data(), moovBlock_->size());
+				target_file.setPosition(moov_pos);
+				target_file.WriteData(moovBlock_->data(), moovBlock_->size());
 
 
 				int k = 1;
