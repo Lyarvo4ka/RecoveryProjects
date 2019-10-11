@@ -526,17 +526,14 @@ namespace RAW
 			mp4Moov_ = MoovData(QtHandle());
 			lrvMoov_ = MoovData(QtHandle());
 		}
-		void AnalyzeGP( File& target_file, const uint64_t start_offset)
+		uint64_t AnalyzeGP( File& target_file, const uint64_t start_offset)
 		{
+			auto file_size = 0;
 			auto atom_list = read_FTYP_MDAT(device_, start_offset);
 
-			uint32_t moov_pos = start_offset;
+			uint32_t firstPartSize = 0;
 			for (auto& qt_atom : atom_list)
-			{
-				auto tmp = qt_atom.size();
-				toBE64(tmp);
-				moov_pos += tmp;
-			}
+				firstPartSize += qt_atom.size();;
 
 
 			mp4_ = readGoProData(start_offset);
@@ -547,7 +544,7 @@ namespace RAW
 			uint64_t lrv_offset = 0;
 
 			if (!findNextQtHeader(offset , lrv_offset))
-				return ;
+				return 0;
 
 			lrv_ = readGoProData(lrv_offset);
 
@@ -560,7 +557,7 @@ namespace RAW
 				auto mp4_startToFindOffset = mp4_->getHandle().offset();
 				mp4Moov_ = findMOOVData(mp4_startToFindOffset);
 				if (!mp4Moov_.getHandle().isValid())
-					return;
+					return 0;
 
 				
 
@@ -570,7 +567,7 @@ namespace RAW
 
 				lrvMoov_ = findMOOVData(lrv_startToFindOffset);
 				if (!lrvMoov_.getHandle().isValid())
-					return;
+					return 0;
 
 				auto tempFilepath = target_file.getFileName() + L".temp";
 				tempFilePtr_ = makeFilePtr(tempFilepath);
@@ -620,26 +617,33 @@ namespace RAW
 					}
 
 				}
+				//moovBlock_ = makeDataArray(mp4Moov_.getHandle().size());
+				//device_->setPosition(mp4Moov_.getHandle().offset());
+				//device_->ReadData(moovBlock_->data(), moovBlock_->size());
+				//target_file.setPosition(firstPartSize);
+				//target_file.WriteData(moovBlock_->data(), moovBlock_->size());
 
+
+				uint64_t full_file_size = firstPartSize + mp4Moov_.getHandle().size();
+				if (full_file_size > 0)
+				{
+					file_size = full_file_size;
+					target_file.setSize(full_file_size);
+				}
 
 				//uint64_t end_size = mp4_startToFindOffset % cluster_size_;
 				//endData_ = makeDataArray(end_size);
 				//device_->setPosition(mp4_startToFindOffset - end_size);
 				//device_->ReadData(endData_->data(), endData_->size());
-
-
-				moovBlock_ = makeDataArray(mp4Moov_.getHandle().size());
-				device_->setPosition(mp4_startToFindOffset);
-				device_->ReadData(moovBlock_->data(), moovBlock_->size());
-				target_file.setPosition(moov_pos);
-				target_file.WriteData(moovBlock_->data(), moovBlock_->size());
+				tempFilePtr_->Close();
+				fs::remove(tempFilePtr_->getFileName());
 
 
 				int k = 1;
 				k = 2;
 
 			}
-
+			return file_size;
 		}
 		MoovData findMOOVData(const uint64_t start_offset)
 		{
@@ -864,6 +868,7 @@ namespace RAW
 
 		uint64_t SaveRawFile(File & target_file, const uint64_t start_offset) override
 		{
+		/*
 			// 1. Saving to temp file 
 			// 2. Calculate to each cluster number of nulls
 			auto temp_file_name = target_file.getFileName() + L".temp";
@@ -889,8 +894,10 @@ namespace RAW
 			auto file_size = SaveUsingBitmap(target_file, tempFile , gpFile.getBitMap());
 			target_file.Close();
 			file_size +=SaveMoov(target_file.getFileName());  
+*/
+			GP_Analyzer gp_analyzer(this->getDevice());
+			return gp_analyzer.AnalyzeGP(target_file, start_offset);
 
-			return file_size;
 		}
 		bool Specify(const uint64_t start_offset) override
 		{

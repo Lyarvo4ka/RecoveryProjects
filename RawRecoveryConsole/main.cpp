@@ -23,6 +23,7 @@
 #include "raw/StandartRaw.h"
 #include "raw/djvuraw.h"
 #include "raw/oleraw.h"
+#include "raw/GoPro.h"
 //#include "IO\RawMTS.h"
 //#include "IO\RawMPEG.h"
 //#include "IO\QuickTime.h"
@@ -233,7 +234,7 @@ public:
 void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 {
 	//factory_manager.Register("djvu", std::make_unique < RAW::DjvuRawFactory>());
-	factory_manager.Register("ole", std::make_unique < RAW::OleRawFactory>());
+	//factory_manager.Register("ole", std::make_unique < RAW::OleRawFactory>());
 
 	//factory_manager.Register("Canon4FileFragmentRaw", std::make_unique<Canon4FileFragmentRawFactory>());
 	//Canon4FileFragmentRaw
@@ -248,7 +249,7 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//initKeysFactoryManager(factory_manager);
 	//factory_manager.Register("qt_fragment", std::make_unique<IO::QTFragmentRawFactory>());
 	//initAudioFactoryManager(factory_manager);
-	//factory_manager.Register("go_pro", std::make_unique<IO::GoProRawFactory>());
+	factory_manager.Register("go_pro", std::make_unique<RAW::GoProRawFactory>());
 
 	//factory_manager.Register("pln", std::make_unique<IO::PLNRawFactory>());
 
@@ -345,7 +346,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "office_2003.json";
+		QString json_file = "go_pro.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{

@@ -1,5 +1,7 @@
 {
     "go_pro":{
+    "algorithmName" : "go_pro",
+    "category": "video",
 		"header":
           [
 			      {
