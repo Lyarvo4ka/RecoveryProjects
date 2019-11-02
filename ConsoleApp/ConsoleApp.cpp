@@ -150,9 +150,53 @@ void add_service(const IO::path_string& src_filename, const IO::path_string& dst
 }
 
 #include "raw/GoPro.h"
+#include "io/dbf.h"
+
+#include "io/utility.h"
+
+
+void findNullsBlock()
+{
+	IO::File file(LR"(d:\PaboTa\47240\1C\original\1Cv8.1CD )");
+	file.OpenRead();
+	uint64_t offset = 512*512;
+	IO::DataArray buff(4096);
+	while (offset < file.Size())
+	{
+		file.setPosition(offset);
+		file.ReadData(buff);
+		bool bFound = false;
+		for (auto i = 0; i < buff.size(); ++i)
+		{
+			if (buff[i] != 0)
+			{
+				bFound = true;
+				break;
+			}
+		}
+
+		if (bFound == false)
+		{
+			int k = 1;
+			k = 2;
+		}
+
+		offset += buff.size();
+	}
+}
 
 int main()
 {
+	findNullsBlock();
+	/*
+	uint64_t start_offset = 949495159;
+	auto fileName = LR"(d:\PaboTa\47240\Root\Мои резервные копии\Мои разделы\Мои разделы_inc_b1_s47_v1.tib.id-7429198B.[bitlocker@foxmail.com ].wiki)";
+	IO::AcronisDecompress arcDecompress(fileName);
+	auto targetFileName = LR"(f:\47240\2)";
+	auto next_offset = arcDecompress.saveToFile(targetFileName, start_offset);
+
+	*/
+	/*
 	auto fileName = LR"(e:\46950\Free_space.bin)";
 	auto file_ptr = IO::makeFilePtr(fileName);
 	file_ptr->OpenRead();
@@ -161,6 +205,11 @@ int main()
 	uint64_t start_offset = 10675814400;
 	RAW::GP_Analyzer gp_analyzer(file_ptr);
 	gp_analyzer.AnalyzeGP(target_file, start_offset);
+
+	*/
+	//auto fileName = LR"(d:\PaboTa\47195\to_fix\DH1688.DBF.crypted )";
+	//IO::fixDBF(fileName);
+
 
 
 	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");

@@ -429,4 +429,11 @@ namespace RAW
 		}
 	};
 
+	/*
+	1. goto offset 2235 (full file size)
+	2. read ftyp and moov (calculate size 1 part)
+	3. full file size - size 1 part
+	4. Find mdat with expexted size
+	*/
+
 }
