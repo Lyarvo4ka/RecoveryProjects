@@ -429,6 +429,97 @@ namespace RAW
 		}
 	};
 
+	const uint32_t OffsetToFileSize = 2234;
+
+	class CanonStartFragment
+		: public StandartRaw
+	{
+	public:
+		explicit CanonStartFragment(IODevicePtr device)
+			: StandartRaw(device)
+		{
+
+		}
+		uint64_t SaveRawFile(File& target_file, const uint64_t start_offset) override
+		{
+			auto file_size_offset = start_offset + OffsetToFileSize;
+			uint32_t fullFileSize = 0;
+			this->setPosition(file_size_offset);
+			this->ReadData((ByteArray)&fullFileSize, sizeof(uint32_t));
+			//toBE32(fullFileSize);
+
+			auto offset = start_offset;
+			QuickTimeRaw qt_raw(this->getDevice());
+			auto ftyp_handle = qt_raw.readQtAtom(offset);
+			if (!ftyp_handle.isValid())
+				return 0;
+
+			auto moov_offset = ftyp_handle.offset() + ftyp_handle.size();
+			auto moov_handle = qt_raw.readQtAtom(moov_offset);
+			if (!moov_handle.isValid())
+				return 0;
+
+			auto firstPartSize = ftyp_handle.size() + moov_handle.size();
+
+			if (fullFileSize <= firstPartSize)
+				return 0;
+			
+			auto sectondPartSize = fullFileSize - firstPartSize;
+
+			qt_block_t expected_block = qt_block_t();
+			expected_block.block_size = 1;
+			toBE32(expected_block.block_size);
+			memcpy(expected_block.block_type, s_mdat, qt_keyword_size);
+
+			offset = start_offset + firstPartSize;
+			DataArray buffer(default_block_size);
+			
+			while (offset < this->getSize())
+			{
+				setPosition(offset);
+				ReadData(buffer);
+
+				for (uint32_t iSector = 0; iSector < buffer.size(); iSector += default_sector_size)
+				{
+					qt_block_t* pQtBlock = (qt_block_t*)(buffer.data() + iSector);
+					if (memcmp(&expected_block, pQtBlock, qt_block_struct_size) == 0)
+					{
+
+						auto mdat_offset = offset + iSector;
+						auto mdat_handle = qt_raw.readQtAtom(mdat_offset);
+						if (mdat_handle.size() == sectondPartSize)
+						{
+
+							auto written_size = appendToFile(target_file, start_offset, firstPartSize);
+							written_size += appendToFile(target_file, mdat_offset, mdat_handle.size());
+							return written_size;
+						}
+					}
+				}
+
+				offset += buffer.size();
+			}
+
+
+
+			return 0;
+		}
+		bool Specify(const uint64_t start_offset) override
+		{
+			return true;
+		}	
+	};
+
+	class CanonStartFragmentFactory
+		: public RawFactory
+	{
+	public:
+		RawAlgorithm* createRawAlgorithm(IODevicePtr device) override
+		{
+			return new CanonStartFragment(device);
+		}
+	};
+
 	/*
 	1. goto offset 2235 (full file size)
 	2. read ftyp and moov (calculate size 1 part)

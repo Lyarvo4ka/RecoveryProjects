@@ -1,0 +1,16 @@
+{
+    "canonStartFragment":{
+    "algorithmName" : "canonStartFragment",
+    "category": "video",
+		"header":
+          [
+			      {
+                "textdata":"ftyp",
+                "offset": 4
+            }         
+            
+          ],
+          "extension": ".mp4"
+        }
+	
+}

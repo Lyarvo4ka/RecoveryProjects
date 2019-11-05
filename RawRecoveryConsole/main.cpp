@@ -249,7 +249,8 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//initKeysFactoryManager(factory_manager);
 	//factory_manager.Register("qt_fragment", std::make_unique<IO::QTFragmentRawFactory>());
 	//initAudioFactoryManager(factory_manager);
-	factory_manager.Register("go_pro", std::make_unique<RAW::GoProRawFactory>());
+	//factory_manager.Register("go_pro", std::make_unique<RAW::GoProRawFactory>());
+	factory_manager.Register("canonStartFragment", std::make_unique<RAW::CanonStartFragmentFactory>());
 
 	//factory_manager.Register("pln", std::make_unique<IO::PLNRawFactory>());
 
@@ -346,7 +347,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "go_pro.json";
+		QString json_file = "canonStartFragment.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{
