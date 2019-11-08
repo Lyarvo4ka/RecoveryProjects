@@ -486,16 +486,13 @@ namespace IO
 	inline void replaceBadsFromOtherFile(const path_string& withBads_name, const path_string& withoutBads_name, const path_string& target_name)
 	{
 		File withBads_file(withBads_name);
-		if (!withBads_file.Open(OpenMode::OpenRead))
-			return;
+		withBads_file.Open(OpenMode::OpenRead);
 
 		File withoutBads_file(withoutBads_name);
-		if (!withoutBads_file.Open(OpenMode::OpenRead))
-			return;
+		withoutBads_file.Open(OpenMode::OpenRead);
 
 		File target_file(target_name);
-		if (!target_file.Open(OpenMode::Create))
-			return;
+		target_file.Open(OpenMode::Create);
 
 		uint32_t bytesReadwithBads = 0;
 		uint32_t bytesReadwithoutBads = 0;
@@ -507,18 +504,24 @@ namespace IO
 
 		bool bEndWithOutBads = false;
 
+		uint64_t offset = 0;
 
-		while (true)
+		uint32_t read_size1 = 0;		
+		uint32_t read_size2 = 0;
+
+
+		while (offset < withBads_file.Size())
 		{
-			bytesReadwithBads = withBads_file.ReadData(data1);
-			if (bytesReadwithBads == 0)
-				break;
+			read_size1 = calcBlockSize(offset, withBads_file.Size(), data1.size());
+			withBads_file.setPosition(offset);
+			bytesReadwithBads = withBads_file.ReadData(data1.data() , read_size1);
 
-			if (!bEndWithOutBads)
+			if (offset < withoutBads_file.Size())
 			{
-				bytesReadwithoutBads = withoutBads_file.ReadData(data2);
-				if (bytesReadwithoutBads == 0)
-					bEndWithOutBads = true;
+				read_size2 = calcBlockSize(offset, withoutBads_file.Size(), data2.size());
+				withoutBads_file.setPosition(offset);
+				bytesReadwithoutBads = withoutBads_file.ReadData(data2.data(), read_size2);
+
 
 				uint32_t cmp_bytes = bytesReadwithBads;
 				if (bytesReadwithoutBads < cmp_bytes)
@@ -529,16 +532,13 @@ namespace IO
 					if (memcmp(data1.data() + iSector, Signatures::bad_sector_marker, Signatures::bad_sector_marker_size) == 0)
 						memcpy(data1.data() + iSector, data2.data() + iSector, default_sector_size);
 				}
-				//Signatures::bad_sector_marker
-			}
-			else
-			{
-
 			}
 
 			memcpy(target_data.data(), data1.data(), bytesReadwithBads);
 			target_file.WriteData(target_data.data(), bytesReadwithBads);
 
+
+			offset += bytesReadwithBads;
 		}
 
 	}

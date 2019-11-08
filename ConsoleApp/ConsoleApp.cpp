@@ -185,9 +185,20 @@ void findNullsBlock()
 	}
 }
 
+#include "io/utility.h"
+
 int main()
 {
-	findNullsBlock();
+	auto with_bads = LR"(d:\PaboTa\47248\1Cv8.1CD)";
+	auto without_bads = LR"(d:\PaboTa\47248\old\1Cv8.1CD)";
+	auto targe_filename = LR"(d:\PaboTa\47248\result)";
+
+	IO::replaceBadsFromOtherFile(with_bads, without_bads, targe_filename);
+
+
+	int k = 1;
+	k = 0;
+	//findNullsBlock();
 	/*
 	uint64_t start_offset = 949495159;
 	auto fileName = LR"(d:\PaboTa\47240\Root\Мои резервные копии\Мои разделы\Мои разделы_inc_b1_s47_v1.tib.id-7429198B.[bitlocker@foxmail.com ].wiki)";
