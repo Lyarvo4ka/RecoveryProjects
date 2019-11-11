@@ -189,15 +189,19 @@ void findNullsBlock()
 
 int main()
 {
+	//auto filePath = LR"(z:\47186\47186.bin)";
+	//IO::replaceBadMarkerToNulls(filePath);
+
+
 	auto with_bads = LR"(d:\PaboTa\47248\1Cv8.1CD)";
 	auto without_bads = LR"(d:\PaboTa\47248\old\1Cv8.1CD)";
 	auto targe_filename = LR"(d:\PaboTa\47248\result)";
 
 	IO::replaceBadsFromOtherFile(with_bads, without_bads, targe_filename);
 
-
 	int k = 1;
 	k = 0;
+
 	//findNullsBlock();
 	/*
 	uint64_t start_offset = 949495159;

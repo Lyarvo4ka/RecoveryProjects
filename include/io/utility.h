@@ -542,4 +542,37 @@ namespace IO
 		}
 
 	}
+
+	inline void replaceBadMarkerToNulls(const path_string& fileName , const uint32_t sector_size = 2048)
+	{
+		File srcfile(fileName);
+		srcfile.OpenRead();
+
+		File targetFile(fileName + L".result");
+		targetFile.OpenCreate();
+
+		uint64_t offset = 0;
+
+		
+		const char unreadable_marker[] = { 0x55 , 0x4E , 0x52 , 0x45 , 0x41 , 0x44 , 0x41 , 0x42 , 0x4C , 0x45 , 0x53 , 0x45 , 0x43 , 0x54 , 0x4F , 0x52 };
+		const uint32_t unreadable_marker_size = SIZEOF_ARRAY(unreadable_marker);
+
+		DataArray sector(sector_size);
+
+		while (offset < srcfile.Size())
+		{
+			srcfile.setPosition(offset);
+			srcfile.ReadData(sector);
+
+			if (memcmp(sector.data(), unreadable_marker, unreadable_marker_size) == 0)
+			{
+				ZeroMemory(sector.data(), sector.size());
+			}
+
+			targetFile.WriteData(sector.data(), sector.size());
+
+			offset += sector.size();
+		}
+
+	}
 };
