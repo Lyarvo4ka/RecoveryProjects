@@ -8,9 +8,15 @@ namespace IO
 	{
 		Close();
 	}
+	path_string addPrefix(const path_string& path)
+	{
+		path_string new_string = LR"(\\?\)" + path;
+		return new_string;
+	}
 	IOErrorsType IOEngine::OpenRead(const path_string & path)
 	{
-		hDevice_ = ::CreateFile(path.c_str(),
+		auto new_string = addPrefix(path);
+		hDevice_ = ::CreateFile(new_string.c_str(),
 			GENERIC_READ /*| GENERIC_WRITE*/,
 			FILE_SHARE_READ /*| FILE_SHARE_WRITE*/,
 			NULL,
@@ -29,7 +35,9 @@ namespace IO
 	}
 	IOErrorsType IOEngine::OpenWrite(const path_string & path)
 	{
-		hDevice_ = ::CreateFile(path.c_str(),
+		auto new_string = addPrefix(path);
+
+		hDevice_ = ::CreateFile(new_string.c_str(),
 			GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			NULL,
@@ -44,7 +52,8 @@ namespace IO
 	}
 	IOErrorsType IOEngine::Create(const path_string & path)
 	{
-		hDevice_ = ::CreateFile(path.c_str(),
+		auto new_string = addPrefix(path);
+		hDevice_ = ::CreateFile(new_string.c_str(),
 			GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			NULL,
