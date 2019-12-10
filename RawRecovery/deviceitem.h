@@ -16,6 +16,7 @@ public:
 };
 
 class PhysicalAdapter
+	: public DeviceAdapter
 {
 
 };

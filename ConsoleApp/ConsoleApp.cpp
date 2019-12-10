@@ -193,14 +193,14 @@ int main()
 	//IO::replaceBadMarkerToNulls(filePath);
 
 
-	auto with_bads = LR"(d:\PaboTa\47248\1Cv8.1CD)";
-	auto without_bads = LR"(d:\PaboTa\47248\old\1Cv8.1CD)";
-	auto targe_filename = LR"(d:\PaboTa\47248\result)";
+	//auto with_bads = LR"(d:\PaboTa\47248\1Cv8.1CD)";
+	//auto without_bads = LR"(d:\PaboTa\47248\old\1Cv8.1CD)";
+	//auto targe_filename = LR"(d:\PaboTa\47248\result)";
 
-	IO::replaceBadsFromOtherFile(with_bads, without_bads, targe_filename);
+	//IO::replaceBadsFromOtherFile(with_bads, without_bads, targe_filename);
 
-	int k = 1;
-	k = 0;
+	//int k = 1;
+	//k = 0;
 
 	//findNullsBlock();
 	/*
@@ -222,8 +222,8 @@ int main()
 	gp_analyzer.AnalyzeGP(target_file, start_offset);
 
 	*/
-	//auto fileName = LR"(d:\PaboTa\47195\to_fix\DH1688.DBF.crypted )";
-	//IO::fixDBF(fileName);
+	auto fileName = LR"(f:\47301\!Problem\bases1\7-ка\Флоремикс 2019\1SBUKR\DT4419.DBF)";
+	IO::fixDBF(fileName);
 
 
 
