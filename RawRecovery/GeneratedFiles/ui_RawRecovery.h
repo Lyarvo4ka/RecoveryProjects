@@ -12,11 +12,13 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QTreeView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -26,6 +28,7 @@ class Ui_RawRecoveryClass
 public:
     QAction *actionOpen;
     QWidget *centralWidget;
+    QTreeView *treeView;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QToolBar *mainToolBar;
@@ -35,15 +38,18 @@ public:
     {
         if (RawRecoveryClass->objectName().isEmpty())
             RawRecoveryClass->setObjectName(QString::fromUtf8("RawRecoveryClass"));
-        RawRecoveryClass->resize(770, 548);
+        RawRecoveryClass->resize(873, 680);
         actionOpen = new QAction(RawRecoveryClass);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         centralWidget = new QWidget(RawRecoveryClass);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
+        treeView = new QTreeView(centralWidget);
+        treeView->setObjectName(QString::fromUtf8("treeView"));
+        treeView->setGeometry(QRect(30, 20, 501, 471));
         RawRecoveryClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(RawRecoveryClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 770, 21));
+        menuBar->setGeometry(QRect(0, 0, 873, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         RawRecoveryClass->setMenuBar(menuBar);
