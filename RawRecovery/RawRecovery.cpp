@@ -23,6 +23,10 @@ RawRecovery::RawRecovery(QWidget *parent)
 	}
 	auto device_model = new DeviceModel(root_item, this);
 	ui.treeView->setModel(device_model);
+	for (auto iColumn = 0; iColumn < device_model->columnCount(); ++iColumn)
+	{
+		ui.treeView->resizeColumnToContents(iColumn);
+	}
 	//physical_drives.
 
 

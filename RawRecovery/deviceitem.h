@@ -56,12 +56,17 @@ public:
 	PhysicalAdapter(IO::PhysicalDrivePtr physical_drive_ptr)
 		: physical_drive_(physical_drive_ptr)
 	{
-		itemData_.name.fromStdWString(physical_drive_->getDriveName());
-		itemData_.label.fromStdString(physical_drive_->getSerialNumber());
-		itemData_.fs = QString::number(physical_drive_->getDriveNumber());
+		auto drive_name = physical_drive_->getDriveName();
+		itemData_.name = QString::fromWCharArray(drive_name.c_str());
+		auto serial_number = physical_drive_->getSerialNumber();
+		auto qstr_label = QString::fromLocal8Bit(serial_number.c_str());
+		itemData_.label = qstr_label;
+		itemData_.fs = "#" + QString::number(physical_drive_->getDriveNumber());
 		itemData_.start = 0;
 		itemData_.size = physical_drive_->getSize();
 
+		int k = 0;
+		k = 1;
 
 	}
 	IO::IODevicePtr createDevice() override
