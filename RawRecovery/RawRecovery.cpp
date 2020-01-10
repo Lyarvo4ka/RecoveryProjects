@@ -17,7 +17,7 @@ RawRecovery::RawRecovery(QWidget *parent)
 	DeviceItem* root_item = new DeviceItem(std::move(rootAdapter));
 	for (auto i = 0; i < physical_drives.getSize(); ++i)
 	{
-		auto physicalAdapter = std::make_unique<PhysicalAdapter>(physical_drives.find_by_number(i));
+		auto physicalAdapter = std::make_unique<PhysicalAdapter>(physical_drives.index(i));
 		DeviceItem* disk_item = new DeviceItem(std::move(physicalAdapter ), root_item);
 		root_item->appendChild(disk_item);
 	}
