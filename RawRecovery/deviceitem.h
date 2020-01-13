@@ -75,25 +75,26 @@ public:
 	}
 };
 
-class DeviceItem
+template < class AdapterType >
+class TreeItem
 {
 public:
-	explicit DeviceItem(std::unique_ptr<DeviceAdapter> device_adapter, DeviceItem* parentItem = nullptr)
-		: device_adapter_(std::move(device_adapter))
+	explicit TreeItem(std::unique_ptr<AdapterType> adapter, TreeItem* parentItem = nullptr)
+		: adapter_(std::move(adapter))
 		, parentItem_(parentItem)
 	{
 
 	}
-	~DeviceItem()
+	~TreeItem()
 	{
 		qDeleteAll(childItems_);
 	}
 
-	void appendChild(DeviceItem* child)
+	void appendChild(TreeItem* child)
 	{
 		childItems_.append(child);
 	}
-	DeviceItem* child(int row)
+	TreeItem* child(int row)
 	{
 		if (row < 0 || row >= childItems_.size())
 			return nullptr;
@@ -108,30 +109,93 @@ public:
 	{
 		return DeviceItemNames::kCount;
 	}
-	DeviceAdapter* getDeviceAdapter()
+	AdapterType* getDeviceAdapter()
 	{
-		return device_adapter_.get();
+		return adapter_.get();
 	}
 
 	int row() const
 	{
 		if (parentItem_ != nullptr)
-			return parentItem_->childItems_.indexOf(const_cast<DeviceItem*>(this));
+			return parentItem_->childItems_.indexOf(const_cast<TreeItem*>(this));
 
 		return 0;
 
 	}
-	DeviceItem* parentItem()
+	TreeItem* parentItem()
 	{
 		return parentItem_;
 	}
 
 private:
-	std::unique_ptr<DeviceAdapter> device_adapter_;
-	QVector<DeviceItem*> childItems_;
-	DeviceItem* parentItem_ = nullptr ;
+	std::unique_ptr<AdapterType> adapter_;
+	QVector<TreeItem*> childItems_;
+	TreeItem* parentItem_ = nullptr ;
 };
 
+using DeviceItem = TreeItem<DeviceAdapter>;
+
+//
+template <class BaseItem>
+class BaseAbstractModel : public QAbstractItemModel
+{
+	Q_OBJECT
+
+public:
+	explicit BaseAbstractModel(BaseItem* root_item, QObject* parent = nullptr)
+		:QAbstractItemModel(parent)
+		, rootItem_(root_item)
+	{
+
+	}
+	~BaseAbstractModel()
+	{
+		delete rootItem_;
+	}
+
+	Qt::ItemFlags flags(const QModelIndex& index) const override
+	{
+		if (!index.isValid())
+			return Qt::NoItemFlags;
+
+		return QAbstractItemModel::flags(index);
+
+	}
+	QModelIndex index(int row, int column,
+		const QModelIndex& parent = QModelIndex()) const override
+	{
+		if (!hasIndex(row, column, parent))
+			return QModelIndex();
+
+		BaseItem* parentItem = nullptr;
+
+		if (!parent.isValid())
+			parentItem = rootItem_;
+		else
+			parentItem = static_cast<BaseItem*>(parent.internalPointer());
+
+		auto childItem = parentItem->child(row);
+		if (childItem)
+			return createIndex(row, column, childItem);
+		return QModelIndex();
+	}
+	QModelIndex parent(const QModelIndex& index) const override
+	{
+		if (!index.isValid())
+			return QModelIndex();
+
+		auto childItem = static_cast<BaseItem*>(index.internalPointer());
+		auto parentItem = childItem->parentItem();
+
+		if (parentItem == rootItem_)
+			return QModelIndex();
+
+		return createIndex(parentItem->row(), 0, parentItem);
+	}
+private:
+
+	BaseItem* rootItem_;
+};
 
 class DeviceModel : public QAbstractItemModel
 {

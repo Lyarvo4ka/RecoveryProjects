@@ -332,6 +332,13 @@ namespace IO
 		{
 			return disk_txt.data();
 		}
+		std::wstring getDiskName() const
+		{
+			std::wstring disk_name;
+			if (physical_drive_)
+				disk_name = physical_drive_->getDriveName();
+			return disk_name;
+		}
 	private:
 		uint32_t ReadBlock(ByteArray data, uint32_t read_size) 
 		{

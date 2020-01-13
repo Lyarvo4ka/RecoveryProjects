@@ -10,6 +10,10 @@ class RawRecovery : public QMainWindow
 public:
 	RawRecovery(QWidget *parent = Q_NULLPTR);
 
+protected slots:
+	void OnDeviceContextMenu(const QPoint& point_pos);
+
 private:
 	Ui::RawRecoveryClass ui;
+	QAction* contectMenu_;
 };
