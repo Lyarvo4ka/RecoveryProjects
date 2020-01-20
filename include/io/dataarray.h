@@ -74,7 +74,10 @@ namespace IO
 			{
 				clear();
 				if (new_size > 0)
+				{
 					data_ = new uint8_t[new_size];
+					size_ = new_size;
+				}
 			}
 		}
 		void clear()

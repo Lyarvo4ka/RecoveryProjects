@@ -153,6 +153,7 @@ void add_service(const IO::path_string& src_filename, const IO::path_string& dst
 #include "io/dbf.h"
 
 #include "io/utility.h"
+#include "raw/ext4_raw.h"
 
 
 void findNullsBlock()
@@ -189,6 +190,79 @@ void findNullsBlock()
 
 int main()
 {
+	auto src_file = IO::makeFilePtr(LR"(g:\1\vg1-volume_1.bin.img)");
+	src_file->OpenRead();
+	RAW::ext4_raw ext4_recovery(src_file);
+	
+	// segment 1
+	// 1 - 0x8FA000000;
+	// 2 - 0xFA08626000	---- not
+	// 3 - 0xFA087EE000
+	// 4 - 0xFA08A16000
+	// 5 - 0xFA08C4A000
+	// ...
+	// 0xFA0FEA9000
+
+	// 0x115DD000000
+
+
+	// segment 2
+	// 1 - 0x18401000	// 0 bytes
+	// 2 - 0x3CC800000	// 19 Gb
+	// 3 - 0x3CC801000	// 15208247296 bytes
+	// 4 - 0xB58800000	//
+	// 5 - 0x16A8801000 //
+	// 6 - 0x21F0800000
+	// 7 - 0x2D40800000
+	// 8 - 0x3948800000
+	// 9 - 0x4498800000
+	// 10- 0x4FE0800000
+	// 11- 0x5AF8800000
+	// 12- 0x6618800000
+	// 13- 0x7160800000
+	// 14- 0x7CB0800000
+	// 15- 0x87F0800000
+	// 16- 0x9340800000
+	// 17- 0x9E90800000
+	// 18- 0xA9D8800000
+	// 19- 0xB528800000
+	// 20- 0xC040800000
+	// 21- 0xC5087CA000 , 0xC5087E0000
+	// 22- 0xC50865A000 , 0xC5086AB000
+	// 23- 0xC5087E0000
+	// 24- 0xD6E0800000
+	// 25- 0xE230800000
+	// 26- 0xED78800000
+	// 27- 0xF8B8800000
+	// 28- 0x10402020000
+	// 29- 0x10F58800000
+
+	// add 0x10000000
+	// 30- 0x1116D800000	-- 0(bytes)
+	// 31- 0x11CA0800000	-- 44736446464(bytes)
+	// 32- 0x127D8800000	-- 89766494208(bytes)
+	// 33- 0x13328800000
+	// 34- 0x13E70801000
+	// 35- 0x149C0800000
+	//154F8800000
+	//16040800000
+	//16B70800000
+	uint64_t inode_offset = 0x115DD000000;
+
+	// skip 
+	// 0xB5D6EC1000
+
+	//0x748DAA9000; -- 300 GB	// depth == 2
+	//0x748ED0C000; -- 100 GB entries = 0x22
+
+	IO::path_string target_name = LR"(i:\47555\segment1_v2.tmp)";
+	ext4_recovery.Execute(inode_offset, target_name);
+
+
+// 773807144960 - 0xC508942000
+// 729162973184 - 0xC508ABA000
+// 683671552000 - 0xC508C24000
+
 	//auto filePath = LR"(z:\47186\47186.bin)";
 	//IO::replaceBadMarkerToNulls(filePath);
 
@@ -221,10 +295,10 @@ int main()
 	RAW::GP_Analyzer gp_analyzer(file_ptr);
 	gp_analyzer.AnalyzeGP(target_file, start_offset);
 
-	*/
+	
 	auto fileName = LR"(f:\47301\!Problem\bases1\7-ка\Флоремикс 2019\1SBUKR\DT4419.DBF)";
 	IO::fixDBF(fileName);
-
+	*/
 
 
 	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");
