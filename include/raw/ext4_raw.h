@@ -178,14 +178,14 @@ namespace RAW
 						memset(data_array.data(), 0x00, size);
 					}
 
-					extent_block->extent[i].block += 0x10000000;
+					//extent_block->extent[i].block += 0x10000000;
 					uint64_t target_offset = (uint64_t)extent_block->extent[i].block * block_size_;
 					target_file.setPosition(target_offset);
 					target_file.WriteData(data_array.data(), size);
 				}
 			}
 			else {
-				for (int i = 291; i < extent_block->header.entries; i++) {
+				for (int i = 0; i < extent_block->header.entries; i++) {
 					SaveToFile(extent_block->extent_index[i].PysicalBlock(), target_file);
 					int x = 0;
 				}

@@ -106,6 +106,177 @@
 //	}
 //}
 
+void testDCM(const IO::path_string& filePath)
+{
+	const uint32_t offset = 128;
+	const uint8_t dcm_header[] = { 0x44, 0x49 , 0x43 ,0x4D };
+	const uint32_t dcm_header_size = SIZEOF_ARRAY(dcm_header);
+
+	IO::File src_file(filePath);
+	src_file.OpenRead();
+
+	uint8_t buff[dcm_header_size];
+	memset(buff, 0, dcm_header_size);
+
+	if (src_file.Size() > (offset + dcm_header_size))
+	{
+		src_file.setPosition(offset);
+		src_file.ReadData((IO::ByteArray)buff, dcm_header_size);
+
+		src_file.Close();
+
+		if (memcmp(buff, dcm_header, dcm_header_size) != 0)
+		{
+			auto new_file_name = filePath + L".bad_file";
+			std::wcout << new_file_name.c_str() << std::endl;
+			fs::rename(filePath, new_file_name);
+		}
+
+	}
+
+}
+
+#pragma pack(1)
+struct dcm_type_t
+{
+	uint8_t DICM[4];
+	uint8_t reserved[8];
+	uint8_t size;
+};
+#pragma pack()
+
+#pragma pack(1)
+struct dcm_name_t
+{
+	uint8_t UI[2];
+	uint16_t size;
+	uint8_t pName[];
+};
+#pragma pack()
+
+
+std::string getDCM_DateString(const IO::path_string& filePath)
+{
+	std::string date_string;
+	const uint32_t offset = 128;
+	const uint32_t max_length = 128;
+
+	const uint16_t UI_ = 0x4955;
+
+	dcm_type_t dcm_type = {};
+
+	IO::File src_file(filePath);
+	src_file.OpenRead();
+
+	src_file.setPosition(offset);
+	src_file.ReadData((IO::ByteArray)&dcm_type, sizeof(dcm_type_t));
+
+	if (dcm_type.size == 0)
+		return date_string;
+
+	IO::DataArray buffer(dcm_type.size);
+	src_file.setPosition(offset);
+	uint64_t new_offset = offset + sizeof(dcm_type_t);
+	src_file.setPosition(offset);
+	src_file.ReadData(buffer);
+	bool bFound = false;
+
+	uint16_t string_size = 0;
+	for (uint32_t i = 0; i < buffer.size()-1; ++i)
+	{
+		uint16_t* pUI = (uint16_t*)& buffer.data()[i];
+		if (*pUI == UI_)
+		{
+			if (bFound)
+			{
+				dcm_name_t * dcm_name = (dcm_name_t * )&buffer.data()[i];
+				string_size = dcm_name->size;
+				if (string_size == 0)
+					return date_string;
+
+				IO::DataArray string_data(string_size +1);
+				ZeroMemory(string_data.data(), string_size + 1);
+				std::memcpy(string_data.data(), dcm_name->pName, string_size);
+				std::string tmp((char*)string_data.data());
+				return tmp;
+			}
+			bFound = true;
+		}
+	}
+
+	return date_string;
+}
+
+
+void testDCM_signatrue(const IO::path_string& folder)
+{
+	IO::Finder finder;
+	finder.add_extension(L".dcm");
+
+	finder.FindFiles(folder);
+	auto fileList = finder.getFiles();
+
+	for (auto& theFile : fileList)
+	{
+		try {
+			std::wcout << theFile.c_str();
+			testDCM(theFile);
+			std::wcout <<L" - OK" <<std::endl;
+		}
+		catch (IO::Error::IOErrorException& ex)
+		{
+			const char* text = ex.what();
+			std::cout << " Cougth exception " << text;
+
+		}
+		catch (fs::filesystem_error &fs_error)
+		{
+			std::cout << " Cougth exception " << fs_error.what();
+			int k = 1;
+			k = 2;
+
+		}
+
+
+	}
+}
+void getDCMFiles_date(const IO::path_string& src_folder, const IO::path_string& target_folder)
+{
+	IO::Finder finder;
+	finder.add_extension(L".dcm");
+
+	finder.FindFiles(src_folder);
+	auto fileList = finder.getFiles();
+
+	for (auto& theFile : fileList)
+	{
+			std::wcout << theFile.c_str();
+			fs::path filePath(theFile);
+			
+			//auto ext = theFile.extension().generic_wstring();
+
+			auto new_file_name = target_folder + filePath.filename().generic_wstring();
+			auto date_string = getDCM_DateString(theFile);
+
+			if (!date_string.empty())
+			{
+				std::wstring file_name(date_string.begin(), date_string.end());
+ 				new_file_name = target_folder + file_name + L".dcm";
+			}
+			uint64_t iNumber = 1;
+			auto firstfilename = new_file_name;
+			while (fs::exists(new_file_name))
+			{
+				auto strNumber = std::to_wstring(iNumber++);
+				fs::path tmp_path(firstfilename);
+				auto tmp_filename = tmp_path.stem().generic_wstring();
+				new_file_name = target_folder + tmp_filename + L"_" + strNumber + L".dcm";
+			}
+ 			fs::copy(theFile, new_file_name);
+
+	}
+}
+
 void add_service(const IO::path_string& src_filename, const IO::path_string& dst_filename)
 {
 	const uint32_t fullpage_size = 18432;
@@ -190,10 +361,15 @@ void findNullsBlock()
 
 int main()
 {
-	auto src_file = IO::makeFilePtr(LR"(g:\1\vg1-volume_1.bin.img)");
-	src_file->OpenRead();
-	RAW::ext4_raw ext4_recovery(src_file);
-	
+	//auto src_file = IO::makeFilePtr(LR"(g:\1\vg1-volume_1.bin.img)");
+	//src_file->OpenRead();
+	//RAW::ext4_raw ext4_recovery(src_file);
+	//
+
+	IO::path_string src_folder = LR"(d:\PaboTa\47651\NoName\DCM\)";
+	IO::path_string target_folder = LR"(z:\47651\)";
+	getDCMFiles_date(src_folder, target_folder);
+	//testDCM_signatrue(LR"(d:\PaboTa\47651\)");
 	// segment 1
 	// 1 - 0x8FA000000;
 	// 2 - 0xFA08626000	---- not
@@ -255,8 +431,8 @@ int main()
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
 
-	IO::path_string target_name = LR"(i:\47555\segment1_v2.tmp)";
-	ext4_recovery.Execute(inode_offset, target_name);
+	//IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
+	//ext4_recovery.Execute(inode_offset, target_name);
 
 
 // 773807144960 - 0xC508942000
