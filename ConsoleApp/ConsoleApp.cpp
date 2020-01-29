@@ -361,15 +361,14 @@ void findNullsBlock()
 
 int main()
 {
-	//auto src_file = IO::makeFilePtr(LR"(g:\1\vg1-volume_1.bin.img)");
-	//src_file->OpenRead();
-	//RAW::ext4_raw ext4_recovery(src_file);
-	//
 
+/*
 	IO::path_string src_folder = LR"(d:\PaboTa\47651\NoName\DCM\)";
 	IO::path_string target_folder = LR"(z:\47651\)";
 	getDCMFiles_date(src_folder, target_folder);
 	//testDCM_signatrue(LR"(d:\PaboTa\47651\)");
+*/
+
 	// segment 1
 	// 1 - 0x8FA000000;
 	// 2 - 0xFA08626000	---- not
@@ -423,7 +422,7 @@ int main()
 	//154F8800000
 	//16040800000
 	//16B70800000
-	uint64_t inode_offset = 0x115DD000000;
+
 
 	// skip 
 	// 0xB5D6EC1000
@@ -431,9 +430,15 @@ int main()
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
 
-	//IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
-	//ext4_recovery.Execute(inode_offset, target_name);
+	auto src_file = IO::makeFilePtr(LR"(f:\1\vg1-volume_1.bin.img)");
+	src_file->OpenRead();
+	RAW::ext4_raw ext4_recovery(src_file);
 
+	uint64_t inode_offset = 0x8FA000000;
+	IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
+	ext4_recovery.Execute(inode_offset, target_name);
+
+	_CrtDumpMemoryLeaks();
 
 // 773807144960 - 0xC508942000
 // 729162973184 - 0xC508ABA000
