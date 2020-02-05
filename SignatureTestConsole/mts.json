@@ -1,0 +1,15 @@
+{
+  "mts": {
+    "algorithmName": "mts",
+    "category": "video",
+ 
+    "header": [
+      {
+        "hexdata": "474000100000B01100",
+        "offset": 4
+      }
+    ],
+    "extension": ".mts"
+  }
+	
+}

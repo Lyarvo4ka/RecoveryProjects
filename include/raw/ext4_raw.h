@@ -100,6 +100,7 @@ namespace RAW
 			//}
 			return 0;
 		}
+
 		DataArray read_inode(const uint64_t inode_offset)
 		{
 			DataArray inode(INODE_SIZE);
@@ -107,34 +108,83 @@ namespace RAW
 			device_->ReadData(inode.data(), inode.size());
 			return inode;
 		}
-    void search_extends(uint64_t block_start)
-    {
-		//const uint32_t count = 16;
-		//const uint32_t buff_size = count * block_size_;
-		//DataArray buff(buff_size);
-		//uint64_t offset = (uint64_t)(block_start * block_size_);
-		//uint64_t src_size = device_->Size();
-		//uint32_t to_read = 0;
-		//uint32_t bytes_read = 0;
+		void search_extends(uint64_t block_start)
+		{
+			//const uint32_t count = 16;
+			//const uint32_t buff_size = count * block_size_;
+			//DataArray buff(buff_size);
+			//uint64_t offset = (uint64_t)(block_start * block_size_);
+			//uint64_t src_size = device_->Size();
+			//uint32_t to_read = 0;
+			//uint32_t bytes_read = 0;
 
-		//while (offset < device_->Size())
-		//{
-		//	to_read = calcBlockSize(offset, src_size, buff_size);
-		//	device_->setPosition(offset);
-		//	device_->ReadData(buff.data(), to_read);
+			//while (offset < device_->Size())
+			//{
+			//	to_read = calcBlockSize(offset, src_size, buff_size);
+			//	device_->setPosition(offset);
+			//	device_->ReadData(buff.data(), to_read);
 
-		//	for (uint32_t i = 0; i < to_read, i += block_size_)
-		//	{
-		//		EXTENT_BLOCK * p_extent = (EXTENT_BLOCK *)(buff.data() + i);
+			//	for (uint32_t i = 0; i < to_read, i += block_size_)
+			//	{
+			//		EXTENT_BLOCK * p_extent = (EXTENT_BLOCK *)(buff.data() + i);
 
-		//	}
-
-
-		//	offset += to_read;
-		//}
+			//	}
 
 
-    }
+			//	offset += to_read;
+			//}
+
+
+		}
+		void readExtent(const uint64_t block_num, DataArray& buffer)
+		{
+
+			uint64_t extent_offset = volume_offset_ + block_num * block_size_;
+			device_->setPosition(extent_offset);
+			device_->ReadData(buffer.data(), buffer.size());
+		}
+		
+		uint64_t calculateSize(const uint64_t block_num)
+		{
+			DataArray extent(block_size_);
+			readExtent(block_num, extent);
+
+			EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)extent.data();
+
+			if (!isValidExtent(*extent_block))
+				return 0;
+
+			if (extent_block->header.depth != 0)
+				return 0;
+
+
+
+
+		}
+		
+		bool isValidExtent(EXTENT_BLOCK& extent_block)
+		{
+			if ((extent_block.header.magic != EXTENT_HEADER_MAGIC) ||
+				(extent_block.header.max != max_extents_in_block_) ||
+				(extent_block.header.entries > max_extents_in_block_)) {
+				return 0;
+			}
+		}
+		void toResize(DataArray & data_array , uint32_t new_size)
+		{
+			if (data_array.size() < new_size) {
+				data_array.resize(new_size);
+			}
+
+		}
+
+		uint32_t determineSize(const uint16_t len)
+		{
+			return (len <= 0x8000)
+				? (len * block_size_)
+				: ((len - 0x8000) * block_size_);
+		}
+
 		uint64_t SaveToFile(const uint64_t block_num, File &target_file)
 		{
 			if (!target_file.isOpen())
@@ -147,11 +197,8 @@ namespace RAW
 			device_->setPosition(extent_offset);
 			device_->ReadData(buffer.data(),buffer.size());
 			
-			if ((extent_block->header.magic != EXTENT_HEADER_MAGIC) ||
-				(extent_block->header.max != max_extents_in_block_) ||
-				(extent_block->header.entries > max_extents_in_block_)) {
+			if (!isValidExtent(*extent_block))
 				return 0;
-			}
 
 			//std::vector<BYTE> data_buff;
 			DataArray data_array(default_block_size);
@@ -161,13 +208,9 @@ namespace RAW
 				for (int i = 0; i < extent_block->header.entries; i++) {
 					offset = volume_offset_ + extent_block->extent[i].PysicalBlock() * block_size_;
 
-					size = (extent_block->extent[i].len <= 0x8000) 
-						? (extent_block->extent[i].len * block_size_) 
-						: ((extent_block->extent[i].len - 0x8000) * block_size_);
+					size = determineSize(extent_block->extent[i].len);
 
-					if (data_array.size() < size) {
-						data_array.resize(size);
-					}
+					toResize(data_array, size);
 
 					if (extent_block->extent[i].len <= 0x8000) 
 					{

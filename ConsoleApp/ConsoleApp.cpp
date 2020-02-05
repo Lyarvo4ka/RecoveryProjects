@@ -430,11 +430,11 @@ int main()
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
 
-	auto src_file = IO::makeFilePtr(LR"(f:\1\vg1-volume_1.bin.img)");
+	auto src_file = IO::makeFilePtr(LR"(f:\segment_v2\47555_v2.tmp)");
 	src_file->OpenRead();
 	RAW::ext4_raw ext4_recovery(src_file);
 
-	uint64_t inode_offset = 0x8FA000000;
+	uint64_t inode_offset = 0x18401000;
 	IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
 	ext4_recovery.Execute(inode_offset, target_name);
 

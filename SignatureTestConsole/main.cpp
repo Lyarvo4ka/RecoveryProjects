@@ -67,13 +67,40 @@ void testMp3(const RAW::FileStruct & Mp3FileStruct, const IO::path_string & file
 
 }
 
+void testSignature(const RAW::FileStruct& fileStruct, const IO::path_string& file_to_test)
+{
+	IO::File file(file_to_test);
+	file.OpenRead();
+	auto file_size = file.Size();
+	auto cmp_size = default_sector_size;
+
+	if (file_size < cmp_size)
+	{
+		file.Close();
+		rename_to_bad_file(file_to_test);
+		return;
+	}
+	IO::DataArray buffer(cmp_size);
+	file.ReadData(buffer);
+	file.Close();
+	auto bFound = fileStruct.compareWithAllHeaders(buffer.data(), buffer.size());
+
+	if (!bFound)
+	{
+		rename_to_bad_file(file_to_test);
+	}
+
+
+
+}
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 
-	QString mp3_json("mp3.json");
+	QString jsonFile("mts.json");
 
-	QFile file(mp3_json);
+	QFile file(jsonFile);
 	if (!file.open(QIODevice::ReadOnly))
 	{
 		qInfo() << "Error to open file. \"" << file.fileName() << "\"";
@@ -85,19 +112,19 @@ int main(int argc, char *argv[])
 	ReadJsonFIle(json_str, listFileStruct);
 
 	IO::Finder finder;
-	finder.add_extension(L".mp3");
+	finder.add_extension(L".m2ts");
 
-	finder.FindFiles(LR"(f:\LostFolders\)");
+	finder.FindFiles(LR"(f:\46976\)");
 	auto fileList = finder.getFiles();
 
 	if (!listFileStruct.empty())
 	{
-		auto Mp3FileStructQt = listFileStruct.first();
-		auto mp3FileStruct = toFileStruct(Mp3FileStructQt);
+		auto fileStructQt = listFileStruct.first();
+		auto fileStruct = toFileStruct(fileStructQt);
 
 		for (auto & theFile : fileList)
 		{
-			testMp3(*mp3FileStruct.get(),theFile);
+			testSignature(*fileStruct.get(),theFile);
 		}
 	}
 	
