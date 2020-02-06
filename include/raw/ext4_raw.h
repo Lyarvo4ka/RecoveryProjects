@@ -54,6 +54,40 @@ namespace RAW
 		EXTENT_BLOCK extent_block;
 	};
 
+	class ExtentStruct
+	{
+		DataArray block_;
+		bool bValid_ = false;
+		uint64_t block_num_ = 0;
+	public:
+		ExtentStruct(const uint32_t block_size)
+			: block_(block_size)
+		{
+
+		}
+		void copyData(ByteArray source_data)
+		{
+			memcpy(block_.data(), source_data, block_.size());
+			bValid_ = true;
+		}
+		bool isValid()
+		{
+			return bValid_;
+		}
+		EXTENT_BLOCK* getExtentBlock() const
+		{
+			return (EXTENT_BLOCK*)block_.data();
+		}
+		void setBlockNumber(uint64_t block_num)
+		{
+			block_num_ = block_num;
+		}
+		uint64_t getBlockNumber() const
+		{
+			return block_num_;
+		}
+	};
+
 	class ext4_raw
 		: public SpecialAlgorithm
 	{
@@ -108,31 +142,73 @@ namespace RAW
 			device_->ReadData(inode.data(), inode.size());
 			return inode;
 		}
+
+		ExtentStruct findExtentEqualToSize(uint64_t block_start, uint64_t size_to_cmp)
+		{
+			uint64_t offset = block_start * block_size_;
+			uint32_t bytesToRead = 0;
+
+			DataArray buffer(block_size_ * defalut_number_sectors);
+
+			ExtentStruct block_struct(block_size_);
+
+			while (offset < device_->Size())
+			{
+				bytesToRead = calcBlockSize(offset, device_->Size(), buffer.size());
+				if (bytesToRead == 0)
+					break;
+
+				device_->setPosition(offset);
+				device_->ReadData(buffer.data(), bytesToRead);
+
+				for (uint32_t i = 0; i < bytesToRead; i += block_size_)
+				{
+					EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(buffer.data() + i);
+					if (isValidExtentWithNullDepth(*extent_block))
+					{
+						uint64_t first_offset = (uint64_t)extent_block->extent[0].block * block_size_;
+						if (first_offset == size_to_cmp)
+						{
+							block_struct.copyData( buffer.data() + i);
+							uint64_t block_number = offset + i;
+							block_number /= block_size_;
+							block_struct.setBlockNumber(block_number);
+
+							return block_struct;
+						}
+					}
+				}
+
+
+				offset += bytesToRead;
+			}
+			return block_struct;
+		}
 		void search_extends(uint64_t block_start)
 		{
-			//const uint32_t count = 16;
-			//const uint32_t buff_size = count * block_size_;
-			//DataArray buff(buff_size);
-			//uint64_t offset = (uint64_t)(block_start * block_size_);
-			//uint64_t src_size = device_->Size();
-			//uint32_t to_read = 0;
-			//uint32_t bytes_read = 0;
+			uint64_t current_offset = 0;
+			uint64_t current_block = block_start;
 
-			//while (offset < device_->Size())
-			//{
-			//	to_read = calcBlockSize(offset, src_size, buff_size);
-			//	device_->setPosition(offset);
-			//	device_->ReadData(buff.data(), to_read);
+			auto current_size = calculateSize(current_block);
 
-			//	for (uint32_t i = 0; i < to_read, i += block_size_)
-			//	{
-			//		EXTENT_BLOCK * p_extent = (EXTENT_BLOCK *)(buff.data() + i);
+			std::cout << "Offset " << current_offset << " size " << current_size <<  std::endl;
 
-			//	}
+			// search next extent
+			while(true)
+			{
+				current_offset += current_size;
+				auto block_struct = findExtentEqualToSize(0, current_offset);
+				if (!block_struct.isValid())
+					break;
+				
+				auto extent_block = block_struct.getExtentBlock();
+				current_block = block_struct.getBlockNumber();
+				current_size = calculateSize(current_block);
+				std::cout << "Offset " << current_offset << " size " << current_size << std::endl;
 
-
-			//	offset += to_read;
-			//}
+				int k = 1;
+				k = 2;
+			} 
 
 
 		}
@@ -143,9 +219,16 @@ namespace RAW
 			device_->setPosition(extent_offset);
 			device_->ReadData(buffer.data(), buffer.size());
 		}
+
+		uint64_t getOffsetFromPhysicalBlock(const uint64_t physical_block)
+		{
+			return (volume_offset_ + physical_block * block_size_);
+		}
 		
 		uint64_t calculateSize(const uint64_t block_num)
 		{
+			const uint16_t MIN_REQUIRE_ENTRIES = 2;
+
 			DataArray extent(block_size_);
 			readExtent(block_num, extent);
 
@@ -157,8 +240,22 @@ namespace RAW
 			if (extent_block->header.depth != 0)
 				return 0;
 
+			uint64_t extent_size = 0;
 
+			if (extent_block->header.entries > MIN_REQUIRE_ENTRIES)
+			{
+				auto first_offset = getOffsetFromPhysicalBlock(extent_block->extent[0].block);
 
+				auto last_extent = extent_block->extent[extent_block->header.entries - 1];
+
+				auto last_offset = getOffsetFromPhysicalBlock(last_extent.block);
+				auto last_size = last_extent.len;
+
+				extent_size = last_offset + determineSize(last_size) - first_offset;
+				
+			}
+
+			return extent_size;
 
 		}
 		
@@ -167,8 +264,16 @@ namespace RAW
 			if ((extent_block.header.magic != EXTENT_HEADER_MAGIC) ||
 				(extent_block.header.max != max_extents_in_block_) ||
 				(extent_block.header.entries > max_extents_in_block_)) {
-				return 0;
+				return false;
 			}
+			return true;
+		}
+		bool isValidExtentWithNullDepth(EXTENT_BLOCK& extent_block)
+		{
+			if (isValidExtent(extent_block))
+				if (extent_block.header.depth == 0)
+					return true;
+			return false;
 		}
 		void toResize(DataArray & data_array , uint32_t new_size)
 		{
