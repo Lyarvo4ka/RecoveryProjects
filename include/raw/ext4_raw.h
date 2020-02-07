@@ -94,7 +94,8 @@ namespace RAW
 		IODevicePtr device_;
 		uint64_t volume_offset_ = 0;
 		uint32_t block_size_ = 4096;
-		uint16_t max_extents_in_block_;
+		uint16_t max_extents_in_block_ = 0;
+		uint64_t size_to_cmp_ = 0;
 	public:
 		ext4_raw(IODevicePtr device)
 			: device_(device)
@@ -143,45 +144,77 @@ namespace RAW
 			return inode;
 		}
 
+
+		// if (first_offset == size_to_cmp)
+		bool extent_cmp(ByteArray data, uint32_t size)
+		{
+			EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(data);
+			if (isValidExtentWithNullDepth(*extent_block))
+			{
+				uint64_t first_offset = (uint64_t)extent_block->extent[0].block * block_size_;
+				if (first_offset == size_to_cmp_)
+					return true;
+			}
+			return false;
+		}
+
 		ExtentStruct findExtentEqualToSize(uint64_t block_start, uint64_t size_to_cmp)
 		{
 			uint64_t offset = block_start * block_size_;
 			uint32_t bytesToRead = 0;
+			size_to_cmp_ = size_to_cmp;
 
-			DataArray buffer(block_size_ * defalut_number_sectors);
+			//DataArray buffer(block_size_ * defalut_number_sectors);
 
 			ExtentStruct block_struct(block_size_);
 
-			while (offset < device_->Size())
+			DataFinder data_finder(device_);
+			data_finder.setSearchSize(block_size_);
+			auto func_ptr = std::bind(&ext4_raw::extent_cmp, this, std::placeholders::_1, std::placeholders::_2);
+			data_finder.cmp_func_ = func_ptr;
+			if (data_finder.findFromCurrentToEnd(offset))
 			{
-				bytesToRead = calcBlockSize(offset, device_->Size(), buffer.size());
-				if (bytesToRead == 0)
-					break;
+				auto extent_pos = data_finder.getFoundPosition();
+				DataArray ext_block(block_size_);
+				device_->setPosition(extent_pos);
+				device_->ReadData(ext_block.data(), ext_block.size());
+				block_struct.copyData(ext_block.data());
+				uint64_t block_number = extent_pos / block_size_;
+				block_struct.setBlockNumber(block_number);
+				return block_struct;
 
-				device_->setPosition(offset);
-				device_->ReadData(buffer.data(), bytesToRead);
-
-				for (uint32_t i = 0; i < bytesToRead; i += block_size_)
-				{
-					EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(buffer.data() + i);
-					if (isValidExtentWithNullDepth(*extent_block))
-					{
-						uint64_t first_offset = (uint64_t)extent_block->extent[0].block * block_size_;
-						if (first_offset == size_to_cmp)
-						{
-							block_struct.copyData( buffer.data() + i);
-							uint64_t block_number = offset + i;
-							block_number /= block_size_;
-							block_struct.setBlockNumber(block_number);
-
-							return block_struct;
-						}
-					}
-				}
-
-
-				offset += bytesToRead;
 			}
+
+			//while (offset < device_->Size())
+			//{
+			//	bytesToRead = calcBlockSize(offset, device_->Size(), buffer.size());
+			//	if (bytesToRead == 0)
+			//		break;
+
+			//	device_->setPosition(offset);
+			//	device_->ReadData(buffer.data(), bytesToRead);
+
+			//	for (uint32_t i = 0; i < bytesToRead; i += block_size_)
+			//	{
+			//		EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(buffer.data() + i);
+			//		if (isValidExtentWithNullDepth(*extent_block))
+			//		{
+			//			uint64_t first_offset = (uint64_t)extent_block->extent[0].block * block_size_;
+			//			if (first_offset == size_to_cmp)
+			//			{
+			//				block_struct.copyData( buffer.data() + i);
+			//				uint64_t block_number = offset + i;
+			//				block_number /= block_size_;
+			//				block_struct.setBlockNumber(block_number);
+
+			//				return block_struct;
+			//			}
+			//		}
+			//	}
+
+
+			//	offset += bytesToRead;
+			//}
 			return block_struct;
 		}
 		void search_extends(uint64_t block_start)

@@ -12,6 +12,70 @@
 
 namespace IO
 {
+	using compare_ByteArray_func = std::function<bool(ByteArray, uint32_t size)>;
+
+	class DataFinder
+	{
+		IODevicePtr device_;
+		uint32_t search_size_ = 1;
+		uint32_t data_size_ = default_block_size;
+		uint64_t pos_ = 0;
+	public:
+		std::function<bool(ByteArray, uint32_t size)> cmp_func_ = nullptr;
+		DataFinder(IODevicePtr & device)
+			: device_(device)
+		{
+			auto func_ptr = std::bind(&DataFinder::returnFalse, this, std::placeholders::_1, std::placeholders::_2);
+		}
+		uint64_t getFoundPosition()const
+		{
+			return pos_;
+		}
+		bool returnFalse(ByteArray data, uint32_t size)
+		{
+			return false;
+		}
+		void setSearchSize(uint32_t search_size)
+		{
+			search_size_ = search_size;
+		}
+		bool compareData(ByteArray data, uint32_t size)
+		{
+			return cmp_func_(data, size);
+		}
+		bool findFromCurrentToEnd(uint64_t curr_offset)
+		{
+			uint64_t offset = curr_offset;
+			uint32_t bytesToRead = 0;
+			DataArray buffer(data_size_);
+
+			while (offset < device_->Size())
+			{
+				bytesToRead = calcBlockSize(offset, device_->Size(), buffer.size());
+				if (bytesToRead == 0)
+					break;
+
+				device_->setPosition(offset);
+				device_->ReadData(buffer.data(), bytesToRead);
+
+				for (uint32_t i = 0; i < bytesToRead; i += search_size_)
+				{
+					ByteArray pData = buffer.data() + i;
+					if (compareData(pData, bytesToRead - i))
+					{
+						pos_ = offset + i;
+						return true;
+					}
+				}
+
+
+				offset += bytesToRead;
+			}
+
+		}
+
+	};
+
 	class Finder
 	{
 	private:
