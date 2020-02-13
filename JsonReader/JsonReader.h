@@ -16,6 +16,7 @@
 using namespace IO;
 
 const QString algorithmName_txt = "algorithmName";
+const QString algorithType_txt = "algorithType";
 const QString category_txt = "category";
 
 const QString header_txt = "header";
@@ -53,6 +54,7 @@ struct JsonFileStruct
 {
 	QString name;
 	QString algorithmName;
+	QString algorithType;
 	QString category;
 	ArrayOfHeader headers;
 	ArrayOfFooter footer;
@@ -199,6 +201,10 @@ void ReadJsonFIle(const QByteArray & byte_data, QList<JsonFileStruct> & parsedRe
 			auto extension_value = json_object.value(extension_txt);
 			if (extension_value.isString())
 				jsonFileStruct.extension = extension_value.toString();
+
+			auto algorithType_value = json_object.value(algorithType_txt);
+			if (extension_value.isString())
+				jsonFileStruct.algorithType = algorithType_value.toString();
 
 			parsedResult.append(jsonFileStruct);
 

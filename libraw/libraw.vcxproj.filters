@@ -48,6 +48,12 @@
     <ClInclude Include="..\include\raw\ext4_raw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\raw\ZoomH6Raw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\raw\RawRIFF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

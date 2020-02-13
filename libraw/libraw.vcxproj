@@ -168,8 +168,10 @@
     <ClInclude Include="..\include\raw\GoPro.h" />
     <ClInclude Include="..\include\raw\oleraw.h" />
     <ClInclude Include="..\include\raw\QuickTime.h" />
+    <ClInclude Include="..\include\raw\RawRIFF.h" />
     <ClInclude Include="..\include\raw\rawzip.h" />
     <ClInclude Include="..\include\raw\StandartRaw.h" />
+    <ClInclude Include="..\include\raw\ZoomH6Raw.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

@@ -24,6 +24,8 @@
 #include "raw/djvuraw.h"
 #include "raw/oleraw.h"
 #include "raw/GoPro.h"
+#include "raw/ZoomH6Raw.h"
+
 //#include "IO\RawMTS.h"
 //#include "IO\RawMPEG.h"
 //#include "IO\QuickTime.h"
@@ -347,7 +349,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "canonStartFragment.json";
+		QString json_file = "zoomH6.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{
@@ -385,44 +387,48 @@ int main(int argc, char *argv[])
 				qInfo() << endl << endl << endl << "No more signatures found. Press any key to exit.";
 				break;
 			}
-			qInfo() << "Found signature for [" << file_struct->getName().c_str() << "] file."; 
+			qInfo() << "Found signature for [" << file_struct->getName().c_str() << "] file.";
 			qInfo() << "Offset : " << header_offset << "(bytes)";
 
 			start_offset = header_offset;
 			/*
-				if (type ==special) find in other base factory			
+				if (type ==special) find in other base factory
 			*/
 
-			//IO::ZoomH6Raw zoomH6Raw(src_device);
-			//auto bytesWritten = zoomH6Raw.Execute(header_offset, target_folder);
-			//if (bytesWritten == 0)
-			//	break;
-			//start_offset += default_sector_size;
-
-
-
-			
-
- 			auto raw_factory = factory_manager.Lookup(file_struct->getAlgorithmName());
-			RAW::RawAlgorithm * raw_algorithm = nullptr;
-			if (!raw_factory)
+			if (file_struct->getAlgorithType().compare("special"))
 			{
-				RAW::StandartRaw * standard_raw = new RAW::StandartRaw(src_device);
-				standard_raw->setMaxFileSize(file_struct->getMaxFileSize());
-				//standard_raw->setFooter(file_struct->getFooter(), file_struct->getFooterTailEndSize());
-				//standard_raw->setFooterOffsetSearchBlock(4, 4096);
-
-				raw_algorithm = standard_raw;
-				
+				RAW::ZoomH6Raw zoomH6Raw(src_device);
+					auto bytesWritten = zoomH6Raw.Execute(header_offset, target_folder);
+					if (bytesWritten == 0)
+						break;
+					start_offset += default_sector_size;
 			}
 			else
 			{
-				raw_algorithm = raw_factory->createRawAlgorithm(src_device);
-				RAW::StandartRaw * tmpPtr = dynamic_cast<RAW::StandartRaw *>(raw_algorithm);
-				if (tmpPtr)
-					tmpPtr->setMaxFileSize(file_struct->getMaxFileSize());
-			}
-				
+
+
+
+
+				auto raw_factory = factory_manager.Lookup(file_struct->getAlgorithmName());
+				RAW::RawAlgorithm* raw_algorithm = nullptr;
+				if (!raw_factory)
+				{
+					RAW::StandartRaw* standard_raw = new RAW::StandartRaw(src_device);
+					standard_raw->setMaxFileSize(file_struct->getMaxFileSize());
+					//standard_raw->setFooter(file_struct->getFooter(), file_struct->getFooterTailEndSize());
+					//standard_raw->setFooterOffsetSearchBlock(4, 4096);
+
+					raw_algorithm = standard_raw;
+
+				}
+				else
+				{
+					raw_algorithm = raw_factory->createRawAlgorithm(src_device);
+					RAW::StandartRaw* tmpPtr = dynamic_cast<RAW::StandartRaw*>(raw_algorithm);
+					if (tmpPtr)
+						tmpPtr->setMaxFileSize(file_struct->getMaxFileSize());
+				}
+
 				if (raw_algorithm->Specify(header_offset))
 				{
 					auto target_file = IO::offsetToPath(target_folder, header_offset, file_struct->getExtension(), default_sector_size);
@@ -430,20 +436,19 @@ int main(int argc, char *argv[])
 					if (dst_file->Open(IO::OpenMode::Create))
 					{
 						auto target_size = raw_algorithm->SaveRawFile(*dst_file, header_offset);
-						
-						if ( target_size == 0)
-						{
-							qInfo() << "Error to save file." ;
-							//break;
 
-						}
+						if (target_size == 0)
+							qInfo() << "Error to save file.";
+
+
+
 						auto dst_size = dst_file->Size();
 						dst_file->Close();
 						qInfo() << "Successfully saved " << target_size << "(bytes)" << endl << endl;
 
 						uint64_t jump_size = default_sector_size;
 
-						if ( raw_algorithm->Verify(target_file) )
+						if (raw_algorithm->Verify(target_file))
 						{
 							target_size /= default_sector_size;
 							target_size *= default_sector_size;
@@ -465,7 +470,7 @@ int main(int argc, char *argv[])
 
 						}
 						//if (jump_size == 0)
-							jump_size = default_sector_size;
+						jump_size = default_sector_size;
 						start_offset = header_offset + jump_size;
 
 					}
@@ -475,24 +480,24 @@ int main(int argc, char *argv[])
 						qInfo() << "Exit.";
 						break;
 					}
-					
-							
+
+
 
 				}
 				else
 				{
-					qInfo() << "Not specified for " << QString::fromStdString(file_struct->getName()) << "continue search for other signatures."<<endl;
+					qInfo() << "Not specified for " << QString::fromStdString(file_struct->getName()) << "continue search for other signatures." << endl;
 					start_offset += default_sector_size;
 				}
-				if ( raw_algorithm)
+				if (raw_algorithm)
 					delete raw_algorithm;
 
-				
+
 
 			}
 
 
-
+		}
 		
 
 			qInfo() << "Finished.";

@@ -106,6 +106,7 @@ namespace RAW
 		HeaderArray headers_;
 		std::string formatName_;
 		std::string algorithmName_;
+		std::string algorithType_;
 		std::string category_;
 		path_string extension_;
 		SignatureArray footers_;
@@ -226,6 +227,14 @@ namespace RAW
 		path_string getExtension() const
 		{
 			return extension_;
+		}
+		void setAlgorithType(const std::string algorithType)
+		{
+			algorithType_ = algorithType;
+		}
+		std::string getAlgorithType() const
+		{
+			return algorithType_;
 		}
 	private:
 		HeaderArray::iterator findByOffset(uint32_t header_offset)
