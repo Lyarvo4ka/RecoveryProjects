@@ -95,7 +95,7 @@ namespace RAW
 		uint64_t volume_offset_ = 0;
 		uint32_t block_size_ = 4096;
 		uint16_t max_extents_in_block_ = 0;
-		uint64_t size_to_cmp_ = 0;
+		uint64_t value_to_cmp_ = 0;
 	public:
 		ext4_raw(IODevicePtr device)
 			: device_(device)
@@ -127,7 +127,7 @@ namespace RAW
 			target_file.OpenWrite();
 
 
-			SaveToFile(inode_block , target_file);
+			saveToFile(inode_block , target_file);
 			//auto inode = read_inode(inode_offset);
 			//ext4_inode * pInode = (ext4_inode*)inode.data();
 			//if (pInode->extent_block.header.magic == EXTENT_HEADER_MAGIC)
@@ -136,7 +136,7 @@ namespace RAW
 			return 0;
 		}
 
-		DataArray read_inode(const uint64_t inode_offset)
+		DataArray readInode(const uint64_t inode_offset)
 		{
 			DataArray inode(INODE_SIZE);
 			device_->setPosition(inode_offset);
@@ -146,13 +146,13 @@ namespace RAW
 
 
 		// if (first_offset == size_to_cmp)
-		bool extent_cmp(ByteArray data, uint32_t size)
+		bool firstExtentOffsetEqualTo(ByteArray data, uint32_t size)
 		{
 			EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(data);
 			if (isValidExtentWithNullDepth(*extent_block))
 			{
 				uint64_t first_offset = (uint64_t)extent_block->extent[0].block * block_size_;
-				if (first_offset == size_to_cmp_)
+				if (first_offset == value_to_cmp_)
 					return true;
 			}
 			return false;
@@ -162,17 +162,15 @@ namespace RAW
 		{
 			uint64_t offset = block_start * block_size_;
 			uint32_t bytesToRead = 0;
-			size_to_cmp_ = size_to_cmp;
-
-			//DataArray buffer(block_size_ * defalut_number_sectors);
+			value_to_cmp_ = size_to_cmp;	// ?????
 
 			ExtentStruct block_struct(block_size_);
 
 			DataFinder data_finder(device_);
 			data_finder.setSearchSize(block_size_);
-			auto func_ptr = std::bind(&ext4_raw::extent_cmp, this, std::placeholders::_1, std::placeholders::_2);
-			data_finder.cmp_func_ = func_ptr;
-			if (data_finder.findFromCurrentToEnd(offset))
+			auto func_ptr = std::bind(&ext4_raw::firstExtentOffsetEqualTo, this, std::placeholders::_1, std::placeholders::_2);
+			data_finder.compareFunctionPtr_ = func_ptr;
+			if (data_finder.search—ircle(offset))
 			{
 				auto extent_pos = data_finder.getFoundPosition();
 				DataArray ext_block(block_size_);
@@ -184,60 +182,33 @@ namespace RAW
 				return block_struct;
 
 			}
-
-			//while (offset < device_->Size())
-			//{
-			//	bytesToRead = calcBlockSize(offset, device_->Size(), buffer.size());
-			//	if (bytesToRead == 0)
-			//		break;
-
-			//	device_->setPosition(offset);
-			//	device_->ReadData(buffer.data(), bytesToRead);
-
-			//	for (uint32_t i = 0; i < bytesToRead; i += block_size_)
-			//	{
-			//		EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(buffer.data() + i);
-			//		if (isValidExtentWithNullDepth(*extent_block))
-			//		{
-			//			uint64_t first_offset = (uint64_t)extent_block->extent[0].block * block_size_;
-			//			if (first_offset == size_to_cmp)
-			//			{
-			//				block_struct.copyData( buffer.data() + i);
-			//				uint64_t block_number = offset + i;
-			//				block_number /= block_size_;
-			//				block_struct.setBlockNumber(block_number);
-
-			//				return block_struct;
-			//			}
-			//		}
-			//	}
-
-
-			//	offset += bytesToRead;
-			//}
 			return block_struct;
 		}
-		void search_extends(uint64_t block_start)
+		void searchExtends(uint64_t block_start)
 		{
-			uint64_t current_offset = 0;
+			uint64_t target_offset = 0;
 			uint64_t current_block = block_start;
 
 			auto current_size = calculateSize(current_block);
 
-			std::cout << "Offset " << current_offset << " size " << current_size <<  std::endl;
+			std::cout << "Offset " << target_offset << " size " << current_size <<  std::endl;
 
 			// search next extent
 			while(true)
 			{
-				current_offset += current_size;
-				auto block_struct = findExtentEqualToSize(0, current_offset);
+
+				// to do: determine and search only in 1 Tb range
+				target_offset += current_size;
+				auto block_struct = findExtentEqualToSize(current_block, target_offset);
 				if (!block_struct.isValid())
 					break;
 				
 				auto extent_block = block_struct.getExtentBlock();
 				current_block = block_struct.getBlockNumber();
 				current_size = calculateSize(current_block);
-				std::cout << "Offset " << current_offset << " size " << current_size << std::endl;
+				if (current_size == 0)
+					break;
+				std::cout << "Offset " << target_offset << " size " << current_size << std::endl;
 
 				int k = 1;
 				k = 2;
@@ -323,7 +294,7 @@ namespace RAW
 				: ((len - 0x8000) * block_size_);
 		}
 
-		uint64_t SaveToFile(const uint64_t block_num, File &target_file)
+		uint64_t saveToFile(const uint64_t block_num, File &target_file)
 		{
 			if (!target_file.isOpen())
 				return 0;
@@ -367,7 +338,7 @@ namespace RAW
 			}
 			else {
 				for (int i = 0; i < extent_block->header.entries; i++) {
-					SaveToFile(extent_block->extent_index[i].PysicalBlock(), target_file);
+					saveToFile(extent_block->extent_index[i].PysicalBlock(), target_file);
 					int x = 0;
 				}
 			}

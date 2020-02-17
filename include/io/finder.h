@@ -21,11 +21,11 @@ namespace IO
 		uint32_t data_size_ = default_block_size;
 		uint64_t pos_ = 0;
 	public:
-		std::function<bool(ByteArray, uint32_t size)> cmp_func_ = nullptr;
+		std::function<bool(ByteArray, uint32_t size)> compareFunctionPtr_ = nullptr;
 		DataFinder(IODevicePtr & device)
 			: device_(device)
 		{
-			auto func_ptr = std::bind(&DataFinder::returnFalse, this, std::placeholders::_1, std::placeholders::_2);
+			compareFunctionPtr_ = std::bind(&DataFinder::returnFalse, this, std::placeholders::_1, std::placeholders::_2);
 		}
 		uint64_t getFoundPosition()const
 		{
@@ -41,15 +41,18 @@ namespace IO
 		}
 		bool compareData(ByteArray data, uint32_t size)
 		{
-			return cmp_func_(data, size);
+			return compareFunctionPtr_(data, size);
 		}
-		bool findFromCurrentToEnd(uint64_t curr_offset)
+		bool findInRegion(uint64_t start_offset, uint64_t end_offset )
 		{
-			uint64_t offset = curr_offset;
+			if (start_offset >= end_offset)
+				return false;
+
+			uint64_t offset = start_offset;
 			uint32_t bytesToRead = 0;
 			DataArray buffer(data_size_);
 
-			while (offset < device_->Size())
+			while (offset < end_offset)
 			{
 				bytesToRead = calcBlockSize(offset, device_->Size(), buffer.size());
 				if (bytesToRead == 0)
@@ -71,7 +74,22 @@ namespace IO
 
 				offset += bytesToRead;
 			}
-
+			return false;
+		}
+		bool findFromCurrentToEnd(uint64_t curr_offset)
+		{
+			return findInRegion(curr_offset, device_->Size());
+		}
+		bool findFromStartToCurrent(uint64_t curr_offset)
+		{
+			return findInRegion(0, curr_offset);
+		}
+		bool search—ircle(uint64_t curr_offset)
+		{
+			bool bFound = findFromCurrentToEnd(curr_offset);
+			if (!bFound)
+				bFound = findFromStartToCurrent(curr_offset);
+			return bFound;
 		}
 
 	};
