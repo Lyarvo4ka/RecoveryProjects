@@ -14,19 +14,35 @@ namespace IO
 {
 	using compare_ByteArray_func = std::function<bool(ByteArray, uint32_t size)>;
 
+	struct Range
+	{
+		uint64_t begin = 0;
+		uint64_t end = 0;
+	};
+
 	class DataFinder
 	{
 		IODevicePtr device_;
 		uint32_t search_size_ = 1;
 		uint32_t data_size_ = default_block_size;
 		uint64_t pos_ = 0;
+		Range range_;
 	public:
 		std::function<bool(ByteArray, uint32_t size)> compareFunctionPtr_ = nullptr;
 		DataFinder(IODevicePtr & device)
 			: device_(device)
 		{
+			range_.begin = 0;
+			range_.end = device_->Size();
+
 			compareFunctionPtr_ = std::bind(&DataFinder::returnFalse, this, std::placeholders::_1, std::placeholders::_2);
 		}
+		void setRange(const Range range)
+		{
+			range_.begin = range.begin;
+			range_.end = range_.end;
+		}
+
 		uint64_t getFoundPosition()const
 		{
 			return pos_;
@@ -78,11 +94,11 @@ namespace IO
 		}
 		bool findFromCurrentToEnd(uint64_t curr_offset)
 		{
-			return findInRegion(curr_offset, device_->Size());
+			return findInRegion(curr_offset, range_.end);
 		}
 		bool findFromStartToCurrent(uint64_t curr_offset)
 		{
-			return findInRegion(0, curr_offset);
+			return findInRegion(range_.begin, curr_offset);
 		}
 		bool search—ircle(uint64_t curr_offset)
 		{

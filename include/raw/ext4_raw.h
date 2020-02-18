@@ -6,6 +6,12 @@
 namespace RAW
 {
 
+
+	const uint64_t KB = 1024;
+	const uint64_t MB = KB * KB;
+	const uint64_t GB = MB * KB;
+	constexpr uint64_t TB = GB * KB;
+
 	const uint16_t EXTENT_HEADER_MAGIC = (uint16_t)0xF30A;
 	
 	const uint16_t INODE_SIZE = 256;
@@ -88,6 +94,36 @@ namespace RAW
 		}
 	};
 
+
+	class StringConverter
+	{
+	public:
+		static std::string toHexString(uint64_t value_to_convert, const uint32_t num_nulls_before = 17)
+		{
+			std::string string_txt;
+			if (num_nulls_before == 0)
+				return string_txt;
+
+			std::vector<char> buff(num_nulls_before, 0);
+
+			sprintf_s(buff.data(), num_nulls_before, "%.15I64x", value_to_convert);
+			string_txt = buff.data();
+			return string_txt;
+		}
+		static std::string toString(uint64_t value_to_convert)
+		{
+			const uint32_t max_values = 20;
+			std::vector<char> buff(max_values, 0);
+
+			sprintf_s(buff.data(), buff.size(), "%I64x", value_to_convert);
+
+			std::string str(buff.data());
+			return str;
+
+		}
+	};
+
+
 	class ext4_raw
 		: public SpecialAlgorithm
 	{
@@ -158,6 +194,7 @@ namespace RAW
 			return false;
 		}
 
+
 		ExtentStruct findExtentEqualToSize(uint64_t block_start, uint64_t size_to_cmp)
 		{
 			uint64_t offset = block_start * block_size_;
@@ -166,7 +203,15 @@ namespace RAW
 
 			ExtentStruct block_struct(block_size_);
 
+			uint64_t val_range = offset / TB;
+			Range range;
+			range.begin = val_range * TB;
+			range.end = (val_range + 1) * TB;
+
+			//Range
 			DataFinder data_finder(device_);
+			data_finder.setRange(range);
+
 			data_finder.setSearchSize(block_size_);
 			auto func_ptr = std::bind(&ext4_raw::firstExtentOffsetEqualTo, this, std::placeholders::_1, std::placeholders::_2);
 			data_finder.compareFunctionPtr_ = func_ptr;
@@ -216,6 +261,31 @@ namespace RAW
 
 
 		}
+		void findExtentsWithDepth(uint16_t depth )
+		{
+			File extentsOffset_txt(L"extents_offsets.txt");
+			extentsOffset_txt.OpenCreate();
+
+			uint64_t offset = 0;
+
+			DataFinder data_finder(device_);
+			data_finder.setSearchSize(block_size_);
+			data_finder.compareFunctionPtr_ = std::bind(&ext4_raw::compareIsValidExtentWithNullDepth, this, std::placeholders::_1, std::placeholders::_2);
+			
+
+			while (true)
+			{
+				if (!data_finder.findFromCurrentToEnd(offset))
+					break;
+				offset = data_finder.getFoundPosition();
+				auto str_text = StringConverter::toString(offset) + "\n";
+				//str_text += std::endl;
+
+				extentsOffset_txt.WriteText(str_text);
+
+				offset += block_size_;
+			}
+		}
 		void readExtent(const uint64_t block_num, DataArray& buffer)
 		{
 
@@ -238,10 +308,7 @@ namespace RAW
 
 			EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)extent.data();
 
-			if (!isValidExtent(*extent_block))
-				return 0;
-
-			if (extent_block->header.depth != 0)
+			if (!isValidExtentWithNullDepth(*extent_block))
 				return 0;
 
 			uint64_t extent_size = 0;
@@ -278,6 +345,11 @@ namespace RAW
 				if (extent_block.header.depth == 0)
 					return true;
 			return false;
+		}
+		bool compareIsValidExtentWithNullDepth(ByteArray data, uint32_t size)
+		{
+			EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(data);
+			return isValidExtentWithNullDepth(*extent_block);
 		}
 		void toResize(DataArray & data_array , uint32_t new_size)
 		{
