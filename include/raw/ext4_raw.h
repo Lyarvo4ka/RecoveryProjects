@@ -132,6 +132,7 @@ namespace RAW
 		uint32_t block_size_ = 4096;
 		uint16_t max_extents_in_block_ = 0;
 		uint64_t value_to_cmp_ = 0;
+		IO::path_string offsetsFileName_ = L"extents_offsets.txt";
 	public:
 		ext4_raw(IODevicePtr device)
 			: device_(device)
@@ -229,9 +230,60 @@ namespace RAW
 			}
 			return block_struct;
 		}
+
+		ExtentStruct findExtentEqualToSize(uint64_t block_start, uint64_t size_to_cmp, const std::list<uint64_t>& listAllOffset)
+		{
+			DataArray extent_block(block_size_);
+			ExtentStruct block_struct(block_size_);
+
+			value_to_cmp_ = size_to_cmp;
+
+			for (auto curr_offset : listAllOffset)
+			{
+				device_->setPosition(curr_offset);
+				device_->ReadData(extent_block.data(), extent_block.size());
+				if (firstExtentOffsetEqualTo(extent_block.data(), extent_block.size()))
+				{
+					block_struct.copyData(extent_block.data());
+					uint64_t block_number = curr_offset / block_size_;
+					block_struct.setBlockNumber(block_number);
+					return block_struct;
+				}
+
+			}
+			return block_struct;
+		}
 		void searchExtends(uint64_t block_start)
 		{
+			uint64_t current_offset = block_start * block_size_;
+
+			auto listAllffset = readOffsetsFromFile();
+			uint64_t current_block = block_start;
+			auto current_size = calculateSize(current_block);
+
 			uint64_t target_offset = 0;
+
+			while (true)
+			{
+				target_offset += current_size;
+				if (current_size == 0)
+					break;
+
+				auto block_struct = findExtentEqualToSize(current_block, target_offset, listAllffset);
+				if (!block_struct.isValid())
+					break;
+
+				auto extent_block = block_struct.getExtentBlock();
+				current_block = block_struct.getBlockNumber();
+				current_size = calculateSize(current_block);
+
+				std::cout << "Offset " << target_offset << " size " << current_size << "current_block " << current_block << std::endl;
+			}
+
+
+/*
+
+
 			uint64_t current_block = block_start;
 
 			auto current_size = calculateSize(current_block);
@@ -259,7 +311,7 @@ namespace RAW
 				k = 2;
 			} 
 
-
+*/
 		}
 		void findExtentsWithDepth(uint16_t depth )
 		{
@@ -285,6 +337,52 @@ namespace RAW
 
 				offset += block_size_;
 			}
+		}
+		std::list<uint64_t> readOffsetsFromFile()
+		{
+			std::list<uint64_t> offsetList;
+			File extentsOffset_txt(L"extents_offsets.txt");
+			extentsOffset_txt.OpenRead();
+
+			if (extentsOffset_txt.Size() == 0)
+				return offsetList;
+
+			IO::DataArray buff(extentsOffset_txt.Size());
+			extentsOffset_txt.ReadData(buff);
+
+			const uint8_t NEW_LINE = 0x0A;
+
+			uint64_t iPrev = 0;
+			uint64_t iCur = 0;
+
+			while (iCur < buff.size())
+			{
+				if (buff[iCur] == NEW_LINE)
+				{
+					uint64_t iSize = iCur - iPrev;
+					//IO::DataArray tmp(iSize + 1);
+					//ZeroMemory(tmp.data(), tmp.size());
+					//memcpy(tmp.data(), buff.data() + iPrev, iSize);
+					std::string tmp_str((char*)(buff.data() + iPrev), iSize);
+					//
+
+					uint64_t offset = 0;
+					std::stringstream ss;
+					ss << std::hex << tmp_str;
+					ss >> offset;
+
+					offsetList.push_back(offset);
+
+
+					iPrev = iCur + 1;
+				}
+
+				++iCur;
+			} 
+
+
+			return offsetList;
+
 		}
 		void readExtent(const uint64_t block_num, DataArray& buffer)
 		{

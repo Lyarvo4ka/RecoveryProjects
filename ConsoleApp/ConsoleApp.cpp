@@ -438,10 +438,10 @@ int main()
 	IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
 	//ext4_recovery.Execute(inode_offset, target_name);
 	uint64_t inode_block = inode_offset / 4096;
-	//ext4_recovery.searchExtends(inode_block);
-	ext4_recovery.findExtentsWithDepth(0);
+	ext4_recovery.searchExtends(inode_block);
+	//ext4_recovery.findExtentsWithDepth(0);
 	//auto size = ext4_recovery.calculateSize(inode_block);
-
+	//ext4_recovery.readOffsetsFromFile();
 	_CrtDumpMemoryLeaks();
 
 // 773807144960 - 0xC508942000
