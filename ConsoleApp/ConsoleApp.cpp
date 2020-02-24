@@ -358,6 +358,41 @@ void findNullsBlock()
 }
 
 #include "io/utility.h"
+#include "raw/QuickTime.h"
+
+void testQtFiles(const IO::path_string& folder_path)
+{
+	IO::Finder finder;
+	finder.add_extension(L".mov");
+	finder.add_extension(L".mp4");
+	finder.FindFiles(folder_path);
+
+	for (auto filepath : finder.getFiles())
+	{
+		bool bGood = false;
+		{
+			auto filePtr = IO::makeFilePtr(filepath);
+			filePtr->OpenRead();
+			RAW::QuickTimeRaw qt_raw(filePtr);
+			RAW::QuickTimeList atomsList;
+
+			auto sizeKeywords = qt_raw.readAllQtAtoms(0, atomsList);
+			if (qt_raw.isPresentMainKeywords(atomsList))
+			{
+				bGood = true;
+			}
+
+		}
+		if (!bGood)
+		{
+			auto new_file_name = filepath + L".bad_file";
+			//std::wcout << new_file_name.c_str() << std::endl;
+			fs::rename(filepath, new_file_name);
+		}
+	}
+
+
+}
 
 int main()
 {
@@ -424,6 +459,9 @@ int main()
 	//16B70800000
 
 
+
+
+
 	// skip 
 	// 0xB5D6EC1000
 
@@ -439,6 +477,7 @@ int main()
 	//ext4_recovery.Execute(inode_offset, target_name);
 	uint64_t inode_block = inode_offset / 4096;
 	ext4_recovery.searchExtends(inode_block);
+
 	//ext4_recovery.findExtentsWithDepth(0);
 	//auto size = ext4_recovery.calculateSize(inode_block);
 	//ext4_recovery.readOffsetsFromFile();
