@@ -277,7 +277,7 @@ namespace RAW
 				current_block = block_struct.getBlockNumber();
 				current_size = calculateSize(current_block);
 
-				std::cout << "Offset " << target_offset << " size " << current_size << "current_block " << current_block << std::endl;
+				std::cout << "dst offset " << target_offset << " size " << current_size << " src_block " << current_block << std::endl;
 			}
 
 

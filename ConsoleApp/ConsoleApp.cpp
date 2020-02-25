@@ -360,6 +360,58 @@ void findNullsBlock()
 #include "io/utility.h"
 #include "raw/QuickTime.h"
 
+inline void Xor2Files(const IO::path_string& sourceFileName, const IO::path_string& xorFileName, const IO::path_string& targetFileName)
+{
+	IO::File src_file(sourceFileName);
+	src_file.OpenRead();
+	IO::File xor_file(xorFileName);
+	xor_file.OpenRead();
+	IO::File target_file(targetFileName);
+	target_file.OpenCreate();
+
+	auto xor_size = xor_file.Size();
+	if (xor_size == 0)
+	{
+		printf_s("Xor file size is 0.\r\n");
+		return;
+	}
+
+
+	auto source_size = src_file.Size();
+	if ((source_size % xor_size) != 0)
+	{
+		printf_s("Source size is not multiple by xor size.\r\n");
+		return;
+	}
+
+	IO::DataArray xor_buffer(xor_size);
+	xor_file.ReadData(xor_buffer);
+
+	IO::DataArray src_buffer(xor_size);
+	IO::DataArray dst_buffer(xor_size);
+
+
+
+	uint64_t offset = 0;
+
+	while (offset < source_size)
+	{
+		src_file.setPosition(offset);
+		src_file.ReadData(src_buffer);
+
+		for (uint32_t iByte = 0; iByte < xor_size; ++iByte)
+		{
+			dst_buffer[iByte] = src_buffer[iByte] ^ xor_buffer[iByte];
+		}
+
+		target_file.WriteData(dst_buffer.data(), dst_buffer.size());
+
+		offset += xor_size;
+	}
+
+	printf_s("\r\nFinished\r\n");
+}
+
 void testQtFiles(const IO::path_string& folder_path)
 {
 	IO::Finder finder;
@@ -394,8 +446,57 @@ void testQtFiles(const IO::path_string& folder_path)
 
 }
 
-int main()
+
+
+/*
+Xor2Files
+	if (argc == 4)
+	{
+		std::wstring srcFileName = argv[1];
+		std::wstring xorFileName = argv[2];
+		std::wstring dstFileName = argv[3];
+
+		printf_s("It's starting xor ... \r\n");
+		Xor2Files(srcFileName, xorFileName, dstFileName);
+
+	}
+	else
+	{
+		printf_s("Wrong params\r\n");
+		printf_s("1 - source file\r\n");
+		printf_s("2 - xor file\r\n");
+		printf_s("3 - target file\r\n");
+
+	}
+
+*/
+
+#include "io/XorAnalyzer.h"
+
+int wmain(int argc, wchar_t* argv[])
 {
+
+	if (argc == 4)
+	{
+		std::wstring srcFileName = argv[1];
+		std::wstring xorFileName = argv[2];
+		int block_size = std::stoi(argv[3]);
+
+
+		IO::XorAnalyzer xor_analyzer(srcFileName);
+		xor_analyzer.Analize(xorFileName, block_size);
+
+	}
+	else
+	{
+		printf_s("Wrong params\r\n");
+		printf_s("1 - source file\r\n");
+		printf_s("2 - xor file\r\n");
+		printf_s("3 - xor size\r\n");
+
+	}
+
+
 
 /*
 	IO::path_string src_folder = LR"(d:\PaboTa\47651\NoName\DCM\)";
@@ -459,16 +560,13 @@ int main()
 	//16B70800000
 
 
-
-
-
 	// skip 
 	// 0xB5D6EC1000
 
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
-
-	auto src_file = IO::makeFilePtr(LR"(g:\segment_v2\47555_v2.tmp)");
+/*
+	auto src_file = IO::makeFilePtr(LR"(f:\segment_v2\47555_v2.tmp)");
 	src_file->OpenRead();
 	RAW::ext4_raw ext4_recovery(src_file);
 
@@ -477,7 +575,7 @@ int main()
 	//ext4_recovery.Execute(inode_offset, target_name);
 	uint64_t inode_block = inode_offset / 4096;
 	ext4_recovery.searchExtends(inode_block);
-
+*/
 	//ext4_recovery.findExtentsWithDepth(0);
 	//auto size = ext4_recovery.calculateSize(inode_block);
 	//ext4_recovery.readOffsetsFromFile();
@@ -528,7 +626,7 @@ int main()
 	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");
 	//IO::calcNullsForFolder(LR"(d:\PaboTa\46950\sample\)" , 131072);
 	//RAW::testOLE();
-
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

@@ -54,6 +54,9 @@
     <ClInclude Include="..\include\io\functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\io\XorAnalyzer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -17,9 +17,25 @@ namespace fs = std::experimental::filesystem;
 
 namespace IO
 {
+	inline bool isBlockContainsValue(ByteArray data, uint32_t size , uint8_t value_to_compare)
+	{
+		for (auto i = 0; i < size; i++)
+		{
+			if (data[i] != value_to_compare)
+				return false;
+		}
+		return true;
+	}
 
+	inline bool isNot00orFF(ByteArray data, uint32_t size)
+	{
+		if (isBlockContainsValue(data, size, 0x00))
+			return false;
+		if (isBlockContainsValue(data, size, 0xFF))
+			return false;
 
-
+		return true;
+	}
 
 	inline path_string toWString(const std::string& oneByteString)
 	{
