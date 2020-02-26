@@ -38,7 +38,7 @@ namespace IO
 		{
 			BYTE popularByte = 0;
 			WORD dwMax = bytes_[0];
-			for (BYTE i = 1; i < BYTE_SIZE; ++i)
+			for (BYTE i = 1; i < UCHAR_MAX; ++i)
 			{
 				if (bytes_[i] > dwMax)
 				{
