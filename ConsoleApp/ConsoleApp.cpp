@@ -277,13 +277,15 @@ void getDCMFiles_date(const IO::path_string& src_folder, const IO::path_string& 
 	}
 }
 
-void add_service(const IO::path_string& src_filename, const IO::path_string& dst_filename)
+void add_service(const IO::path_string& src_filename, const IO::path_string& dst_filename , uint8_t fill_value)
 {
-	const uint32_t fullpage_size = 18432;
+	const uint32_t fullpage_size = 17664;
 	const uint32_t numof_pages = 16;
 	const uint32_t data_size = 1024;
 
 	const uint32_t src_page_size = 16384;
+	const uint32_t sa_size = 78;
+
 
 	IO::DataArray target(fullpage_size);
 	IO::DataArray source(src_page_size);
@@ -294,19 +296,19 @@ void add_service(const IO::path_string& src_filename, const IO::path_string& dst
 	IO::File dst(dst_filename);
 	dst.OpenCreate();
 
-	const uint32_t first_offset = data_size + 113;
+	//const uint32_t first_offset = data_size + 113;
 	uint32_t cur_offset = 0;
 	while (cur_offset < src.Size())
 	{
 		src.ReadData(source);
 
-		memset(target.data(), 0xFF, fullpage_size);
-		memcpy(target.data(), source.data(), data_size);
+		memset(target.data(), fill_value, fullpage_size);
+		//memcpy(target.data(), source.data(), data_size);
 
-		for (auto i = 0; i < 15; ++i)
+		for (auto i = 0; i < numof_pages; ++i)
 		{
-			auto src_offset = data_size * (i + 1);
-			auto dst_offset = first_offset + (data_size + 109) * i ;
+			auto src_offset = data_size * i;
+			auto dst_offset = (data_size + sa_size) * i ;
 			memcpy(target.data() + dst_offset, source.data() + src_offset, data_size);
 
 		}
@@ -470,12 +472,10 @@ Xor2Files
 	}
 
 */
-
 #include "io/XorAnalyzer.h"
 
-int wmain(int argc, wchar_t* argv[])
+int XorAnalyzer(int argc, wchar_t* argv[])
 {
-
 	if (argc == 4)
 	{
 		std::wstring srcFileName = argv[1];
@@ -495,6 +495,18 @@ int wmain(int argc, wchar_t* argv[])
 		printf_s("3 - xor size\r\n");
 
 	}
+	return 0;
+}
+
+
+
+
+int wmain(int argc, wchar_t* argv[])
+{
+	auto srcFileName = LR"(d:\incoming\47667\xor.bin)";
+	auto dstFileName = LR"(d:\incoming\47667\xor_FF.bin)";
+
+	add_service(srcFileName, dstFileName, 0xFF);
 
 
 
@@ -566,7 +578,7 @@ int wmain(int argc, wchar_t* argv[])
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
 /*
-	auto src_file = IO::makeFilePtr(LR"(f:\segment_v2\47555_v2.tmp)");
+	auto src_file = IO::makeFilePtr(LR"(g:\segment_v2\47555_v2.tmp)");
 	src_file->OpenRead();
 	RAW::ext4_raw ext4_recovery(src_file);
 
