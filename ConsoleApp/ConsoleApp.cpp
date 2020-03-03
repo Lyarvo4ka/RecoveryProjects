@@ -503,10 +503,16 @@ int XorAnalyzer(int argc, wchar_t* argv[])
 
 int wmain(int argc, wchar_t* argv[])
 {
-	auto srcFileName = LR"(d:\incoming\47667\xor.bin)";
-	auto dstFileName = LR"(d:\incoming\47667\xor_FF.bin)";
+	//XorAnalyzer(argc, argv);
 
-	add_service(srcFileName, dstFileName, 0xFF);
+	IO::XorAnalyzer xor_analyzer(L"");
+	xor_analyzer.analizeXor( LR"(d:\incoming\46925\xor.bin)", 16384 , 1024);
+
+
+	//auto srcFileName = LR"(d:\incoming\47667\xor.bin)";
+	//auto dstFileName = LR"(d:\incoming\47667\xor_FF.bin)";
+
+	//add_service(srcFileName, dstFileName, 0xFF);
 
 
 

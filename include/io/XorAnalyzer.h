@@ -65,6 +65,63 @@ namespace IO
 		~XorAnalyzer(void)
 		{
 		}
+
+		DataArray generateBlock(uint32_t block_size)
+		{
+			DataArray block(block_size);
+
+
+			return block;
+		}
+		void analizeXor(const path_string& xor_filename , uint32_t block_size , uint32_t xor_size)
+		{
+			File xor_file(xor_filename);
+			xor_file.OpenRead();
+
+			File fixed_xor_file(xor_filename + L".fixed");
+			fixed_xor_file.OpenCreate();
+
+			DataArray block(block_size);
+			uint64_t offset = 0;
+
+			while (offset < xor_file.Size())
+			{
+				xor_file.setPosition(offset);
+				xor_file.ReadData(block);
+
+				auto fixed_xor = getPopulaValueBlock(block, xor_size);
+
+				for (auto i = 0; i < block.size(); i += xor_size)
+					memcpy(block.data() + i, fixed_xor.data(), fixed_xor.size());
+
+				fixed_xor_file.WriteData(block.data(), block.size());
+				offset += block_size;
+			}
+		}
+
+		DataArray getPopulaValueBlock(const DataArray &block, uint32_t xor_size)
+		{
+			DataArray resBlock(xor_size);
+			ByteCount* pByteCounts = new ByteCount[xor_size];
+
+			//uint32_t num_sectors = block.size() / xor_size;
+
+			for (auto i = 0; i < block.size(); ++i)
+			{
+				auto iPos = i % xor_size;
+				auto pData = block[i];
+				pByteCounts[iPos].add(pData);
+			}
+
+			for (auto i = 0; i < xor_size; ++i)
+				resBlock[i] = pByteCounts[i].getMax();
+
+
+			delete[]pByteCounts;
+
+			return resBlock;
+		}
+
 		void Analize(const path_string& result_xor, DWORD xor_size)
 		{
 			dump_file_.OpenRead();
