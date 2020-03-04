@@ -500,14 +500,22 @@ int XorAnalyzer(int argc, wchar_t* argv[])
 
 
 
+#include "io/iodevice.h"
 
 int wmain(int argc, wchar_t* argv[])
 {
 	//XorAnalyzer(argc, argv);
 
-	IO::XorAnalyzer xor_analyzer(L"");
-	xor_analyzer.analizeXor( LR"(d:\incoming\46925\xor.bin)", 16384 , 1024);
+	//IO::XorAnalyzer xor_analyzer(L"");
+	//xor_analyzer.analizeXor( LR"(d:\incoming\XOR_finder\testing\from_2.tmp)", 16384 , 1024);
 
+	//auto block = xor_analyzer.generateBlock(37748736);
+
+	//IO::path_string filePath = LR"(d:\incoming\XOR_finder\test_file)";
+	//IO::File test_xor(filePath);
+	//test_xor.OpenCreate();
+	//test_xor.WriteData(block.data(), block.size());
+	//test_xor.Close();
 
 	//auto srcFileName = LR"(d:\incoming\47667\xor.bin)";
 	//auto dstFileName = LR"(d:\incoming\47667\xor_FF.bin)";
@@ -583,7 +591,7 @@ int wmain(int argc, wchar_t* argv[])
 
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
-/*
+
 	auto src_file = IO::makeFilePtr(LR"(g:\segment_v2\47555_v2.tmp)");
 	src_file->OpenRead();
 	RAW::ext4_raw ext4_recovery(src_file);
@@ -593,7 +601,7 @@ int wmain(int argc, wchar_t* argv[])
 	//ext4_recovery.Execute(inode_offset, target_name);
 	uint64_t inode_block = inode_offset / 4096;
 	ext4_recovery.searchExtends(inode_block);
-*/
+
 	//ext4_recovery.findExtentsWithDepth(0);
 	//auto size = ext4_recovery.calculateSize(inode_block);
 	//ext4_recovery.readOffsetsFromFile();

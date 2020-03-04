@@ -21,14 +21,19 @@ namespace IO
 	}
 	class ByteCount
 	{
+		WORD bytes_[BYTE_SIZE];
 	public:
 		ByteCount(void)
+			//:bytes_(BYTE_SIZE,0x00)
 		{
-			bytes_ = new WORD[BYTE_SIZE];
+			//bytes_ = new WORD[BYTE_SIZE];
+			memset(bytes_, 0x00, BYTE_SIZE*sizeof(WORD));
+			int k = 1;
+			k = 1;
 		}
 		~ByteCount(void)
 		{
-			delete bytes_;
+			//delete bytes_;
 		}
 		void add(BYTE _byte)
 		{
@@ -38,9 +43,10 @@ namespace IO
 		{
 			BYTE popularByte = 0;
 			WORD dwMax = bytes_[0];
-			for (BYTE i = 1; i < UCHAR_MAX; ++i)
+			for (auto i = 1; i < BYTE_SIZE; ++i)
 			{
-				if (bytes_[i] > dwMax)
+				auto val_byte = bytes_[i];
+				if (val_byte > dwMax)
 				{
 					popularByte = i;
 					dwMax = bytes_[i];
@@ -48,8 +54,7 @@ namespace IO
 			}
 			return popularByte;
 		}
-	private:
-		WORD* bytes_;
+
 	};
 
 
@@ -69,6 +74,19 @@ namespace IO
 		DataArray generateBlock(uint32_t block_size)
 		{
 			DataArray block(block_size);
+			uint32_t fill_value = 0x11111111;
+			const uint32_t value_size = sizeof(uint32_t);
+			const uint32_t page_size = 16 * 1024;
+
+			for (auto i = 0; i < block.size(); i += value_size)
+			{
+				auto val_ptr = (uint32_t*)(block.data() + i);
+				*val_ptr = fill_value;
+				if (i > 0)
+					if (i % page_size)
+						++fill_value;
+			}
+
 
 
 			return block;
@@ -175,6 +193,12 @@ namespace IO
 					}
 
 					read_offset += xor_size;
+				}
+
+				if (xor_offset == 0)
+				{
+					int k = 1;
+					k = 2;
 				}
 
 				for (DWORD nByte = 0; nByte < buffer_size; ++nByte)
