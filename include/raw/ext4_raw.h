@@ -76,9 +76,21 @@ namespace RAW
 			memcpy(block_.data(), source_data, block_.size());
 			bValid_ = true;
 		}
+		ByteArray data()
+		{
+			return block_.data();
+		}
+		uint32_t size()
+		{
+			return block_.size();
+		}
 		bool isValid()
 		{
 			return bValid_;
+		}
+		void setValid(bool bValue = true)
+		{
+			bValid_ = bValue;
 		}
 		EXTENT_BLOCK* getExtentBlock() const
 		{
@@ -123,6 +135,12 @@ namespace RAW
 		}
 	};
 
+
+	struct OffsetNumEntries
+	{
+		uint64_t offset = 0;
+		uint16_t num_entries = 0;
+	};
 
 	class ext4_raw
 		: public SpecialAlgorithm
@@ -238,6 +256,7 @@ namespace RAW
 
 			value_to_cmp_ = size_to_cmp;
 
+
 			for (auto curr_offset : listAllOffset)
 			{
 				device_->setPosition(curr_offset);
@@ -253,6 +272,63 @@ namespace RAW
 			}
 			return block_struct;
 		}
+		std::list<OffsetNumEntries> findListExtentsEqualToSize(uint64_t block_start, uint64_t size_to_cmp, const std::list<uint64_t>& listAllOffset)
+		{
+			std::list<OffsetNumEntries> listOffsetsNumEntries;
+
+			DataArray block(block_size_);
+
+			const uint64_t magic_value = 0x10000000000;
+			value_to_cmp_ = size_to_cmp;
+			if (value_to_cmp_ >= magic_value)
+				value_to_cmp_ -= magic_value;
+
+
+			for (auto curr_offset : listAllOffset)
+			{
+				device_->setPosition(curr_offset);
+				device_->ReadData(block.data(), block.size());
+				if (firstExtentOffsetEqualTo(block.data(), block.size()))
+				{
+					OffsetNumEntries offsetNumEntries;
+					offsetNumEntries.offset = curr_offset;
+					EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(block.data());
+					offsetNumEntries.num_entries = extent_block->header.entries;
+					listOffsetsNumEntries.emplace_back(offsetNumEntries);
+				}
+
+			}
+			return listOffsetsNumEntries;
+
+		}
+		ExtentStruct findAndReadWithMaxEntry(const std::list<OffsetNumEntries>& listOffsetsNumEnries)
+		{
+			ExtentStruct block_struct(block_size_);
+		
+			uint16_t maxEntries = 0;
+			OffsetNumEntries offsetEntries;
+			for (auto offsetsInList : listOffsetsNumEnries)
+			{
+				if (offsetEntries.num_entries < offsetsInList.num_entries)
+				{
+					offsetEntries.offset = offsetsInList.offset;
+					offsetEntries.num_entries = offsetsInList.num_entries;
+				}
+			}
+
+			if (offsetEntries.num_entries > 0)
+			{
+				device_->setPosition(offsetEntries.offset);
+				device_->ReadData(block_struct.data(), block_struct.size());
+				uint64_t block_number = offsetEntries.offset / block_size_;
+				block_struct.setBlockNumber(block_number);
+				block_struct.setValid();
+			}
+
+				
+
+			return block_struct;
+		}
 		void searchExtends(uint64_t block_start)
 		{
 			uint64_t current_offset = block_start * block_size_;
@@ -265,19 +341,32 @@ namespace RAW
 
 			while (true)
 			{
+				std::cout << "dst offset " << target_offset << " size " << current_size << " src_block " << current_block << std::endl;
+
+				listAllffset.remove(current_offset);
 				target_offset += current_size;
 				if (current_size == 0)
 					break;
 
-				auto block_struct = findExtentEqualToSize(current_block, target_offset, listAllffset);
+				if (target_offset == 0x10000000000)
+				{
+					int k = 1;
+					k = 2;
+				}
+
+				auto listOffsets = findListExtentsEqualToSize(current_block, target_offset, listAllffset);
+				if (listOffsets.empty())
+					break;
+				auto block_struct = findAndReadWithMaxEntry(listOffsets);
 				if (!block_struct.isValid())
 					break;
 
 				auto extent_block = block_struct.getExtentBlock();
 				current_block = block_struct.getBlockNumber();
-				current_size = calculateSize(current_block);
+				current_offset = current_block * block_size_;
+				
 
-				std::cout << "dst offset " << target_offset << " size " << current_size << " src_block " << current_block << std::endl;
+				current_size = calculateSize(current_block);
 			}
 
 

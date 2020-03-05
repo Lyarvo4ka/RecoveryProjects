@@ -58,7 +58,6 @@ namespace IO
 				OPEN_EXISTING,
 				0,
 				NULL);
-
 			return hDevice;
 		}
 
