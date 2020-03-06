@@ -135,6 +135,27 @@ namespace RAW
 		}
 	};
 
+	struct ExtentHandle
+	{
+		uint64_t offset = 0;
+		uint64_t size = 0;
+	};
+
+	class ListExtents
+	{
+		std::list<ExtentHandle> listExtents_;
+	public:
+		void add(uint64_t offset , uint64_t size)
+		{
+			ExtentHandle extHandle{ offset , size };
+
+			listExtents_.emplace_back(extHandle);
+		}
+		void remove(uint64_t offset)
+		{
+			////	???????????
+		}
+	};
 
 	struct OffsetNumEntries
 	{
@@ -148,6 +169,7 @@ namespace RAW
 		IODevicePtr device_;
 		uint64_t volume_offset_ = 0;
 		uint32_t block_size_ = 4096;
+		uint32_t blocksPerGroup_ = 32768 * 4096;
 		uint16_t max_extents_in_block_ = 0;
 		uint64_t value_to_cmp_ = 0;
 		IO::path_string offsetsFileName_ = L"extents_offsets.txt";
@@ -277,11 +299,12 @@ namespace RAW
 			std::list<OffsetNumEntries> listOffsetsNumEntries;
 
 			DataArray block(block_size_);
+			uint64_t start_offset = block_start * block_size_;
 
 			const uint64_t magic_value = 0x10000000000;
 			value_to_cmp_ = size_to_cmp;
-			if (value_to_cmp_ >= magic_value)
-				value_to_cmp_ -= magic_value;
+			//if (value_to_cmp_ >= magic_value)
+			//	value_to_cmp_ -= magic_value;
 
 
 			for (auto curr_offset : listAllOffset)
@@ -292,6 +315,7 @@ namespace RAW
 				{
 					OffsetNumEntries offsetNumEntries;
 					offsetNumEntries.offset = curr_offset;
+
 					EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(block.data());
 					offsetNumEntries.num_entries = extent_block->header.entries;
 					listOffsetsNumEntries.emplace_back(offsetNumEntries);

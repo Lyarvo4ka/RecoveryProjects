@@ -596,7 +596,7 @@ int wmain(int argc, wchar_t* argv[])
 	src_file->OpenRead();
 	RAW::ext4_raw ext4_recovery(src_file);
 
-	uint64_t inode_offset = 0x18401000;
+	uint64_t inode_offset = 0x1116d800000;
 	IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
 	//ext4_recovery.Execute(inode_offset, target_name);
 	uint64_t inode_block = inode_offset / 4096;
