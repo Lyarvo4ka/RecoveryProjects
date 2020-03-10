@@ -19,7 +19,7 @@ namespace IO
 {
 	inline bool isBlockContainsValue(ByteArray data, uint32_t size , uint8_t value_to_compare)
 	{
-		for (auto i = 0; i < size; i++)
+		for (uint32_t i = 0; i < size; i++)
 		{
 			if (data[i] != value_to_compare)
 				return false;

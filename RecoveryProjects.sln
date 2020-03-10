@@ -33,6 +33,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libiotest", "test\libiotest
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestSignatures", "SignatureTestConsole\SignatureTestConsole.vcxproj", "{4BD25A96-84A3-46B4-9DCA-D1DE2289CB8E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "librawtest", "test\librawtest\librawtest.vcxproj", "{E1244616-9840-4C0E-BF08-CAF5247468F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -119,6 +121,14 @@ Global
 		{4BD25A96-84A3-46B4-9DCA-D1DE2289CB8E}.Release|x64.ActiveCfg = Release|x64
 		{4BD25A96-84A3-46B4-9DCA-D1DE2289CB8E}.Release|x64.Build.0 = Release|x64
 		{4BD25A96-84A3-46B4-9DCA-D1DE2289CB8E}.Release|x86.ActiveCfg = Release|x64
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Debug|x64.ActiveCfg = Debug|x64
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Debug|x64.Build.0 = Debug|x64
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Debug|x86.ActiveCfg = Debug|Win32
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Debug|x86.Build.0 = Debug|Win32
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Release|x64.ActiveCfg = Release|x64
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Release|x64.Build.0 = Release|x64
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Release|x86.ActiveCfg = Release|Win32
+		{E1244616-9840-4C0E-BF08-CAF5247468F9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +145,7 @@ Global
 		{C59ACA1D-E1DD-4822-A104-7299AE8E40AB} = {1AEC6750-5B55-444D-BBEC-9C16607F0EC9}
 		{BFE11DC1-FA41-4BAD-8EF3-07C084C18F41} = {5904B0C6-85D0-477B-A757-7BB81F0A6D17}
 		{4BD25A96-84A3-46B4-9DCA-D1DE2289CB8E} = {6C4DEA17-1F7D-4127-BFE2-A9DB6A0BEC9B}
+		{E1244616-9840-4C0E-BF08-CAF5247468F9} = {5904B0C6-85D0-477B-A757-7BB81F0A6D17}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11E3E18F-0E47-494E-881A-A4A95B3B4D7F}
