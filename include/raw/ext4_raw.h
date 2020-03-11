@@ -142,6 +142,8 @@ namespace RAW
 	{
 		uint64_t offset = 0;
 		uint64_t size = 0;
+		uint16_t number_entries = 0;
+		uint64_t first_offset = 0;
 	};
 
 	class ListExtents
@@ -149,9 +151,9 @@ namespace RAW
 		std::list<ExtentHandle> listExtents_;
 		//std::list<ExtentHandle>::iterator listIterator;
 	public:
-		void add(uint64_t offset , uint64_t size)
+		void add(uint64_t offset , uint64_t size , uint16_t num_entries , uint64_t first_offset)
 		{
-			ExtentHandle extHandle{ offset , size };
+			ExtentHandle extHandle{ offset , size , num_entries ,first_offset };
 			listExtents_.emplace_back(extHandle);
 		}
 		void remove(uint64_t offset)
@@ -175,33 +177,41 @@ namespace RAW
 			std::list<ExtentHandle> found_extents;
 			for (auto extent_handle : listExtents_)
 			{
-				found_extents.emplace_back(extent_handle);
+				if (extent_handle.size == size)
+					found_extents.emplace_back(extent_handle);
 			}
 			return found_extents;
 		}
-		//ExtentHandle getFirst()
-		//{
-		//	listIterator = listExtents_.begin();
-		//	if (listIterator != listExtents_.end())
-		//		return *listIterator;
-		//	return ExtentHandle{ 0,0 };
-		//}
-		//bool hasNext() const
-		//{
-		//	listIterator != listExtents_.end();
-		//}
-		//ExtentHandle getNext()
-		//{
+		std::list<ExtentHandle> findByFirstOffset(uint64_t size)
+		{
+			std::list<ExtentHandle> found_extents;
+			for (auto extent_handle : listExtents_)
+			{
+				if (extent_handle.first_offset == size)
+					found_extents.emplace_back(extent_handle);
+			}
+			return found_extents;
+		}
 
-		//}
+
+
 
 	};
 
-	struct OffsetNumEntries
+	inline ExtentHandle findWithMaxEntries(const std::list<ExtentHandle>& list_handles)
 	{
-		uint64_t offset = 0;
-		uint16_t num_entries = 0;
-	};
+		auto find_iter = std::max_element(begin(list_handles), end(list_handles),
+			[](const ExtentHandle& left, const ExtentHandle& right)
+			{
+				return left.number_entries < right.number_entries;
+			});
+		if (find_iter != list_handles.end())
+			return *find_iter;
+
+		return ExtentHandle{ 0, 0, 0 };
+	}
+
+
 
 	class ext4_raw
 		: public SpecialAlgorithm
@@ -213,6 +223,7 @@ namespace RAW
 		uint32_t max_extents_in_block_ = 0;
 		uint64_t value_to_cmp_ = 0;
 		IO::path_string offsetsFileName_ = L"extents_offsets.txt";
+		ListExtents listExtents_;
 	public:
 		ext4_raw(IODevicePtr device)
 			: device_(device)
@@ -260,7 +271,10 @@ namespace RAW
 			device_->ReadData(inode.data(), inode.size());
 			return inode;
 		}
-
+		void setOffsetsFileName(const path_string& offsetsFileName)
+		{
+			offsetsFileName_ = offsetsFileName;
+		}
 
 		// if (first_offset == size_to_cmp)
 		bool firstExtentOffsetEqualTo(ByteArray data, uint32_t size)
@@ -276,91 +290,10 @@ namespace RAW
 		}
 
 
-
-		ExtentStruct findExtentEqualToSize(uint64_t block_start, uint64_t size_to_cmp, const std::list<uint64_t>& listAllOffset)
+		void readExtentsListFromFile()
 		{
-			DataArray extent_block(block_size_);
-			ExtentStruct block_struct(block_size_);
-
-			value_to_cmp_ = size_to_cmp;
-
-
-			for (auto curr_offset : listAllOffset)
-			{
-				device_->setPosition(curr_offset);
-				device_->ReadData(extent_block.data(), extent_block.size());
-				if (firstExtentOffsetEqualTo(extent_block.data(), extent_block.size()))
-				{
-					block_struct.copyData(extent_block.data());
-					uint64_t block_number = curr_offset / block_size_;
-					block_struct.setBlockNumber(block_number);
-					return block_struct;
-				}
-
-			}
-			return block_struct;
-		}
-		std::list<OffsetNumEntries> findListExtentsEqualToSize(uint64_t block_start, uint64_t size_to_cmp, const std::list<uint64_t>& listAllOffset)
-		{
-			std::list<OffsetNumEntries> listOffsetsNumEntries;
-
-			DataArray block(block_size_);
-			uint64_t start_offset = block_start * block_size_;
-
-			const uint64_t magic_value = 0x10000000000;
-			value_to_cmp_ = size_to_cmp;
-			//if (value_to_cmp_ >= magic_value)
-			//	value_to_cmp_ -= magic_value;
-
-
-			for (auto curr_offset : listAllOffset)
-			{
-				device_->setPosition(curr_offset);
-				device_->ReadData(block.data(), block.size());
-				
-				
-
-				if (firstExtentOffsetEqualTo(block.data(), block.size()))
-				{
-					OffsetNumEntries offsetNumEntries;
-					offsetNumEntries.offset = curr_offset;
-
-					EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(block.data());
-					offsetNumEntries.num_entries = extent_block->header.entries;
-					listOffsetsNumEntries.emplace_back(offsetNumEntries);
-				}
-
-			}
-			return listOffsetsNumEntries;
-
-		}
-		ExtentStruct findAndReadWithMaxEntry(const std::list<OffsetNumEntries>& listOffsetsNumEnries)
-		{
-			ExtentStruct block_struct(block_size_);
-		
-			uint16_t maxEntries = 0;
-			OffsetNumEntries offsetEntries;
-			for (auto offsetsInList : listOffsetsNumEnries)
-			{
-				if (offsetEntries.num_entries < offsetsInList.num_entries)
-				{
-					offsetEntries.offset = offsetsInList.offset;
-					offsetEntries.num_entries = offsetsInList.num_entries;
-				}
-			}
-
-			if (offsetEntries.num_entries > 0)
-			{
-				device_->setPosition(offsetEntries.offset);
-				device_->ReadData(block_struct.data(), block_struct.size());
-				uint64_t block_number = offsetEntries.offset / block_size_;
-				block_struct.setBlockNumber(block_number);
-				block_struct.setValid();
-			}
-
-				
-
-			return block_struct;
+			auto listAllffset = readOffsetsFromFile();
+			listExtents_ = readListExtents(listAllffset);
 		}
 		ListExtents readListExtents(std::list<uint64_t>& listOffsets)
 		{
@@ -372,10 +305,11 @@ namespace RAW
 				readExtent(block_num , block);
 				auto extent_size = CalculateExtentSize(block);
 				EXTENT_BLOCK* extent_block = (EXTENT_BLOCK*)(block.data());
+				uint64_t first_offset = 0;
+				if (extent_block->header.entries > 0)
+					first_offset =((uint64_t) extent_block->extent[0].block )* block_size_;
 
-				// add new number_of extents
-
-				listExtents.add(offset, extent_size);
+				listExtents.add(offset, extent_size , extent_block->header.entries , first_offset);
 			}
 			return listExtents;
 		}
@@ -383,11 +317,8 @@ namespace RAW
 		void searchExtends(uint64_t block_start)
 		{
 			uint64_t current_offset = block_start * block_size_;
-
-			auto listAllffset = readOffsetsFromFile();
-			auto listExtents = readListExtents(listAllffset);
 			uint64_t current_block = block_start;
-			ExtentHandle extent_handle = listExtents.findByOffset(current_offset);
+			ExtentHandle extent_handle = listExtents_.findByOffset(current_offset);
 			auto current_size = extent_handle.size;
 
 			uint64_t target_offset = 0;
@@ -396,7 +327,7 @@ namespace RAW
 			{
 				std::cout << "dst offset " << target_offset << " size " << current_size << " src_block " << current_block << std::endl;
 
-				listAllffset.remove(current_offset);
+				listExtents_.remove(current_offset);
 				target_offset += current_size;
 				if (current_size == 0)
 					break;
@@ -407,57 +338,25 @@ namespace RAW
 					k = 2;
 				}
 
-				auto listOffsets = findListExtentsEqualToSize(current_block, target_offset, listAllffset);
-				if (listOffsets.empty())
-					break;
-				auto block_struct = findAndReadWithMaxEntry(listOffsets);
-				if (!block_struct.isValid())
+				auto listWithSameSize = listExtents_.findByFirstOffset(target_offset);
+				if (listWithSameSize.empty())
 					break;
 
-				auto extent_block = block_struct.getExtentBlock();
-				current_block = block_struct.getBlockNumber();
-				current_offset = current_block * block_size_;
+				extent_handle = findWithMaxEntries(listWithSameSize);
+				if (extent_handle.number_entries == 0)
+					break;
+
+				current_offset = extent_handle.offset;
+				current_block = current_offset / block_size_;
 				
-				extent_handle = listExtents.findByOffset(current_offset);
-				current_size = extent_handle.offset;
+				extent_handle = listExtents_.findByOffset(current_offset);
+				current_size = extent_handle.size;
 			}
 
-
-/*
-
-
-			uint64_t current_block = block_start;
-
-			auto current_size = calculateSize(current_block);
-
-			std::cout << "Offset " << target_offset << " size " << current_size <<  std::endl;
-
-			// search next extent
-			while(true)
-			{
-
-				// to do: determine and search only in 1 Tb range
-				target_offset += current_size;
-				auto block_struct = findExtentEqualToSize(current_block, target_offset);
-				if (!block_struct.isValid())
-					break;
-				
-				auto extent_block = block_struct.getExtentBlock();
-				current_block = block_struct.getBlockNumber();
-				current_size = calculateSize(current_block);
-				if (current_size == 0)
-					break;
-				std::cout << "Offset " << target_offset << " size " << current_size << std::endl;
-
-				int k = 1;
-				k = 2;
-			} 
-
-*/
 		}
-		void findExtentsWithDepth(uint16_t depth )
+		void findExtentsWithDepth(uint16_t depth, const path_string & fileName )
 		{
-			File extentsOffset_txt(L"extents_offsets.txt");
+			File extentsOffset_txt(fileName);
 			extentsOffset_txt.OpenCreate();
 
 			uint64_t offset = 0;
@@ -560,9 +459,7 @@ namespace RAW
 				extent_size = last_offset + determineSize(last_size) - first_offset;
 
 			}
-
 			return extent_size;
-
 		}
 
 		uint64_t CalculateExtentSize(const uint64_t block_num)
