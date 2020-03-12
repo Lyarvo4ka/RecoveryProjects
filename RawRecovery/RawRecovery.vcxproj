@@ -148,6 +148,9 @@
     <ResourceCompile Include="RawRecovery.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\JsonReader\JsonReader.vcxproj">
+      <Project>{6e837a5f-bd95-4036-a04d-c4b0f8733705}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\libio\libio.vcxproj">
       <Project>{b48c2c80-4bc5-40e7-8157-674b222f3321}</Project>
     </ProjectReference>

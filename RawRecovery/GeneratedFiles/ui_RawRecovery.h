@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'RawRecovery.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.14.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -108,11 +108,11 @@ public:
 
     void retranslateUi(QMainWindow *RawRecoveryClass)
     {
-        RawRecoveryClass->setWindowTitle(QApplication::translate("RawRecoveryClass", "RawRecovery", nullptr));
-        actionOpen->setText(QApplication::translate("RawRecoveryClass", "Open", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("RawRecoveryClass", "Tab 1", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("RawRecoveryClass", "Tab 2", nullptr));
-        menuFile->setTitle(QApplication::translate("RawRecoveryClass", "File", nullptr));
+        RawRecoveryClass->setWindowTitle(QCoreApplication::translate("RawRecoveryClass", "RawRecovery", nullptr));
+        actionOpen->setText(QCoreApplication::translate("RawRecoveryClass", "Open", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("RawRecoveryClass", "Tab 1", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("RawRecoveryClass", "Tab 2", nullptr));
+        menuFile->setTitle(QCoreApplication::translate("RawRecoveryClass", "File", nullptr));
     } // retranslateUi
 
 };

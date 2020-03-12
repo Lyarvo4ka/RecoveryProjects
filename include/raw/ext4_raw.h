@@ -290,9 +290,9 @@ namespace RAW
 		}
 
 
-		void readExtentsListFromFile()
+		void readExtentsListFromFile(const path_string & fileName)
 		{
-			auto listAllffset = readOffsetsFromFile();
+			auto listAllffset = readOffsetsFromFile(fileName);
 			listExtents_ = readListExtents(listAllffset);
 		}
 		ListExtents readListExtents(std::list<uint64_t>& listOffsets)
@@ -379,10 +379,10 @@ namespace RAW
 				offset += block_size_;
 			}
 		}
-		std::list<uint64_t> readOffsetsFromFile()
+		std::list<uint64_t> readOffsetsFromFile(const path_string & fileName)
 		{
 			std::list<uint64_t> offsetList;
-			File extentsOffset_txt(L"extents_offsets.txt");
+			File extentsOffset_txt(fileName);
 			extentsOffset_txt.OpenRead();
 
 			if (extentsOffset_txt.Size() == 0)
@@ -446,7 +446,8 @@ namespace RAW
 				return 0;
 
 			uint64_t extent_size = 0;
-
+			if (extent_block->header.entries == 1)
+				extent_size = determineSize(extent_block->extent[0].len);
 			if (extent_block->header.entries > MIN_REQUIRE_ENTRIES)
 			{
 				auto first_offset = getOffsetFromPhysicalBlock(extent_block->extent[0].block);

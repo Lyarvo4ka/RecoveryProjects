@@ -10,7 +10,6 @@ RawRecovery::RawRecovery(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	//ui.
 	auto physical_drives = IO::ReadPhysicalDrives();
 	auto rootAdapter = std::make_unique< RootAdapter>();
 
@@ -31,7 +30,7 @@ RawRecovery::RawRecovery(QWidget *parent)
 	ui.treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 //	ui.treeView->addAction(contectMenu_);
 
-	connect(ui.treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnDeviceContextMenu(const QPoint&)));
+	connect(ui.treeView, &QWidget::customContextMenuRequested, this, &RawRecovery::OnDeviceContextMenu);
 
 	//physical_drives.
 

@@ -591,26 +591,26 @@ int wmain(int argc, wchar_t* argv[])
 
 	//0x748DAA9000; -- 300 GB	// depth == 2
 	//0x748ED0C000; -- 100 GB entries = 0x22
+	//auto src_file = IO::makeFilePtr(LR"(f:\1\vg1-volume_1.bin.img)");
+	//src_file->OpenRead();
+	//RAW::ext4_raw ext4_recovery(src_file);
+	//ext4_recovery.findExtentsWithDepth(0, LR"(f:\1\vg1-volume_1.bin.offsets)");
+
+	auto offsetsFileName = LR"(f:\1\vg1-volume_1.bin.offsets )";
 	auto src_file = IO::makeFilePtr(LR"(f:\1\vg1-volume_1.bin.img)");
 	src_file->OpenRead();
 	RAW::ext4_raw ext4_recovery(src_file);
-	ext4_recovery.findExtentsWithDepth(0, LR"(f:\1\vg1-volume_1.bin.offsets)");
+	ext4_recovery.readExtentsListFromFile(offsetsFileName);
 
-/*
-	auto src_file = IO::makeFilePtr(LR"(g:\segment_v2\47555_v2.tmp)");
-	src_file->OpenRead();
-	RAW::ext4_raw ext4_recovery(src_file);
-	ext4_recovery.readExtentsListFromFile();
-
-	uint64_t inode_offset = 0x18401000;
+	uint64_t inode_offset = 0x8416000;
 	IO::path_string target_name = LR"(d:\PaboTa\47555\111.tmp)";
 	//ext4_recovery.Execute(inode_offset, target_name);
 	uint64_t inode_block = inode_offset / 4096;
 	ext4_recovery.searchExtends(inode_block);
-	inode_block = 0x1116D800000 / 4096;
-	ext4_recovery.searchExtends(inode_block);
+	//inode_block = 0x1116D800000 / 4096;
+	//ext4_recovery.searchExtends(inode_block);
 
-*/
+
 	//ext4_recovery.findExtentsWithDepth(0);
 	//auto size = ext4_recovery.calculateSize(inode_block);
 	//ext4_recovery.readOffsetsFromFile();
