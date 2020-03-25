@@ -502,8 +502,69 @@ int XorAnalyzer(int argc, wchar_t* argv[])
 
 #include "io/iodevice.h"
 
+void testHeaderToBadSector(const IO::path_string folderPath)
+{
+	IO::Finder finder;
+
+	finder.FindFiles(folderPath);
+	auto fileList = finder.getFiles();
+
+	for (auto& theFile : fileList)
+	{
+		try
+		{
+			std::wcout << theFile.c_str();
+			IO::File file(theFile);
+			file.OpenRead();
+
+			if (file.Size() >= Signatures::bad_sector_header_size)
+			{
+				IO::DataArray buff(Signatures::bad_sector_header_size);
+				file.ReadData(buff);
+				file.Close();
+
+				if (buff.compareData((IO::ByteArray)Signatures::bad_sector_header, Signatures::bad_sector_header_size))
+				{
+					auto src = IO::addPrefix(theFile);
+					auto dst = IO::addPrefix(theFile + L".bad_file");
+					fs::rename(src, dst);
+					std::wcout << " BAD";
+				}
+				else
+					std::wcout << " OK";
+
+			}
+			else
+				std::wcout << " OK";
+		}
+		catch (IO::Error::IOErrorException& ex)
+		{
+			const char* text = ex.what();
+			std::cout << " Cougth exception " << text;
+
+		}
+		catch (fs::filesystem_error& fs_error)
+		{
+			std::cout << " Cougth exception " << fs_error.what();
+			int k = 1;
+			k = 2;
+
+		}
+
+		std::wcout << std::endl;
+
+
+	}
+}
+
+
 int wmain(int argc, wchar_t* argv[])
 {
+	setlocale(LC_ALL, "ru_RU.UTF8");
+	//std::locale mylocale("");   // get global locale
+	//std::cout.imbue(mylocale);
+
+	testHeaderToBadSector(LR"(f:\47729\)");
 	//XorAnalyzer(argc, argv);
 
 	//IO::XorAnalyzer xor_analyzer(L"");
@@ -595,7 +656,7 @@ int wmain(int argc, wchar_t* argv[])
 	//src_file->OpenRead();
 	//RAW::ext4_raw ext4_recovery(src_file);
 	//ext4_recovery.findExtentsWithDepth(0, LR"(f:\1\vg1-volume_1.bin.offsets)");
-
+/*
 	auto offsetsFileName = LR"(f:\1\vg1-volume_1.bin.offsets )";
 	auto src_file = IO::makeFilePtr(LR"(f:\1\vg1-volume_1.bin.img)");
 	src_file->OpenRead();
@@ -610,7 +671,7 @@ int wmain(int argc, wchar_t* argv[])
 	//inode_block = 0x1116D800000 / 4096;
 	//ext4_recovery.searchExtends(inode_block);
 
-
+*/
 	//ext4_recovery.findExtentsWithDepth(0);
 	//auto size = ext4_recovery.calculateSize(inode_block);
 	//ext4_recovery.readOffsetsFromFile();

@@ -23,6 +23,8 @@ namespace IO
 		return bytes;
 	}
 
+	path_string addPrefix(const path_string& path);
+
 	class IOEngine
 	{
 		HANDLE hDevice_ = INVALID_HANDLE_VALUE;

@@ -10,9 +10,10 @@ namespace IO
 	}
 	path_string addPrefix(const path_string& path)
 	{
-		path_string new_string;
-		//new_string = LR"(\\?\)" + path;
-		new_string = path;
+		path_string new_string = path;
+		if (new_string.size() >= MAX_PATH)
+			new_string = LR"(\\?\)" + path;
+		//new_string = path;
 		return new_string;
 	}
 	IOErrorsType IOEngine::OpenRead(const path_string & path)
