@@ -558,13 +558,58 @@ void testHeaderToBadSector(const IO::path_string folderPath)
 }
 
 
+void testIsFileQtHeader(const IO::path_string folderPath)
+{
+	IO::Finder finder;
+
+	finder.FindFiles(folderPath);
+	auto fileList = finder.getFiles();
+
+	for (auto& theFile : fileList)
+	{
+		try
+		{
+
+			RAW::qt_block_t qtBlock = { 0 };
+			std::wcout << theFile.c_str();
+			IO::File file(theFile);
+			file.OpenRead();
+
+			if (file.Size() >= RAW::qt_block_struct_size)
+			{
+				file.ReadData((IO::ByteArray) & qtBlock, RAW::qt_block_struct_size);
+				file.Close();
+				if (RAW::isQuickTime(qtBlock))
+					fs::rename(theFile, theFile + L".mp4");
+
+			}
+
+
+		}
+		catch (IO::Error::IOErrorException& ex)
+		{
+			const char* text = ex.what();
+			std::cout << " Cougth exception " << text;
+
+		}
+		catch (fs::filesystem_error& fs_error)
+		{
+			std::cout << " Cougth exception " << fs_error.what();
+			int k = 1;
+			k = 2;
+
+		}
+
+	}
+}
+
 int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
 	//std::locale mylocale("");   // get global locale
 	//std::cout.imbue(mylocale);
 
-	testHeaderToBadSector(LR"(f:\47729\)");
+	testIsFileQtHeader(LR"(f:\47941\$LostFiles\$Group61A001209A8016F\1\)");
 	//XorAnalyzer(argc, argv);
 
 	//IO::XorAnalyzer xor_analyzer(L"");
