@@ -44,9 +44,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="signatureitem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="treeitem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -56,6 +53,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="deviceitem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="signatureitem.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

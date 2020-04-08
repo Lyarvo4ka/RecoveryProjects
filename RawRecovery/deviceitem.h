@@ -166,7 +166,7 @@ public:
 			return QVariant();
 
 		auto item = static_cast<DeviceItem*>(index.internalPointer());
-		auto itemData = item->getDeviceAdapter()->getDeviceItemData();
+		auto itemData = item->getAdapter()->getDeviceItemData();
 		//itemData.name
 		switch (index.column())
 		{
@@ -251,9 +251,10 @@ public:
 	}
 	int columnCount(const QModelIndex& parent = QModelIndex()) const override
 	{
-		if (parent.isValid())
-			return static_cast<DeviceItem*>(parent.internalPointer())->columnCount();
-		return rootItem_->columnCount();
+		return DeviceItemNames::kCount;
+		//if (parent.isValid())
+		//	return static_cast<DeviceItem*>(parent.internalPointer())->columnCount();
+		//return rootItem_->columnCount();
 	}
 
 private:

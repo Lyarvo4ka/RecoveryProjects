@@ -35,11 +35,8 @@ public:
 	{
 		return childItems_.count();
 	}
-	int columnCount() const
-	{
-		return DeviceItemNames::kCount;
-	}
-	AdapterType* getDeviceAdapter()
+
+	AdapterType* getAdapter()
 	{
 		return adapter_.get();
 	}

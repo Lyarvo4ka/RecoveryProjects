@@ -1,8 +1,13 @@
 #include "stdafx.h"
 #include "RawRecovery.h"
 
+#include "../JsonReader/JsonReader.h"
+
 #include "io/iodevice.h"
 #include "deviceitem.h"
+#include "signatureitem.h"
+
+
 
 
 RawRecovery::RawRecovery(QWidget *parent)
@@ -34,6 +39,46 @@ RawRecovery::RawRecovery(QWidget *parent)
 
 	//physical_drives.
 
+	QList<JsonFileStruct> listFileStruct;
+	QString json_file = "signatures.json";
+	QFile file(json_file);
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qInfo() << "Error to open file. \"" << file.fileName() << "\"";
+
+	}
+
+	auto json_str = file.readAll();
+	ReadJsonFIle(json_str, listFileStruct);
+	if (listFileStruct.empty())
+	{
+		qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
+	}
+
+
+
+	auto sign_root = new SignatureItem(std::make_unique<CategoryFolderAdapter>());
+
+	for (auto theFileStruct : listFileStruct)
+	{
+		//auto file_struct = toFileStruct(theFileStruct);
+		auto sign_adapter = std::make_unique<SignatureItemAdapter>(toFileStruct(theFileStruct));
+		SignatureItem* sign_item = new SignatureItem(std::move(sign_adapter), sign_root);
+
+		auto parentItem = sign_root->findWithName(theFileStruct.category);
+		if (parentItem == nullptr)
+		{
+			auto categoryAdapter = std::make_unique< CategoryFolderAdapter>();
+			categoryAdapter->setName(theFileStruct.category);
+			parentItem = new SignatureItem(std::move(categoryAdapter), sign_root);
+			sign_root->appendChild(parentItem);
+		}
+		parentItem->appendChild(sign_item);
+			
+	}
+
+	auto pSignatureTreeModel = new SignatureTreeModel(sign_root, this);
+	ui.signatureTree->setModel(pSignatureTreeModel);
 
 }
 
@@ -45,7 +90,7 @@ void RawRecovery::OnDeviceContextMenu(const QPoint& point_pos)
 		auto seclected_index = static_cast<DeviceItem*>(device_cell.internalPointer());
 		if (seclected_index)
 		{
-			auto selected_device = seclected_index->getDeviceAdapter()->createDevice();
+			auto selected_device = seclected_index->getAdapter()->createDevice();
 			if (selected_device)
 			{
 				auto disk_device = std::dynamic_pointer_cast<IO::DiskDevice>(selected_device);
