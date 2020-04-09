@@ -72,13 +72,16 @@ public:
 	{
 		
 	}	
-	TreeItem* findWithName(const QString & name_txt)
+	SignatureItem* findWithName(const QString & name_txt)
 	{
 		for (auto i = 0; i < this->childCount(); ++i)
 		{
 			auto treeItem = this->child(i);
 			if (treeItem->getAdapter()->getName().compare(name_txt) == 0)
-				return treeItem;
+			{
+				auto signItem = dynamic_cast<SignatureItem*>(treeItem);
+				return signItem;
+			}
 		}
 		return nullptr;
 	}

@@ -61,9 +61,6 @@ RawRecovery::RawRecovery(QWidget *parent)
 
 	for (auto theFileStruct : listFileStruct)
 	{
-		//auto file_struct = toFileStruct(theFileStruct);
-		auto sign_adapter = std::make_unique<SignatureItemAdapter>(toFileStruct(theFileStruct));
-		SignatureItem* sign_item = new SignatureItem(std::move(sign_adapter), sign_root);
 
 		auto parentItem = sign_root->findWithName(theFileStruct.category);
 		if (parentItem == nullptr)
@@ -73,9 +70,12 @@ RawRecovery::RawRecovery(QWidget *parent)
 			parentItem = new SignatureItem(std::move(categoryAdapter), sign_root);
 			sign_root->appendChild(parentItem);
 		}
+		auto sign_adapter = std::make_unique<SignatureItemAdapter>(toFileStruct(theFileStruct));
+		SignatureItem* sign_item = new SignatureItem(std::move(sign_adapter), parentItem);
 		parentItem->appendChild(sign_item);
 			
 	}
+
 
 	auto pSignatureTreeModel = new SignatureTreeModel(sign_root, this);
 	ui.signatureTree->setModel(pSignatureTreeModel);

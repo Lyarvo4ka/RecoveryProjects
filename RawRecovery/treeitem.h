@@ -15,7 +15,7 @@ public:
 	{
 
 	}
-	~TreeItem()
+	virtual ~TreeItem()
 	{
 		qDeleteAll(childItems_);
 	}
