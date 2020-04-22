@@ -66,12 +66,17 @@ public:
 class SignatureItem 
 	: public TreeItem<SignatureAdapter>
 {
+	Qt::CheckState checkState_ = Qt::Unchecked;
 public:
 	explicit SignatureItem(std::unique_ptr<SignatureAdapter> adapter, SignatureItem* parentItem = nullptr)
 		:TreeItem(std::move(adapter), parentItem)
 	{
 		
-	}	
+	}
+	Qt::CheckState getCheckState() const
+	{
+		return checkState_;
+	}
 	SignatureItem* findWithName(const QString & name_txt)
 	{
 		for (auto i = 0; i < this->childCount(); ++i)
@@ -125,19 +130,17 @@ public:
 		}
 		if (index.column() == 0)
 		{
-			//if (role == Qt::CheckStateRole)
-			//	return static_cast<int>(model_index->checked());
-			//else
+			if (role == Qt::CheckStateRole)
+				return item->getCheckState();
+			else
 				if (role == Qt::DecorationRole)
 				{
 					switch (item->getAdapter()->getItemType())
 					{
 					case SignatureItemType::kCategoryItem:
-						iconProvider_.icon(QFileIconProvider::Folder);
-						break;
+						return iconProvider_.icon(QFileIconProvider::Folder);
 					case SignatureItemType::kSignatureItem:
-						iconProvider_.icon(QFileIconProvider::File);
-						break;
+						return iconProvider_.icon(QFileIconProvider::File);
 
 					}
 				}
@@ -149,7 +152,7 @@ public:
 		if (!index.isValid())
 			return Qt::NoItemFlags;
 
-		return QAbstractItemModel::flags(index) /* | Qt::ItemIsUserCheckable */;
+		return QAbstractItemModel::flags(index)  | Qt::ItemIsUserCheckable ;
 
 	}
 
