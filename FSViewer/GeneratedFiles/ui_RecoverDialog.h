@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'RecoverDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.14.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -110,11 +110,11 @@ public:
 
     void retranslateUi(QDialog *RecoverDialog)
     {
-        RecoverDialog->setWindowTitle(QApplication::translate("RecoverDialog", "\320\222\320\276\321\201\321\201\321\202\320\260\320\275\320\276\320\262\320\270\321\202\321\214", nullptr));
-        folderText->setText(QApplication::translate("RecoverDialog", "\320\222\321\213\320\261\320\265\321\200\320\270\321\202\320\265 \320\277\320\260\320\277\320\272\321\203", nullptr));
-        openButton->setText(QApplication::translate("RecoverDialog", "\320\236\321\202\320\272\321\200\321\213\321\202\321\214", nullptr));
-        okButton->setText(QApplication::translate("RecoverDialog", "OK", nullptr));
-        cancelButton->setText(QApplication::translate("RecoverDialog", "Cancel", nullptr));
+        RecoverDialog->setWindowTitle(QCoreApplication::translate("RecoverDialog", "\320\222\320\276\321\201\321\201\321\202\320\260\320\275\320\276\320\262\320\270\321\202\321\214", nullptr));
+        folderText->setText(QCoreApplication::translate("RecoverDialog", "\320\222\321\213\320\261\320\265\321\200\320\270\321\202\320\265 \320\277\320\260\320\277\320\272\321\203", nullptr));
+        openButton->setText(QCoreApplication::translate("RecoverDialog", "\320\236\321\202\320\272\321\200\321\213\321\202\321\214", nullptr));
+        okButton->setText(QCoreApplication::translate("RecoverDialog", "OK", nullptr));
+        cancelButton->setText(QCoreApplication::translate("RecoverDialog", "Cancel", nullptr));
     } // retranslateUi
 
 };

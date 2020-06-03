@@ -8,6 +8,7 @@ class TreeItem
 	std::unique_ptr<AdapterType> adapter_;
 	QVector<TreeItem*> childItems_;
 	TreeItem* parentItem_ = nullptr;
+	Qt::CheckState checkState_ = Qt::Unchecked;
 public:
 	explicit TreeItem(std::unique_ptr<AdapterType> adapter, TreeItem* parentItem = nullptr)
 		: adapter_(std::move(adapter))
@@ -53,6 +54,13 @@ public:
 	{
 		return parentItem_;
 	}
-
+	void setCheckState(Qt::CheckState checkState)
+	{
+		checkState_ = checkState;
+	}
+	Qt::CheckState getCheckState()
+	{
+		return checkState_;
+	}
 
 };

@@ -66,17 +66,14 @@ public:
 class SignatureItem 
 	: public TreeItem<SignatureAdapter>
 {
-	Qt::CheckState checkState_ = Qt::Unchecked;
+
 public:
 	explicit SignatureItem(std::unique_ptr<SignatureAdapter> adapter, SignatureItem* parentItem = nullptr)
 		:TreeItem(std::move(adapter), parentItem)
 	{
 		
 	}
-	Qt::CheckState getCheckState() const
-	{
-		return checkState_;
-	}
+
 	SignatureItem* findWithName(const QString & name_txt)
 	{
 		for (auto i = 0; i < this->childCount(); ++i)

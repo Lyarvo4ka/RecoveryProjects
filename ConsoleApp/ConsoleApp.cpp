@@ -515,27 +515,27 @@ void testHeaderToBadSector(const IO::path_string folderPath)
 		{
 			std::wcout << theFile.c_str();
 			IO::File file(theFile);
-			file.OpenRead();
+file.OpenRead();
 
-			if (file.Size() >= Signatures::bad_sector_header_size)
-			{
-				IO::DataArray buff(Signatures::bad_sector_header_size);
-				file.ReadData(buff);
-				file.Close();
+if (file.Size() >= Signatures::bad_sector_header_size)
+{
+	IO::DataArray buff(Signatures::bad_sector_header_size);
+	file.ReadData(buff);
+	file.Close();
 
-				if (buff.compareData((IO::ByteArray)Signatures::bad_sector_header, Signatures::bad_sector_header_size))
-				{
-					auto src = IO::addPrefix(theFile);
-					auto dst = IO::addPrefix(theFile + L".bad_file");
-					fs::rename(src, dst);
-					std::wcout << " BAD";
-				}
-				else
-					std::wcout << " OK";
+	if (buff.compareData((IO::ByteArray)Signatures::bad_sector_header, Signatures::bad_sector_header_size))
+	{
+		auto src = IO::addPrefix(theFile);
+		auto dst = IO::addPrefix(theFile + L".bad_file");
+		fs::rename(src, dst);
+		std::wcout << " BAD";
+	}
+	else
+		std::wcout << " OK";
 
-			}
-			else
-				std::wcout << " OK";
+}
+else
+std::wcout << " OK";
 		}
 		catch (IO::Error::IOErrorException& ex)
 		{
@@ -557,6 +557,85 @@ void testHeaderToBadSector(const IO::path_string folderPath)
 	}
 }
 
+#pragma pack(1)
+struct Sector512
+{
+	uint8_t data[default_sector_size];
+};
+#pragma pack()
+
+bool isSectorWithMarker(const Sector512& sector, uint32_t marker)
+{
+	uint32_t marker_size = sizeof(uint32_t);
+	for (uint32_t i = 0; i < default_sector_size; i += marker_size)
+	{
+		if (memcmp(sector.data + i, &marker, marker_size) != 0)
+			return false;
+	}
+	return true;
+}
+
+void join2FilesWithMarker(const IO::path_string& fileName1, const IO::path_string& fileName2, const IO::path_string& targetFileName)
+{
+	IO::File file1(fileName1);
+	file1.OpenRead();
+
+	IO::File file2(fileName2);
+	file2.OpenRead();
+
+	IO::File targetFile(targetFileName);
+	targetFile.OpenCreate();
+
+	if (file1.Size() != file2.Size())
+	{
+		std::cout << "File size is not equal " << std::endl;
+		return;
+	}
+
+	uint64_t offset = 0;
+	IO::DataArray buffer1(default_block_size);
+	IO::DataArray buffer2(default_block_size);
+	IO::DataArray target(default_block_size);
+
+	uint32_t byteToRead = 0;
+
+	uint32_t marker = 0xADDEADDE;
+
+
+	while (offset < file1.Size())
+	{
+		byteToRead = IO::calcBlockSize(offset, file1.Size(), default_block_size);
+
+		file1.setPosition(offset);
+		file1.ReadData(buffer1.data(), byteToRead);
+
+		file2.setPosition(offset);
+		file2.ReadData(buffer2.data(), byteToRead);
+
+		for (auto iSector = 0; iSector < byteToRead; iSector += default_sector_size)
+		{
+			Sector512* pSector512_file1 = (Sector512*)(buffer1.data() + iSector);
+			if (isSectorWithMarker(*pSector512_file1, marker))
+			{
+				Sector512* pSector512_file2 = (Sector512*)(buffer2.data() + iSector);
+				if (isSectorWithMarker(*pSector512_file2, marker))
+					std::cout << "Sector with marker =  " << offset + iSector << std::endl;
+
+				memcpy(target.data() + iSector, buffer2.data() + iSector ,  default_sector_size);
+
+
+			}
+			else
+				memcpy( target.data() + iSector, buffer1.data() + iSector , default_sector_size);
+
+		}
+
+		targetFile.WriteData(target.data(), byteToRead);
+
+		offset += byteToRead;
+	}
+
+}
 
 void testIsFileQtHeader(const IO::path_string folderPath)
 {
@@ -609,7 +688,22 @@ int wmain(int argc, wchar_t* argv[])
 	//std::locale mylocale("");   // get global locale
 	//std::cout.imbue(mylocale);
 
-	testIsFileQtHeader(LR"(f:\47941\$LostFiles\$Group61A001209A8016F\1\)");
+	if (argc == 4)
+	{
+
+		IO::path_string file1 = argv[1];
+		IO::path_string file2 = argv[2];
+		IO::path_string target = argv[3];
+
+		join2FilesWithMarker(file1, file2, target);
+	}
+	else
+	{
+		std::cout << "Wrong params  " << std::endl;
+		std::cout << "Filename1 Filename2 targetname " << std::endl;
+	}
+
+	//testIsFileQtHeader(LR"(f:\47941\$LostFiles\$Group61A001209A8016F\1\)");
 	//XorAnalyzer(argc, argv);
 
 	//IO::XorAnalyzer xor_analyzer(L"");

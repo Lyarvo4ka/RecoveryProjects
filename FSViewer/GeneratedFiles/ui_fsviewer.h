@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'FSViewer.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.14.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -177,10 +177,10 @@ public:
 
     void retranslateUi(QMainWindow *FSViewerClass)
     {
-        FSViewerClass->setWindowTitle(QApplication::translate("FSViewerClass", "FSViewer", nullptr));
-        label->setText(QApplication::translate("FSViewerClass", "\320\237\320\260\320\277\320\272\320\270", nullptr));
-        label_2->setText(QApplication::translate("FSViewerClass", "\320\241\320\276\320\264\320\265\321\200\320\266\320\270\320\274\320\276\320\265", nullptr));
-        menu->setTitle(QApplication::translate("FSViewerClass", "\320\244\320\260\320\271\320\273", nullptr));
+        FSViewerClass->setWindowTitle(QCoreApplication::translate("FSViewerClass", "FSViewer", nullptr));
+        label->setText(QCoreApplication::translate("FSViewerClass", "\320\237\320\260\320\277\320\272\320\270", nullptr));
+        label_2->setText(QCoreApplication::translate("FSViewerClass", "\320\241\320\276\320\264\320\265\321\200\320\266\320\270\320\274\320\276\320\265", nullptr));
+        menu->setTitle(QCoreApplication::translate("FSViewerClass", "\320\244\320\260\320\271\320\273", nullptr));
     } // retranslateUi
 
 };
