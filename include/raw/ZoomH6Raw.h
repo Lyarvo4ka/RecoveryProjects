@@ -224,7 +224,7 @@ namespace RAW
 				// 2 clusters in first file consecutive 
 				if (fileCounter == 0)
 				{
-					for (auto i = 0; i < 2; ++i)
+					//for (auto i = 0; i < 2; ++i)
 					{
 						bytesRead = ReadBlock(data_array, position);
 						if (bytesRead == 0)

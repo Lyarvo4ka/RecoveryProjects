@@ -4,6 +4,7 @@
 #include "raw/AbstractRaw.h"
 #include <QAbstractItemModel>
 #include <QFileIconProvider>
+#include <QVectorIterator>
 
 enum SignatureItemType : int
 {
@@ -87,7 +88,52 @@ public:
 		}
 		return nullptr;
 	}
+	Qt::CheckState getCheckStateFromChilds()
+	{
+		auto checkState = this->getCheckState();
 
+		if (this->childCount() > 0)
+		{
+			checkState = child(0)->getCheckState();
+			for (auto i = 1; i < this->childCount(); ++i)
+			{
+				if (checkState != child(i)->getCheckState())
+					return Qt::PartiallyChecked;
+			}
+		}
+		return checkState;
+
+		//auto checkState = itemIter->getCheckState();
+		//while (++itemIter != childItems_.end())
+		//{
+		//	auto nextState = itemIter->getCheckState();
+		//	if (checkState != nextState)
+		//		return Qt::PartiallyChecked;
+
+		//}
+	}
+
+	void upadateCheckParents()
+	{
+		auto parent = this->parentItem();
+		while (parent != nullptr)
+		{
+			if (parent->getAdapter()->getItemType() == SignatureItemType::kCategoryItem)
+			{
+				auto signatureItem = dynamic_cast<SignatureItem*>(parent);
+				auto check_state = signatureItem->getCheckStateFromChilds();
+				parent->setCheckState(check_state);
+			}
+			parent = parent->parentItem();
+		}
+		
+	}
+	void updateCheckChilds(const Qt::CheckState checkState)
+	{
+		if (this->getAdapter()->getItemType() == SignatureItemType::kCategoryItem )
+			for (auto i = 0; i < this->childCount(); ++i)
+				this->child(i)->setCheckState(checkState);
+	}
 };
 
 //using SignatureItem = TreeItem< SignatureAdapter>;
@@ -143,6 +189,32 @@ public:
 				}
 		}
 		return QVariant();
+	}
+	bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override
+	{
+		if (role == Qt::CheckStateRole)
+		{
+			auto signatureItem = toSignatureItem(index);
+			if (signatureItem != nullptr)
+			{
+				auto checkState = static_cast<Qt::CheckState> (value.toInt());
+				signatureItem->updateCheckChilds(checkState);
+				signatureItem->setCheckState(checkState);
+				signatureItem->upadateCheckParents();
+
+				// update the whole tree views.
+				emit dataChanged(QModelIndex(), QModelIndex());
+				return true;
+			}
+		}
+		return false;
+	}
+	SignatureItem* toSignatureItem(const QModelIndex& qModelIdex)
+	{
+		SignatureItem* signatureItem = nullptr;
+		if (qModelIdex.isValid())
+			signatureItem = static_cast<SignatureItem*>(qModelIdex.internalPointer());
+		return signatureItem;
 	}
 	Qt::ItemFlags flags(const QModelIndex& index) const override
 	{

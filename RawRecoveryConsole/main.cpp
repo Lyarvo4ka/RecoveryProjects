@@ -399,8 +399,8 @@ int main(int argc, char *argv[])
 			{
 				RAW::ZoomH6Raw zoomH6Raw(src_device);
 					auto bytesWritten = zoomH6Raw.Execute(header_offset, target_folder);
-					if (bytesWritten == 0)
-						break;
+					//if (bytesWritten == 0)
+					//	break;
 					start_offset += default_sector_size;
 			}
 			else

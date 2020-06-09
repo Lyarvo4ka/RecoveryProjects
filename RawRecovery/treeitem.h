@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qvariant.h>
+#include <QVector>
 
 template < class AdapterType >
 class TreeItem
@@ -54,6 +55,7 @@ public:
 	{
 		return parentItem_;
 	}
+
 	void setCheckState(Qt::CheckState checkState)
 	{
 		checkState_ = checkState;
@@ -62,5 +64,6 @@ public:
 	{
 		return checkState_;
 	}
+
 
 };

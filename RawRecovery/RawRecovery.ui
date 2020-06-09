@@ -34,9 +34,22 @@
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>461</width>
-            <height>441</height>
+            <width>531</width>
+            <height>581</height>
            </rect>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="pushButton">
+          <property name="geometry">
+           <rect>
+            <x>220</x>
+            <y>600</y>
+            <width>75</width>
+            <height>23</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Start</string>
           </property>
          </widget>
         </widget>
