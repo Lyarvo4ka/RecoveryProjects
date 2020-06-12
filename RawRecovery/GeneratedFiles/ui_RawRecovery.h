@@ -17,6 +17,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QToolBar>
@@ -37,6 +38,7 @@ public:
     QTabWidget *tabWidget;
     QWidget *tab;
     QTreeView *signatureTree;
+    QPushButton *pushButton;
     QWidget *tab_2;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -70,7 +72,10 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         signatureTree = new QTreeView(tab);
         signatureTree->setObjectName(QString::fromUtf8("signatureTree"));
-        signatureTree->setGeometry(QRect(10, 10, 461, 441));
+        signatureTree->setGeometry(QRect(10, 10, 531, 581));
+        pushButton = new QPushButton(tab);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(220, 600, 75, 23));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -110,6 +115,7 @@ public:
     {
         RawRecoveryClass->setWindowTitle(QCoreApplication::translate("RawRecoveryClass", "RawRecovery", nullptr));
         actionOpen->setText(QCoreApplication::translate("RawRecoveryClass", "Open", nullptr));
+        pushButton->setText(QCoreApplication::translate("RawRecoveryClass", "Start", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("RawRecoveryClass", "Tab 1", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("RawRecoveryClass", "Tab 2", nullptr));
         menuFile->setTitle(QCoreApplication::translate("RawRecoveryClass", "File", nullptr));

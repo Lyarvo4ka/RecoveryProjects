@@ -80,6 +80,8 @@ RawRecovery::RawRecovery(QWidget *parent)
 	auto pSignatureTreeModel = new SignatureTreeModel(sign_root, this);
 	ui.signatureTree->setModel(pSignatureTreeModel);
 
+	//ui.tabWidget.
+
 }
 
 void RawRecovery::OnDeviceContextMenu(const QPoint& point_pos)
