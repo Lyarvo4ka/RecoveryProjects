@@ -166,7 +166,9 @@
     <ClInclude Include="..\include\io\constants.h" />
     <ClInclude Include="..\include\io\dataarray.h" />
     <ClInclude Include="..\include\io\dbf.h" />
+    <ClInclude Include="..\include\io\diskdevice.h" />
     <ClInclude Include="..\include\io\error.h" />
+    <ClInclude Include="..\include\io\file.h" />
     <ClInclude Include="..\include\io\finder.h" />
     <ClInclude Include="..\include\io\fs.h" />
     <ClInclude Include="..\include\io\functions.h" />
@@ -179,8 +181,11 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dataarray.cpp" />
+    <ClCompile Include="diskdevice.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="error.cpp" />
+    <ClCompile Include="file.cpp" />
     <ClCompile Include="ioengine.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

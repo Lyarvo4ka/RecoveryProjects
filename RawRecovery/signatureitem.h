@@ -82,7 +82,7 @@ public:
 			auto treeItem = this->child(i);
 			if (treeItem->getAdapter()->getName().compare(name_txt) == 0)
 			{
-				auto signItem = dynamic_cast<SignatureItem*>(treeItem);
+				auto signItem = static_cast<SignatureItem*>(treeItem);
 				return signItem;
 			}
 		}

@@ -21,95 +21,58 @@ namespace IO
 {
 	class DataArray
 	{
-		ByteArray data_ = nullptr;
-		uint32_t size_ = 0;
+		std::vector<uint8_t> data_;
+
 	public:
 		using Ptr = std::unique_ptr<DataArray>;
+		
+		DataArray() = delete;
+		DataArray(const DataArray&) = delete;
 
 		DataArray(const uint32_t size)
-			:data_(nullptr)
-			, size_(size)
+			:data_(size)
 		{
-			if (size > 0)
-			{
-				data_ = DBG_NEW uint8_t[size];
-			}
 		}
-		DataArray(ByteArray data, uint32_t size)
-			: data_(data)
-			, size_(size)
-		{
-
-		}
-		DataArray(const uint8_t const_data[], uint32_t size)
-			: data_(nullptr)
-			, size_(size)
-		{
-			if (size_ > 0)
-			{
-				data_ = DBG_NEW uint8_t[size_];
-				memcpy(data_, const_data, size_);
-
-			}
-		}
-		DataArray(DataArray && tmp_data_array)
-			: data_(tmp_data_array.data_)
-			, size_(tmp_data_array.size_)
-		{
-			//printf("Move constructor called.");
-			tmp_data_array.data_ = nullptr;
-			tmp_data_array.size_ = 0;
-		}
-
 		~DataArray()
 		{
 			clear();
 		}
 		uint32_t size() const
 		{
-			return size_;
+			return static_cast<uint32_t>(data_.size());
 		}
 		ByteArray data()
 		{
-			return data_;
+			return data_.data();
 		}
 		ByteArray data() const
 		{
-			return data_;
+			return const_cast<ByteArray>(data_.data());
 		}
 		bool isValid() const
 		{
-			return (size_ != 0);
+			return !data_.empty();
 		}
 		void resize(const uint32_t new_size)
 		{
-			if (size_ != new_size)
+			if (new_size > 0)
+			if (size() != new_size)
 			{
 				clear();
-				if (new_size > 0)
-				{
-					data_ = DBG_NEW uint8_t[new_size];
-					size_ = new_size;
-				}
+				data_.resize(new_size);
 			}
 		}
 		void clear()
 		{
-			if (data_)
-			{
-				delete[] data_;
-				data_ = nullptr;
-			}
-			size_ = 0;
-
+			data_.clear();
 		}
-		static bool compareData(const DataArray & left, const DataArray & right)
+		static bool compareData(const DataArray& left, const DataArray& right)
 		{
 			if (left.size() == right.size())
 				return (memcmp(left.data(), right.data(), left.size()) == 0);
 			return false;
 		}
-		friend bool operator == (const DataArray & left, const DataArray & right)
+		friend bool operator == (const DataArray& left, const DataArray& right)
 		{
 			return compareData(left, right);
 		}	
@@ -134,26 +97,17 @@ namespace IO
 			if (size >= this->size())
 			{
 
-				if (std::memcmp(data_, data + offset, this->size()) == 0)
+				if (std::memcmp(data_.data(), data + offset, this->size()) == 0)
 					return true;
 			}
 			return false;
 		}
-		bool compareData(const DataArray & dataArray, uint32_t offset = 0)
+		bool compareData(const DataArray& dataArray, uint32_t offset = 0)
 		{
 			return compareData(dataArray.data(), dataArray.size(), offset);
 		}
 
 	};
-
-	inline DataArray::Ptr makeDataArray(ByteArray data, uint32_t size)
-	{
-		return std::make_unique<DataArray>(data, size);
-	}
-	inline DataArray::Ptr makeDataArray(const uint8_t const_data[], uint32_t size)
-	{
-		return std::make_unique<DataArray>(const_data, size);
-	}
 
 	inline DataArray::Ptr makeDataArray(uint32_t size)
 	{

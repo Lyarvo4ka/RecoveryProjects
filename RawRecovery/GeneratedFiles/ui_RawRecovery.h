@@ -18,6 +18,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QToolBar>
@@ -37,8 +38,12 @@ public:
     QTreeView *treeView;
     QTabWidget *tabWidget;
     QWidget *tab;
+    QVBoxLayout *verticalLayout_2;
     QTreeView *signatureTree;
+    QHBoxLayout *horizontalLayout_2;
+    QSpacerItem *horizontalSpacer;
     QPushButton *pushButton;
+    QSpacerItem *horizontalSpacer_2;
     QWidget *tab_2;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -49,7 +54,7 @@ public:
     {
         if (RawRecoveryClass->objectName().isEmpty())
             RawRecoveryClass->setObjectName(QString::fromUtf8("RawRecoveryClass"));
-        RawRecoveryClass->resize(1156, 722);
+        RawRecoveryClass->resize(1124, 819);
         actionOpen = new QAction(RawRecoveryClass);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         centralWidget = new QWidget(RawRecoveryClass);
@@ -70,12 +75,34 @@ public:
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
+        verticalLayout_2 = new QVBoxLayout(tab);
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         signatureTree = new QTreeView(tab);
         signatureTree->setObjectName(QString::fromUtf8("signatureTree"));
-        signatureTree->setGeometry(QRect(10, 10, 531, 581));
+
+        verticalLayout_2->addWidget(signatureTree);
+
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(6);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer);
+
         pushButton = new QPushButton(tab);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(220, 600, 75, 23));
+
+        horizontalLayout_2->addWidget(pushButton);
+
+        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_2->addItem(horizontalSpacer_2);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_2);
+
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -89,7 +116,7 @@ public:
         RawRecoveryClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(RawRecoveryClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1156, 21));
+        menuBar->setGeometry(QRect(0, 0, 1124, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         RawRecoveryClass->setMenuBar(menuBar);

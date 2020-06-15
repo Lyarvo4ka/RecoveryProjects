@@ -2,6 +2,7 @@
 
 #include "io/constants.h"
 #include "io/iodevice.h"
+#include "io/file.h"
 //#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
