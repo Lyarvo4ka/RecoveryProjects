@@ -59,10 +59,10 @@ namespace RAW
 		{
 			signatureArray_.emplace_back(std::make_unique<DataArray>(data, size));
 		}
-		void addSignature(const uint8_t const_data[], uint32_t size)
-		{
-			signatureArray_.emplace_back(std::make_unique<DataArray>(const_data, size));
-		}
+		//void addSignature(const uint8_t const_data[], uint32_t size)
+		//{
+		//	signatureArray_.emplace_back(std::make_unique<DataArray>(const_data, size));
+		//}
 		bool FindSignature(const ByteArray data, uint32_t size)
 		{
 			for (auto & theSignature : signatureArray_)
@@ -138,10 +138,10 @@ namespace RAW
 		{
 			return headers_.size();
 		}
-		void addSignature(ByteArray data, uint32_t size, uint32_t header_offset)
-		{
-			addSignature(makeDataArray(data, size), header_offset);
-		}
+		//void addSignature(ByteArray data, uint32_t size, uint32_t header_offset)
+		//{
+		//	addSignature(makeDataArray(data, size), header_offset);
+		//}
 
 		void addSignature(DataArray::Ptr data_array, uint32_t offset)
 		{

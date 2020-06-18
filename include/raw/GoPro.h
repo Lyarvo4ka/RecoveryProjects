@@ -7,11 +7,11 @@
 #include <iterator>
 #include <vector>
 
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include "io/functions.h"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 namespace RAW
 {

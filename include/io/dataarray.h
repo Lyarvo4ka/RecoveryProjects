@@ -3,20 +3,6 @@
 #include <memory>
 #include "constants.h"
 
-
-#define _CRTDBG_MAP_ALLOC
-#include <cstdlib>
-#include <crtdbg.h>
-
-#ifdef _DEBUG
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
-// allocations to be of _CLIENT_BLOCK type
-#else
-#define DBG_NEW new
-#endif
-
-
 namespace IO
 {
 	class DataArray
@@ -27,11 +13,16 @@ namespace IO
 		using Ptr = std::unique_ptr<DataArray>;
 		
 		DataArray() = delete;
-		DataArray(const DataArray&) = delete;
+		//DataArray(const DataArray&) = delete;
 
 		DataArray(const uint32_t size)
 			:data_(size)
 		{
+		}
+		DataArray(ByteArray data , const uint32_t size)
+			:data_(size)
+		{
+			// NOT WORKING
 		}
 		~DataArray()
 		{

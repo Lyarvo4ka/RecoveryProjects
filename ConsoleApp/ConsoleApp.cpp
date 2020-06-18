@@ -5,6 +5,9 @@
 
 #include "raw/oleraw.h"
 #include "io/functions.h"
+
+#include "io/iodevice.h"
+#include "io/file.h"
 //
 //const char s_ftyp[] = "ftyp";
 //const char s_moov[] = "moov";
@@ -500,7 +503,6 @@ int XorAnalyzer(int argc, wchar_t* argv[])
 
 
 
-#include "io/iodevice.h"
 
 void testHeaderToBadSector(const IO::path_string folderPath)
 {
@@ -682,26 +684,76 @@ void testIsFileQtHeader(const IO::path_string folderPath)
 	}
 }
 
+void create_AllFiles(const IO::path_string & sourceFilePath , const IO::path_string & imagePath,const IO::path_string & folderPath)
+{
+	uint64_t fileOffset = 0x71E00;
+	uint32_t sizeOfBlock = 0x3F0000;
+
+	IO::File srcFile(sourceFilePath);
+	srcFile.OpenRead();
+
+
+	auto fileSize = srcFile.Size();
+	if (fileSize < (fileOffset + sizeOfBlock))
+		return;
+
+	IO::DataArray fullFile(fileSize);
+	srcFile.ReadData(fullFile);
+
+	uint64_t endSize = fileSize - fileOffset + sizeOfBlock;
+
+	IO::File imgFile(imagePath);
+	imgFile.OpenRead();
+
+	IO::DataArray buffer(sizeOfBlock);
+	uint64_t offset = 0;
+	uint64_t fileCounter = 0;
+	while (offset < imgFile.Size())
+	{
+		imgFile.setPosition(offset);
+		imgFile.ReadData(buffer);
+
+		IO::path_string targetFilename = IO::addBackSlash(folderPath) + std::to_wstring(fileCounter++) + L".xlsx";
+		IO::File targetFile(targetFilename);
+		targetFile.OpenCreate();
+		targetFile.WriteData(fullFile.data(), fullFile.size());
+		targetFile.setPosition(fileOffset);
+		targetFile.WriteData(buffer.data(), buffer.size());
+
+		targetFile.Close();
+
+		offset += sizeOfBlock;
+	}
+	
+
+}
+
+
 int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
 	//std::locale mylocale("");   // get global locale
 	//std::cout.imbue(mylocale);
 
-	if (argc == 4)
-	{
+	IO::path_string file1 = LR"(d:\PaboTa\48145\Перенос 9.xlsx)";
+	IO::path_string file2 = LR"(d:\PaboTa\48145\raw.image)";
+	IO::path_string target = LR"(d:\PaboTa\48145\result\)";
 
-		IO::path_string file1 = argv[1];
-		IO::path_string file2 = argv[2];
-		IO::path_string target = argv[3];
+	create_AllFiles(file1 , file2 , target);
+	//if (argc == 4)
+	//{
 
-		join2FilesWithMarker(file1, file2, target);
-	}
-	else
-	{
-		std::cout << "Wrong params  " << std::endl;
-		std::cout << "Filename1 Filename2 targetname " << std::endl;
-	}
+	//	IO::path_string file1 = argv[1];
+	//	IO::path_string file2 = argv[2];
+	//	IO::path_string target = argv[3];
+
+	//	join2FilesWithMarker(file1, file2, target);
+	//}
+	//else
+	//{
+	//	std::cout << "Wrong params  " << std::endl;
+	//	std::cout << "Filename1 Filename2 targetname " << std::endl;
+	//}
 
 	//testIsFileQtHeader(LR"(f:\47941\$LostFiles\$Group61A001209A8016F\1\)");
 	//XorAnalyzer(argc, argv);

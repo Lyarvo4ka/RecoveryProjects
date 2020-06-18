@@ -50,6 +50,6 @@ namespace IO
 	};
 
 	using FilePtr = std::shared_ptr<File>;
-	inline FilePtr makeFilePtr(const path_string& file_path);
+	FilePtr makeFilePtr(const path_string& file_path);
 
 }
