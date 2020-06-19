@@ -7,6 +7,7 @@ namespace IO
 	File::File(const path_string& file_path)
 		: size_(0)
 		, file_path_(file_path)
+		, io_engine_(std::make_unique<IOEngine>())
 	{
 		deviceInfo_.deviceTypeName = file_txt;
 	}

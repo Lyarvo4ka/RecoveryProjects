@@ -23,13 +23,16 @@ public:
 	//MOCK_METHOD(void , setTranserSize , (const uint32_t transfer_size) , (override));
 	//MOCK_METHOD(uint32_t , getTranferSize , () , ( const , override));
 
-	MOCK_METHOD(IOErrorsType, ReadOrWriteData , (ByteArray data, const uint32_t read_size, uint32_t& bytes_read, read_or_write_func read_write), (override));
 	MOCK_METHOD(IOErrorsType, read_data , (ByteArray data, uint32_t read_size, uint32_t& bytes_read), (override) );
 	MOCK_METHOD(IOErrorsType, write_data , (ByteArray data, uint32_t write_size, uint32_t& bytes_written) , (override));
 
 	MOCK_METHOD( BOOL , read_device , (HANDLE& hDevice, ByteArray data, const uint32_t bytes_to_read, uint32_t& bytes_read) , (override));
 	MOCK_METHOD( BOOL , write_device , (HANDLE& hDevice, ByteArray data, const uint32_t bytes_to_write, uint32_t& bytes_written) , (override));
 
+	IOErrorsType base_Read(ByteArray data, const uint32_t read_size, uint32_t& bytes_read)
+	{
+		return IOEngine::Read(data , read_size , bytes_read);
+	}
 
 
 };

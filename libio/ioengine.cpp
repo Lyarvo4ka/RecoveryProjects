@@ -1,5 +1,6 @@
 #include "io/ioengine.h"
-//#include "pch.h"
+
+#include <cassert>
 
 namespace IO
 {
@@ -99,49 +100,11 @@ namespace IO
 	}
 	IOErrorsType IOEngine::Read(ByteArray data, const uint32_t read_size, uint32_t & bytes_read)
 	{
-		uint32_t data_pos = 0;
-		uint32_t bytes_to_read = 0;
-		while (data_pos < read_size)
-		{
-			bytes_to_read = calcBlockSize(data_pos, read_size, getTranferSize());
-			setPostion(position_);
-			ByteArray pData = data + data_pos;
-
-			auto result = read_data(pData, bytes_to_read, bytes_read);
-			if (result != IOErrorsType::OK)
-				return result;
-			data_pos += bytes_read;
-			position_ += bytes_read;
-		}
-		bytes_read = data_pos;
-		return IOErrorsType::OK;
-
-		//auto read_func = std::bind(&IOEngine::read_data, std::ref(*this), data, read_size, bytes_read);
-		//return ReadOrWriteData(data, read_size, bytes_read, read_func);
-
+		return ReadOrWriteData(data, read_size, bytes_read, enReadWrite::kREAD);
 	}
 	IOErrorsType IOEngine::Write(ByteArray data, const uint32_t write_size, uint32_t & bytes_written)
 	{
-		uint32_t data_pos = 0;
-		uint32_t bytes_to_read = 0;
-		while (data_pos < write_size)
-		{
-			bytes_to_read = calcBlockSize(data_pos, write_size, getTranferSize());
-			setPostion(position_);
-			ByteArray pData = data + data_pos;
-
-			auto result = write_data(pData, bytes_to_read, bytes_written);
-			if (result != IOErrorsType::OK)
-				return result;
-			data_pos += bytes_written;
-			position_ += bytes_written;
-		}
-		bytes_written = data_pos;
-		return IOErrorsType::OK;
-
-		//auto write_func = std::bind(&IOEngine::write_data, std::ref(*this), data, write_size, bytes_written);
-		//return ReadOrWriteData(data, write_size, bytes_written, write_func);
-
+		return ReadOrWriteData(data, write_size, bytes_written, enReadWrite::kWRITE);
 	}
 	IOErrorsType IOEngine::SetFileSize(uint64_t new_size)
 	{
@@ -171,17 +134,26 @@ namespace IO
 	{
 		return transfer_size_;
 	}
-	IOErrorsType IOEngine::ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, read_or_write_func read_write)
+	IOErrorsType IOEngine::ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, enReadWrite read_write)
 	{
+		assert(data != nullptr);
+		assert(read_size != 0);
+
 		uint32_t data_pos = 0;
 		uint32_t bytes_to_read = 0;
+		IOErrorsType result = IOErrorsType::kUnknown;
 		while (data_pos < read_size)
 		{
 			bytes_to_read = calcBlockSize(data_pos, read_size, getTranferSize());
 			setPostion(position_);
 			ByteArray pData = data + data_pos;
+			
+			if (read_write == enReadWrite::kREAD)
+				result = read_data(pData, bytes_to_read, bytes_read);
+			else
+				if (read_write == enReadWrite::kWRITE)
+					result = write_data(pData, bytes_to_read, bytes_read);
 
-			auto result = read_write(pData, bytes_to_read, bytes_read); 
 			if( result != IOErrorsType::OK)
 				return result;
 			data_pos += bytes_read;

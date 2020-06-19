@@ -25,6 +25,8 @@ namespace IO
 
 	path_string addPrefix(const path_string& path);
 
+	enum class enReadWrite { kREAD, kWRITE };
+
 	class IOEngine
 	{
 		HANDLE hDevice_ = INVALID_HANDLE_VALUE;
@@ -52,13 +54,15 @@ namespace IO
 
 	private:
 
-		virtual IOErrorsType ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, read_or_write_func read_write);
-
+		IOErrorsType ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, enReadWrite read_write);
+		
 		virtual IOErrorsType read_data(ByteArray data, uint32_t read_size, uint32_t & bytes_read);
 		virtual IOErrorsType write_data(ByteArray data, uint32_t write_size, uint32_t & bytes_written);
 
 		virtual BOOL read_device(HANDLE & hDevice, ByteArray data, const uint32_t bytes_to_read, uint32_t & bytes_read);
 		virtual BOOL write_device(HANDLE & hDevice, ByteArray data, const uint32_t bytes_to_write, uint32_t & bytes_written);
+
+	
 
 	};
 }

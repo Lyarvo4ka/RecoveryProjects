@@ -8,7 +8,7 @@ namespace IO
 		: public IODevice
 	{
 	private:
-		std::unique_ptr<IOEngine> io_engine_ = std::make_unique<IOEngine>();
+		std::unique_ptr<IOEngine> io_engine_ ;
 		uint64_t size_;
 		path_string file_path_;
 		DeviceInfo deviceInfo_;
