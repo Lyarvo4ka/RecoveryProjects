@@ -134,10 +134,14 @@ namespace IO
 	{
 		return transfer_size_;
 	}
+	bool IOEngine::isParamsValid(ByteArray data, uint32_t size)
+	{
+		return ((data != nullptr) && (size > 0));
+	}
 	IOErrorsType IOEngine::ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, enReadWrite read_write)
 	{
-		assert(data != nullptr);
-		assert(read_size != 0);
+		if (!isParamsValid(data , read_size))
+			return IOErrorsType::kWrongParam;
 
 		uint32_t data_pos = 0;
 		uint32_t bytes_to_read = 0;

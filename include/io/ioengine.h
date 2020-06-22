@@ -51,7 +51,7 @@ namespace IO
 		virtual IOErrorsType readFileSize(uint64_t & file_size);
 		void setTranserSize(const uint32_t transfer_size);
 		uint32_t getTranferSize() const;
-
+		bool isParamsValid(ByteArray data, uint32_t size);
 	private:
 
 		IOErrorsType ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, enReadWrite read_write);

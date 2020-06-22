@@ -30,6 +30,7 @@ namespace IO
 			kWriteData,
 			kGetFileSize,
 			kSetFileSize,
+			kWrongParam,
 			kUnknown
 
 		};
