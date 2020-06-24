@@ -735,11 +735,11 @@ int wmain(int argc, wchar_t* argv[])
 	//std::locale mylocale("");   // get global locale
 	//std::cout.imbue(mylocale);
 
-	IO::path_string file1 = LR"(d:\PaboTa\48145\Перенос 9.xlsx)";
-	IO::path_string file2 = LR"(d:\PaboTa\48145\raw.image)";
-	IO::path_string target = LR"(d:\PaboTa\48145\result\)";
+	//IO::path_string file1 = LR"(d:\PaboTa\48145\Перенос 9.xlsx)";
+	//IO::path_string file2 = LR"(d:\PaboTa\48145\raw.image)";
+	//IO::path_string target = LR"(d:\PaboTa\48145\result\)";
 
-	create_AllFiles(file1 , file2 , target);
+	//create_AllFiles(file1 , file2 , target);
 	//if (argc == 4)
 	//{
 
@@ -755,7 +755,7 @@ int wmain(int argc, wchar_t* argv[])
 	//	std::cout << "Filename1 Filename2 targetname " << std::endl;
 	//}
 
-	//testIsFileQtHeader(LR"(f:\47941\$LostFiles\$Group61A001209A8016F\1\)");
+	testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
 	//XorAnalyzer(argc, argv);
 
 	//IO::XorAnalyzer xor_analyzer(L"");

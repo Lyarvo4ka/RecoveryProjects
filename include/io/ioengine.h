@@ -15,6 +15,8 @@ namespace IO
 
 	inline uint32_t calcBlockSize(uint64_t current, uint64_t size, uint32_t block_size)
 	{
+		if (current > size)
+			return 0;
 		uint32_t bytes = 0;
 		if (current + (uint64_t)block_size <= size)
 			bytes = block_size;
@@ -54,13 +56,14 @@ namespace IO
 		bool isParamsValid(ByteArray data, uint32_t size);
 	private:
 
-		IOErrorsType ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t & bytes_read, enReadWrite read_write);
 		
 		virtual IOErrorsType read_data(ByteArray data, uint32_t read_size, uint32_t & bytes_read);
 		virtual IOErrorsType write_data(ByteArray data, uint32_t write_size, uint32_t & bytes_written);
 
 		virtual BOOL read_device(HANDLE & hDevice, ByteArray data, const uint32_t bytes_to_read, uint32_t & bytes_read);
 		virtual BOOL write_device(HANDLE & hDevice, ByteArray data, const uint32_t bytes_to_write, uint32_t & bytes_written);
+	protected:
+		IOErrorsType ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t& bytes_read, enReadWrite read_write);
 
 	
 

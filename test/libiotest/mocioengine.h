@@ -33,6 +33,12 @@ public:
 	{
 		return IOEngine::Read(data , read_size , bytes_read);
 	}
-
-
+	IOErrorsType base_Write(ByteArray data, const uint32_t read_size, uint32_t& bytes_read)
+	{
+		return IOEngine::Write(data, read_size, bytes_read);
+	}
+	IOErrorsType base_ReadOrWriteData(ByteArray data, const uint32_t read_size, uint32_t& bytes_read, enReadWrite read_write)
+	{
+		return IOEngine::ReadOrWriteData(data, read_size, bytes_read, read_write);
+	}
 };

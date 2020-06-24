@@ -142,6 +142,8 @@ namespace IO
 	{
 		if (!isParamsValid(data , read_size))
 			return IOErrorsType::kWrongParam;
+		if (getTranferSize() == 0)
+			return IOErrorsType::kWrongParam;
 
 		uint32_t data_pos = 0;
 		uint32_t bytes_to_read = 0;
