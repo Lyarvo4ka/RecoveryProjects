@@ -84,9 +84,6 @@ namespace IO
 
 	uint32_t File::ReadData(ByteArray data, uint32_t read_size)
 	{
-		assert(data != nullptr);
-		assert(read_size >= 0);
-
 		uint32_t bytes_read = 0;
 
 		auto result = io_engine_->Read(data, read_size, bytes_read);
@@ -108,9 +105,6 @@ namespace IO
 
 	uint32_t File::WriteData(ByteArray data, uint32_t write_size)
 	{
-		assert(data != nullptr);
-		assert(write_size >= 0);
-
 		uint32_t bytes_written = 0;
 		auto result = io_engine_->Write(data, write_size, bytes_written);
 		if (result == Error::IOErrorsType::OK)

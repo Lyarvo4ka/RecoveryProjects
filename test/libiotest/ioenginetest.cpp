@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "mocioengine.h"
 
 using ::testing::_;
@@ -35,6 +34,7 @@ TEST(ioengineSuit, testIsParamsValid)
 }
 TEST(ioengineSuit, ReadDataTest)
 {
+
 	const uint32_t READ_SIZE = 10;
 	DataArray buffer(READ_SIZE);
 	uint32_t bytes_read = 0;

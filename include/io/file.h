@@ -47,6 +47,11 @@ namespace IO
 		{
 			return deviceInfo_;
 		}
+
+		void setIOEngine(IOEnginePTR new_ioengine)
+		{
+			io_engine_ = std::move(new_ioengine);
+		}
 	};
 
 	using FilePtr = std::shared_ptr<File>;

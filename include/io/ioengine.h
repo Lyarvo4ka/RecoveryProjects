@@ -68,4 +68,6 @@ namespace IO
 	
 
 	};
+
+	using IOEnginePTR = std::unique_ptr<IOEngine>;
 }
