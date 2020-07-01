@@ -157,6 +157,14 @@ namespace IO
 			{
 
 			}
+			//IOErrorException()
+			//{
+
+			//}
+			//IOStatus getStatus() const
+			//{
+			//	return error_status_;
+			//}
 			const char* what() const override
 			{
 				tmp_str = error_status_.error_message() + LastErrorMessage(error_status_.lastError());
