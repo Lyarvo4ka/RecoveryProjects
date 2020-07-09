@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>_DEBUG;LIBRAW_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(BOOST_ROOT);$(ProjectDir)..\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -168,6 +168,7 @@
     <ClInclude Include="..\include\raw\GoPro.h" />
     <ClInclude Include="..\include\raw\oleraw.h" />
     <ClInclude Include="..\include\raw\QuickTime.h" />
+    <ClInclude Include="..\include\raw\RawPLN.h" />
     <ClInclude Include="..\include\raw\RawRIFF.h" />
     <ClInclude Include="..\include\raw\rawzip.h" />
     <ClInclude Include="..\include\raw\StandartRaw.h" />

@@ -230,6 +230,10 @@ namespace RAW
 		{
 			max_extents_in_block_ = (block_size_ - sizeof(ext4_extent_header)) / sizeof(ext4_extent);
 		}
+		void setVolumeOffset(uint64_t new_offset)
+		{
+			volume_offset_ = new_offset;
+		}
 		uint64_t Execute(const uint64_t inode_offset, const path_string target_folder) override
 		{
 			if (!device_->isOpen())
@@ -550,10 +554,19 @@ namespace RAW
 				}
 			}
 			else {
+				//File text_file(LR"(e:\48264\offsets.txt)");
+				//text_file.OpenCreate();
+
 				for (int i = 0; i < extent_block->header.entries; i++) {
 					saveToFile(extent_block->extent_index[i].PysicalBlock(), target_file);
-					int x = 0;
+					//auto text = std::to_string(extent_block->extent_index[i].PysicalBlock());
+					//text_file.WriteText(text + "\n");
+					//int x = 0;
 				}
+				//text_file.Close();
+				int k = 1;
+				k = 2;
+
 			}
 			return 0;
 		}

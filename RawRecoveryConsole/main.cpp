@@ -25,6 +25,7 @@
 #include "raw/oleraw.h"
 #include "raw/GoPro.h"
 #include "raw/ZoomH6Raw.h"
+#include "io/diskdevice.h"
 
 //#include "IO\RawMTS.h"
 //#include "IO\RawMPEG.h"
@@ -36,7 +37,7 @@
 //#include "IO\PCKRaw.h"
 //#include "IO\ZS2Raw.h"
 //#include "IO\ZoomH6Raw.h"
-//#include "IO\RawPLN.h"
+#include "raw\RawPLN.h"
 //#include "IO\GoPro.h"
 //#include "IO\RawCDW.h"
 //#include "IO\FlpRaw.h"
@@ -252,9 +253,9 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//factory_manager.Register("qt_fragment", std::make_unique<IO::QTFragmentRawFactory>());
 	//initAudioFactoryManager(factory_manager);
 	//factory_manager.Register("go_pro", std::make_unique<RAW::GoProRawFactory>());
-	factory_manager.Register("canonStartFragment", std::make_unique<RAW::CanonStartFragmentFactory>());
+	//factory_manager.Register("canonStartFragment", std::make_unique<RAW::CanonStartFragmentFactory>());
 
-	//factory_manager.Register("pln", std::make_unique<IO::PLNRawFactory>());
+	factory_manager.Register("pln", std::make_unique<RAW::PLNRawFactory>());
 
 	//factory_manager.Register("keychain-db", std::make_unique<IO::KeychainRawFactory>());
 
@@ -349,7 +350,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "zoomH6.json";
+		QString json_file = "pln.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{

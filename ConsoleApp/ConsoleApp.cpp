@@ -728,10 +728,44 @@ void create_AllFiles(const IO::path_string & sourceFilePath , const IO::path_str
 
 }
 
+#include "io/diskdevice.h"
+
+uint64_t cacl_block_number(uint64_t absolute_offset , uint64_t volume_offset , uint32_t block_size)
+{
+	return (absolute_offset - volume_offset) / block_size;
+}
 
 int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
+
+
+	// ext4_raw
+	IO::path_string targetFilePath = LR"(e:\48264\result)";
+	IO::File tagetFile(targetFilePath);
+	tagetFile.OpenCreate();
+
+	uint64_t inodeOffsetInVolume = 0x2C11C5B000;
+	uint64_t volume_offset = 0x220200000;
+	uint64_t absolute_offset = inodeOffsetInVolume + volume_offset;
+	auto listDisk = IO::ReadPhysicalDrives();
+	auto physical_disk = listDisk.find_by_number(4);
+	auto disk_ptr = std::make_shared<IO::DiskDevice>(physical_disk);
+	disk_ptr->Open(IO::OpenMode::OpenRead);
+
+	RAW::ext4_raw ext4_recovery(disk_ptr);
+	ext4_recovery.setVolumeOffset(volume_offset);
+	auto block_num = cacl_block_number(absolute_offset, volume_offset, 4096);
+	ext4_recovery.saveToFile(block_num, tagetFile);
+
+	//auto src_file = IO::makeFilePtr(LR"(e:\48264\11403268 )");
+	//src_file->OpenRead();
+	//RAW::ext4_raw ext4_recovery(src_file);
+	//ext4_recovery.saveToFile(0, tagetFile);
+
+
+
+
 	//std::locale mylocale("");   // get global locale
 	//std::cout.imbue(mylocale);
 
@@ -755,7 +789,7 @@ int wmain(int argc, wchar_t* argv[])
 	//	std::cout << "Filename1 Filename2 targetname " << std::endl;
 	//}
 
-	testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
+	//testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
 	//XorAnalyzer(argc, argv);
 
 	//IO::XorAnalyzer xor_analyzer(L"");
