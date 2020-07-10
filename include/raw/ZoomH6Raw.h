@@ -25,7 +25,7 @@ namespace RAW
 		char folder_name[11];
 	};
 
-	namespace fs = std::experimental::filesystem;//boost::filesystem;
+	namespace fs = std::filesystem;//boost::filesystem;
 	class RiffFile
 	{
 		FilePtr file_;

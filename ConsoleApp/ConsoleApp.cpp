@@ -745,11 +745,11 @@ int wmain(int argc, wchar_t* argv[])
 	IO::File tagetFile(targetFilePath);
 	tagetFile.OpenCreate();
 
-	uint64_t inodeOffsetInVolume = 0x2C11C5B000;
+	uint64_t inodeOffsetInVolume = 0x2B95E05000;
 	uint64_t volume_offset = 0x220200000;
 	uint64_t absolute_offset = inodeOffsetInVolume + volume_offset;
 	auto listDisk = IO::ReadPhysicalDrives();
-	auto physical_disk = listDisk.find_by_number(4);
+	auto physical_disk = listDisk.find_by_number(3);
 	auto disk_ptr = std::make_shared<IO::DiskDevice>(physical_disk);
 	disk_ptr->Open(IO::OpenMode::OpenRead);
 

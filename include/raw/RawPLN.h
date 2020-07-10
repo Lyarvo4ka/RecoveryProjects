@@ -29,7 +29,7 @@ namespace RAW
 			auto fiveBytes = makeDataArray(numBytes);
 			memcpy(fiveBytes->data(), sector_data.data(), fiveBytes->size());
 			SignatureArray fotersArray;
-			fotersArray.push_back(fiveBytes);
+			fotersArray.emplace_back(std::move(fiveBytes));
 			this->setFooters(fotersArray);
 			return true;
 		}

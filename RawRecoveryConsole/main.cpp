@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 				if (type ==special) find in other base factory
 			*/
 
-			if (file_struct->getAlgorithType().compare("special"))
+			if (file_struct->getAlgorithType().compare("special") == 0)
 			{
 				RAW::ZoomH6Raw zoomH6Raw(src_device);
 					auto bytesWritten = zoomH6Raw.Execute(header_offset, target_folder);
