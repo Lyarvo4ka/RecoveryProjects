@@ -44,8 +44,8 @@ namespace IO
 		virtual IOErrorsType Create(const path_string & path);
 		virtual void Close();
 		virtual bool isOpen() const;
-		virtual void setPostion(uint64_t position);
-		virtual uint64_t getPostion() const;
+		virtual void setPosition(uint64_t position);
+		virtual uint64_t getPosition() const;
 		virtual IOErrorsType Read(ByteArray data, const uint32_t read_size, uint32_t & bytes_read);
 		virtual IOErrorsType Write(ByteArray data, const uint32_t write_size, uint32_t & bytes_written);
 		virtual IOErrorsType SetFileSize(uint64_t new_size);
@@ -69,5 +69,5 @@ namespace IO
 
 	};
 
-	using IOEnginePTR = std::unique_ptr<IOEngine>;
+	using IOEnginePTR = std::shared_ptr<IOEngine>;
 }

@@ -84,7 +84,7 @@ namespace IO
 	{
 		return bOpen_;
 	}
-	void IOEngine::setPostion(uint64_t position)
+	void IOEngine::setPosition(uint64_t position)
 	{
 		//if (position_ != position)	??????
 		{
@@ -94,7 +94,7 @@ namespace IO
 			::SetFilePointerEx(hDevice_, liPos, NULL, FILE_BEGIN);
 		}
 	}
-	uint64_t IOEngine::getPostion() const
+	uint64_t IOEngine::getPosition() const
 	{
 		return position_;
 	}
@@ -151,7 +151,7 @@ namespace IO
 		while (data_pos < read_size)
 		{
 			bytes_to_read = calcBlockSize(data_pos, read_size, getTranferSize());
-			setPostion(position_);
+			setPosition(position_);
 			ByteArray pData = data + data_pos;
 			
 			if (read_write == enReadWrite::kREAD)

@@ -14,8 +14,8 @@ public:
 	MOCK_METHOD(IOErrorsType , Create , (const path_string& path) , (override));
 	MOCK_METHOD(void , Close , () , (override));
 	MOCK_METHOD(bool , isOpen , () , (const , override));
-	MOCK_METHOD(void , setPostion , (uint64_t position) , (override));
-	MOCK_METHOD(uint64_t , getPostion , () , ( const , override));
+	MOCK_METHOD(void , setPosition, (uint64_t position) , (override));
+	MOCK_METHOD(uint64_t , getPosition, () , ( const , override));
 	MOCK_METHOD(IOErrorsType , Read , (ByteArray data, const uint32_t read_size, uint32_t& bytes_read) , (override));
 	MOCK_METHOD(IOErrorsType , Write , (ByteArray data, const uint32_t write_size, uint32_t& bytes_written) , (override));
 	MOCK_METHOD(IOErrorsType , SetFileSize , (uint64_t new_size) , (override));

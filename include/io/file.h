@@ -8,7 +8,7 @@ namespace IO
 		: public IODevice
 	{
 	private:
-		std::unique_ptr<IOEngine> io_engine_ ;
+		IOEnginePTR io_engine_ ;
 		uint64_t size_;
 		path_string file_path_;
 		DeviceInfo deviceInfo_;
@@ -50,7 +50,11 @@ namespace IO
 
 		void setIOEngine(IOEnginePTR new_ioengine)
 		{
-			io_engine_ = std::move(new_ioengine);
+			io_engine_ = new_ioengine;
+		}
+		IOEnginePTR getIOEngine()
+		{
+			return io_engine_;
 		}
 	};
 

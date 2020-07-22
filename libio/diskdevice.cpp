@@ -32,12 +32,12 @@ namespace IO
 	}
 	void DiskDevice::setPosition(uint64_t offset)
 	{
-		io_engine_->setPostion(offset);
+		io_engine_->setPosition(offset);
 
 	}
 	uint64_t DiskDevice::getPosition() const
 	{
-		return io_engine_->getPostion();
+		return io_engine_->getPosition();
 	}
 	uint32_t DiskDevice::ReadData(ByteArray data, uint32_t read_size)
 	{

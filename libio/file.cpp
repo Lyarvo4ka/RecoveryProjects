@@ -74,12 +74,12 @@ namespace IO
 
 	void File::setPosition(uint64_t offset)
 	{
-		io_engine_->setPostion(offset);
+		io_engine_->setPosition(offset);
 	}
 
 	uint64_t File::getPosition() const
 	{
-		return io_engine_->getPostion();
+		return io_engine_->getPosition();
 	}
 
 	uint32_t File::ReadData(ByteArray data, uint32_t read_size)
