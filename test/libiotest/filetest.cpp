@@ -107,8 +107,8 @@ TEST_F(IOFileTest, setPositionTest)
 
 	fileToTest.setPosition(pos_value);
 	EXPECT_EQ(fileToTest.getPosition(), pos_value);
-
 }
+
 TEST_F(IOFileTest, ReadDataTest_OK)
 {
 	const uint32_t data_size = 1;
@@ -116,7 +116,6 @@ TEST_F(IOFileTest, ReadDataTest_OK)
 
 	EXPECT_CALL(*mockIOEngine_ptr, Read(_,_, _)).WillRepeatedly(DoAll(SetArgReferee<2>(data_size) , Return(IOErrorsType::OK)));
 	EXPECT_EQ( fileToTest.ReadData(buf.data() , buf.size() ), data_size);
-
 }
 
 TEST_F(IOFileTest, ReadDataTest_kReadData)
@@ -126,5 +125,31 @@ TEST_F(IOFileTest, ReadDataTest_kReadData)
 
 	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillRepeatedly( Return(IOErrorsType::kReadData));
 	EXPECT_THROW(fileToTest.ReadData(buf.data(), buf.size()), IOErrorException);
-
 }
+
+TEST_F(IOFileTest, WriteDataTest_OK)
+{
+	const uint32_t data_size = 1;
+	DataArray buf(data_size);
+
+	EXPECT_CALL(*mockIOEngine_ptr, Write(_, _, _)).WillRepeatedly(DoAll(SetArgReferee<2>(data_size), Return(IOErrorsType::OK)));
+	EXPECT_EQ(fileToTest.WriteData(buf.data(), buf.size()), data_size);
+}
+
+TEST_F(IOFileTest, WriteDataTest_kReadData)
+{
+	const uint32_t data_size = 1;
+	DataArray buf(data_size);
+
+	EXPECT_CALL(*mockIOEngine_ptr, Write(_, _, _)).WillRepeatedly(Return(IOErrorsType::kWriteData));
+	EXPECT_THROW(fileToTest.WriteData(buf.data(), buf.size()), IOErrorException);
+}
+//
+//TEST_F(IOFileTest, setSizeTest_OK)
+//{
+//	uint64_t size_value = 10;
+//	EXPECT_CALL(*mockIOEngine_ptr, setSize(_)).WillRepeatedly(Return(IOErrorsType::OK));
+//
+//	fileToTest.setPosition(pos_value);
+//	EXPECT_EQ(fileToTest.getPosition(), pos_value);
+//}

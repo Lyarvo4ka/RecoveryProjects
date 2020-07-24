@@ -740,23 +740,24 @@ int wmain(int argc, wchar_t* argv[])
 	setlocale(LC_ALL, "ru_RU.UTF8");
 
 
+	testIsFileQtHeader(LR"(f:\NoName\)");
 	// ext4_raw
-	IO::path_string targetFilePath = LR"(e:\48264\result)";
-	IO::File tagetFile(targetFilePath);
-	tagetFile.OpenCreate();
+	//IO::path_string targetFilePath = LR"(e:\48264\result)";
+	//IO::File tagetFile(targetFilePath);
+	//tagetFile.OpenCreate();
 
-	uint64_t inodeOffsetInVolume = 0x2B95E05000;
-	uint64_t volume_offset = 0x220200000;
-	uint64_t absolute_offset = inodeOffsetInVolume + volume_offset;
-	auto listDisk = IO::ReadPhysicalDrives();
-	auto physical_disk = listDisk.find_by_number(3);
-	auto disk_ptr = std::make_shared<IO::DiskDevice>(physical_disk);
-	disk_ptr->Open(IO::OpenMode::OpenRead);
+	//uint64_t inodeOffsetInVolume = 0x2B95E05000;
+	//uint64_t volume_offset = 0x220200000;
+	//uint64_t absolute_offset = inodeOffsetInVolume + volume_offset;
+	//auto listDisk = IO::ReadPhysicalDrives();
+	//auto physical_disk = listDisk.find_by_number(3);
+	//auto disk_ptr = std::make_shared<IO::DiskDevice>(physical_disk);
+	//disk_ptr->Open(IO::OpenMode::OpenRead);
 
-	RAW::ext4_raw ext4_recovery(disk_ptr);
-	ext4_recovery.setVolumeOffset(volume_offset);
-	auto block_num = cacl_block_number(absolute_offset, volume_offset, 4096);
-	ext4_recovery.saveToFile(block_num, tagetFile);
+	//RAW::ext4_raw ext4_recovery(disk_ptr);
+	//ext4_recovery.setVolumeOffset(volume_offset);
+	//auto block_num = cacl_block_number(absolute_offset, volume_offset, 4096);
+	//ext4_recovery.saveToFile(block_num, tagetFile);
 
 	//auto src_file = IO::makeFilePtr(LR"(e:\48264\11403268 )");
 	//src_file->OpenRead();
