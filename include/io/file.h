@@ -41,8 +41,7 @@ namespace IO
 
 		void setFileName(const path_string new_filename);
 		path_string getFileName() const;
-		Error::IOStatus readFileSize(uint64_t& file_size);
-
+		void readFileSize(uint64_t& file_size);
 		DeviceInfo getDeviceInfo() const override
 		{
 			return deviceInfo_;

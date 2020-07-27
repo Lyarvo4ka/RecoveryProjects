@@ -39,6 +39,7 @@
     <ClInclude Include="mocioengine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="diskdevicetest.cpp" />
     <ClCompile Include="filetest.cpp" />
     <ClCompile Include="ioenginetest.cpp" />
   </ItemGroup>

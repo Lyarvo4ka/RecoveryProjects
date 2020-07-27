@@ -7,7 +7,7 @@ namespace IO
 	File::File(const path_string& file_path)
 		: size_(0)
 		, file_path_(file_path)
-		, io_engine_(std::make_unique<IOEngine>())
+		, io_engine_(makeIOEngine())
 	{
 		deviceInfo_.deviceTypeName = file_txt;
 	}
@@ -54,10 +54,7 @@ namespace IO
 			throw error_exception;
 		}
 
-
-		auto error_status = readFileSize(size_);
-		if (!error_status.isOK())
-			throw Error::IOErrorException(error_status);
+		readFileSize(size_);
 
 		return io_engine_->isOpen();
 	}
@@ -124,8 +121,7 @@ namespace IO
 
 	void File::setSize(uint64_t new_size)
 	{
-		auto status = makeErrorStatus(*this, io_engine_->SetFileSize(new_size));
-		if (!status.isOK())
+		if (auto status = makeErrorStatus(*this, io_engine_->SetFileSize(new_size)); status.isFailed())
 			throw Error::IOErrorException(status);
 		size_ = new_size;
 	}
@@ -141,9 +137,10 @@ namespace IO
 		return file_path_;
 	}
 
-	Error::IOStatus File::readFileSize(uint64_t& file_size)
+	void File::readFileSize(uint64_t& file_size)
 	{
-		return makeErrorStatus(*this, io_engine_->readFileSize(file_size));
+		if ( auto status = makeErrorStatus(*this, io_engine_->readFileSize(file_size)); status.isFailed() )
+			throw Error::IOErrorException(status);
 	}
 
 	FilePtr makeFilePtr(const path_string& file_path)

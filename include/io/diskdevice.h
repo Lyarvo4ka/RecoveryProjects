@@ -7,7 +7,7 @@ namespace IO
 		: public IODevice
 	{
 	private:
-		std::unique_ptr<IOEngine> io_engine_ = std::make_unique<IOEngine>();
+		IOEnginePTR io_engine_ ;
 		PhysicalDrivePtr physical_drive_;
 		DeviceInfo deviceInfo_;
 	public:

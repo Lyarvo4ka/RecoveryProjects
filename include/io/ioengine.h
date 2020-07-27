@@ -70,4 +70,5 @@ namespace IO
 	};
 
 	using IOEnginePTR = std::shared_ptr<IOEngine>;
+	inline IOEnginePTR makeIOEngine();
 }

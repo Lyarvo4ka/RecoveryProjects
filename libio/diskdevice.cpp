@@ -7,6 +7,7 @@ namespace IO
 
 	DiskDevice::DiskDevice(PhysicalDrivePtr physical_drive)
 		: physical_drive_(physical_drive)
+		, io_engine_(makeIOEngine)
 	{
 		io_engine_->setTranserSize(physical_drive_->getTransferLength());
 		deviceInfo_.deviceTypeName = disk_txt;

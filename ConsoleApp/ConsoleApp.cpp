@@ -738,9 +738,10 @@ uint64_t cacl_block_number(uint64_t absolute_offset , uint64_t volume_offset , u
 int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
+	IO::path_string folderToTest = argv[1];
+	testHeaderToBadSector(folderToTest);
 
-
-	testIsFileQtHeader(LR"(f:\NoName\)");
+	//testIsFileQtHeader(LR"(f:\NoName\)");
 	// ext4_raw
 	//IO::path_string targetFilePath = LR"(e:\48264\result)";
 	//IO::File tagetFile(targetFilePath);

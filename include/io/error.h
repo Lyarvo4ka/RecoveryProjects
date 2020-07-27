@@ -127,6 +127,10 @@ namespace IO
 			{
 				return error_code_ == IOErrorsType::OK;
 			}
+			bool isFailed()
+			{
+				return error_code_ != IOErrorsType::OK;
+			}
 			IOErrorsType code() const
 			{
 				return error_code_;

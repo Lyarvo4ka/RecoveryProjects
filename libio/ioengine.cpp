@@ -17,6 +17,7 @@ namespace IO
 		//new_string = path;
 		return new_string;
 	}
+
 	IOErrorsType IOEngine::OpenRead(const path_string & path)
 	{
 		auto new_string = addPrefix(path);
@@ -195,4 +196,10 @@ namespace IO
 	{
 		return::WriteFile(hDevice, data, bytes_to_write, reinterpret_cast<LPDWORD>(&bytes_written), NULL);
 	}
+
+	IOEnginePTR makeIOEngine()
+	{
+		return std::make_shared<IOEngine>();
+	}
+
 }
