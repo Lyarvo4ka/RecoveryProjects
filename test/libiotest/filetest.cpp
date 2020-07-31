@@ -114,7 +114,7 @@ TEST_F(IOFileTest, ReadDataTest_OK)
 	const uint32_t data_size = 1;
 	DataArray buf(data_size);
 
-	EXPECT_CALL(*mockIOEngine_ptr, Read(_,_, _)).WillRepeatedly(DoAll(SetArgReferee<2>(data_size) , Return(IOErrorsType::OK)));
+	EXPECT_CALL(*mockIOEngine_ptr, Read(_,_, _)).WillRepeatedly(DoAll(SetArgReferee<2>(data_size), Return(IOErrorsType::OK)));
 	EXPECT_EQ( fileToTest.ReadData(buf.data() , buf.size() ), data_size);
 }
 

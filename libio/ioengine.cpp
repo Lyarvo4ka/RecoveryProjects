@@ -18,12 +18,35 @@ namespace IO
 		return new_string;
 	}
 
+	IOEnginePTR makeIOEngine()
+	{
+		return std::make_shared<IOEngine>();
+	}
+
+	IOErrorsType IOEngine::OpenPhysicalDrive(const path_string& path)
+	{
+		hDevice_ = ::CreateFile(path.c_str(),
+			GENERIC_READ ,
+			FILE_SHARE_READ ,
+			NULL,
+			OPEN_EXISTING,
+			0,
+			NULL);
+		if (hDevice_ == INVALID_HANDLE_VALUE)
+		{
+			auto last_error = ::GetLastError();
+			return IOErrorsType::kOpenPhysicalDrive;
+		}
+		bOpen_ = true;
+		return IOErrorsType::OK;
+	}
+
 	IOErrorsType IOEngine::OpenRead(const path_string & path)
 	{
 		auto new_string = addPrefix(path);
 		hDevice_ = ::CreateFile(new_string.c_str(),
-			GENERIC_READ /*| GENERIC_WRITE*/,
-			FILE_SHARE_READ /*| FILE_SHARE_WRITE*/,
+			GENERIC_READ ,
+			FILE_SHARE_READ ,
 			NULL,
 			OPEN_EXISTING,
 			0,
@@ -197,9 +220,6 @@ namespace IO
 		return::WriteFile(hDevice, data, bytes_to_write, reinterpret_cast<LPDWORD>(&bytes_written), NULL);
 	}
 
-	IOEnginePTR makeIOEngine()
-	{
-		return std::make_shared<IOEngine>();
-	}
+
 
 }

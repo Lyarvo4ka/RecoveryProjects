@@ -27,7 +27,15 @@ namespace IO
 		{
 			return deviceInfo_;
 		}
-	private:
+		void setIOEngine(IOEnginePTR ioengine_ptr)
+		{
+			io_engine_ = ioengine_ptr;
+		}
+		PhysicalDrivePtr getPhysicalDrive()
+		{
+			return physical_drive_;
+		}
+
 		uint32_t ReadDataNotAligned(ByteArray data, uint32_t read_size);
 		uint32_t ReadBlock(ByteArray data, uint32_t read_size);
 		uint32_t WriteBlock(ByteArray data, uint32_t write_size);

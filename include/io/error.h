@@ -26,6 +26,7 @@ namespace IO
 			kOpenWrite,
 			kOpen,
 			kCreate,
+			kOpenPhysicalDrive,
 			kReadData,
 			kWriteData,
 			kGetFileSize,
@@ -61,6 +62,8 @@ namespace IO
 				return "Error opening " + sourceName + " for writing.";
 			case IOErrorsType::kCreate:
 				return "Error creating " + sourceName;
+			case IOErrorsType::kOpenPhysicalDrive:
+				return "Error open physical " + sourceName;
 			case IOErrorsType::kReadData:
 				return "Error reading from " + sourceName;
 			case IOErrorsType::kWriteData:
@@ -165,10 +168,10 @@ namespace IO
 			//{
 
 			//}
-			//IOStatus getStatus() const
-			//{
-			//	return error_status_;
-			//}
+			IOStatus getStatus() const
+			{
+				return error_status_;
+			}
 			const char* what() const override
 			{
 				tmp_str = error_status_.error_message() + LastErrorMessage(error_status_.lastError());

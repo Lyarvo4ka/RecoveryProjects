@@ -9,6 +9,7 @@ class MockIOEngine
 	: public IOEngine
 {
 public:
+	MOCK_METHOD(IOErrorsType, OpenPhysicalDrive, (const path_string&), (override));
 	MOCK_METHOD(IOErrorsType , OpenRead, (const path_string&), (override));
 	MOCK_METHOD(IOErrorsType , OpenWrite, (const path_string& path) , (override));
 	MOCK_METHOD(IOErrorsType , Create , (const path_string& path) , (override));

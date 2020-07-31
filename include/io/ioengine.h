@@ -39,6 +39,7 @@ namespace IO
 	public:
 		virtual ~IOEngine();
 
+		virtual IOErrorsType OpenPhysicalDrive(const path_string& path);
 		virtual IOErrorsType OpenRead(const path_string & path);
 		virtual IOErrorsType OpenWrite(const path_string & path);
 		virtual IOErrorsType Create(const path_string & path);
@@ -70,5 +71,5 @@ namespace IO
 	};
 
 	using IOEnginePTR = std::shared_ptr<IOEngine>;
-	inline IOEnginePTR makeIOEngine();
+	IOEnginePTR makeIOEngine();
 }

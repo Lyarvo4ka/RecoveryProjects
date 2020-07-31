@@ -34,7 +34,6 @@ TEST(ioengineSuit, testIsParamsValid)
 }
 TEST(ioengineSuit, ReadDataTest)
 {
-
 	const uint32_t READ_SIZE = 10;
 	DataArray buffer(READ_SIZE);
 	uint32_t bytes_read = 0;
@@ -45,7 +44,6 @@ TEST(ioengineSuit, ReadDataTest)
 	auto result = mockioengine.base_ReadOrWriteData(buffer.data(), READ_SIZE, bytes_read, enReadWrite::kREAD);
 	EXPECT_EQ(result, IO::IOErrorsType::OK);
 	EXPECT_EQ(bytes_read, READ_SIZE);
-
 }
 
 TEST(ioengineSuit, WriteDataTest)
