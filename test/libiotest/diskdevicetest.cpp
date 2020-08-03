@@ -6,6 +6,7 @@ using ::testing::Return;
 using ::testing::SetArgReferee;
 using ::testing::SaveArgPointee;
 using ::testing::DoAll;
+using ::testing::Invoke;
 
 
 class IODiskDeviceTest
@@ -77,17 +78,30 @@ TEST_F(IODiskDeviceTest, ReadBlock_kReadData)
 
 }
 
+void generateOrdered(DataArray& block)
+{
+	for (uint32_t i = 0; i < block.size(); ++i)
+	{
+		block[i] = i % UINT8_MAX;
+	}
+}
 TEST_F(IODiskDeviceTest, ReadDataNotAligned_OK)
 {
 	const uint32_t data_size = 10;
 	DataArray block(data_size);
-	DataArray returnData(data_size);
-	memset(returnData.data(), 0xAA, returnData.size());
+	DataArray sectorData(data_size);
+	generateOrdered(sectorData);
+	//memset(sectorData.data(), 0xAA, sectorData.size());
 
-	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillRepeatedly(DoAll(SaveArgPointee<0>(returnData.data()),SetArgReferee<2>(data_size), Return(IOErrorsType::OK)));
+	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillOnce(Invoke(
+		[=](ByteArray byte_array , uint32_t size , uint32_t& bytes_read) {
+			memcpy(byte_array, sectorData.data(), sectorData.size());
+			bytes_read = data_size;
+			return IOErrorsType::OK;
+		}));
 	diskDevicePtr->setPosition(data_size);
 	auto actual = diskDevicePtr->ReadDataNotAligned(block.data(), block.size());
-	EXPECT_EQ(std::memcmp(block.data() , returnData.data() , block.size()) , 0);
+	EXPECT_EQ(std::memcmp(block.data() , sectorData.data() , block.size()) , 0);
 	EXPECT_EQ(actual, data_size);
 
 //////////////////////////
@@ -149,3 +163,23 @@ TEST(test_class_under_test, test_read)
 	*/
 
 }
+//
+//TEST_F(IODiskDeviceTest, ReadDataNotAligned_3Sectors_OK)
+//{
+//	const uint32_t numSectors = 3;
+//	const uint32_t data_size = numSectors * diskDevicePtr->getPhysicalDrive()->getBytesPerSector();
+//	DataArray block(data_size);
+//	DataArray returnData(data_size);
+//	memset(returnData.data(), 0xAA, returnData.size());
+//
+//	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillOnce(Invoke(
+//		[=](ByteArray byte_array, uint32_t size, uint32_t& bytes_read) {
+//			memcpy(byte_array, returnData.data(), returnData.size());
+//			bytes_read = data_size;
+//			return IOErrorsType::OK;
+//		}));
+//	diskDevicePtr->setPosition(data_size);
+//	auto actual = diskDevicePtr->ReadDataNotAligned(block.data(), block.size());
+//	EXPECT_EQ(std::memcmp(block.data(), returnData.data(), block.size()), 0);
+//	EXPECT_EQ(actual, data_size);
+//}
