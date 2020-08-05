@@ -78,108 +78,112 @@ TEST_F(IODiskDeviceTest, ReadBlock_kReadData)
 
 }
 
-void generateOrdered(DataArray& block)
+void generateOrdered(DataArray& block , uint32_t start_value = 0)
 {
 	for (uint32_t i = 0; i < block.size(); ++i)
 	{
-		block[i] = i % UINT8_MAX;
+		block[i] = ( i + start_value ) % UINT8_MAX;
 	}
 }
 TEST_F(IODiskDeviceTest, ReadDataNotAligned_OK)
 {
-	const uint32_t data_size = 10;
+	const uint64_t offset = 10;
+	const uint32_t data_size = 510;
 	DataArray block(data_size);
-	DataArray sectorData(data_size);
-	generateOrdered(sectorData);
-	//memset(sectorData.data(), 0xAA, sectorData.size());
+	constexpr uint32_t dataInsideSize = (((data_size  + offset % default_sector_size)/ default_sector_size) + 1 ) * default_sector_size;
+	DataArray expectedData(dataInsideSize);
+	generateOrdered(expectedData);
 
+	EXPECT_CALL(*mockIOEngine_ptr, getPosition()).WillOnce(Return(offset));
 	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillOnce(Invoke(
-		[=](ByteArray byte_array , uint32_t size , uint32_t& bytes_read) {
-			memcpy(byte_array, sectorData.data(), sectorData.size());
+		[&](ByteArray byte_array , uint32_t size , uint32_t& bytes_read) {
+			memcpy(byte_array, expectedData.data(), expectedData.size());
 			bytes_read = data_size;
 			return IOErrorsType::OK;
 		}));
-	diskDevicePtr->setPosition(data_size);
+	diskDevicePtr->setPosition(offset);
 	auto actual = diskDevicePtr->ReadDataNotAligned(block.data(), block.size());
-	EXPECT_EQ(std::memcmp(block.data() , sectorData.data() , block.size()) , 0);
+	EXPECT_EQ(std::memcmp(block.data() , expectedData.data() + offset, block.size()) , 0);
 	EXPECT_EQ(actual, data_size);
-
-//////////////////////////
-	/*
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-using ::testing::Mock;
-using ::testing::_;
-using ::testing::Invoke;
-
-class actual_reader
-{
-   public:
-   virtual void read(char* data)
-   {
-	  std::cout << "This should not be called" << std::endl;
-   }
-};
-void mock_read_function(char* str)
-{
-   strcpy(str, "Mocked text");
 }
 
-class class_under_test
+TEST_F(IODiskDeviceTest, ReadDataNotAligned_kReadData)
 {
-   public:
-	  void read(actual_reader* obj, char *str)
-	  {
-		 obj->read(str);
-	  }
-};
+	const uint32_t data_size = 1;
+	DataArray block(data_size);
 
-class mock_reader : public actual_reader
+	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillRepeatedly(Return(IOErrorsType::kReadData));
+
+	try
+	{
+		diskDevicePtr->ReadDataNotAligned(block.data(), block.size());
+	}
+	catch (const IOErrorException& ex)
+	{
+		EXPECT_EQ(ex.getStatus().code(), IOErrorsType::kReadData);
+	}
+
+}
+
+TEST_F(IODiskDeviceTest, ReadData_Use_ReadBlock_OK)
 {
-   public:
-   MOCK_METHOD1(read, void(char* str));
-};
+	uint32_t real_read_size = 0;
 
+	const uint64_t offset = 1024;
+	const uint32_t data_size = 512;
+	DataArray block(data_size);
+	constexpr uint32_t dif = (data_size + offset) % default_sector_size;
+	constexpr uint32_t mod_offset = offset % default_sector_size;
+	constexpr uint32_t size_mul_sector = (data_size + mod_offset) / default_sector_size + 1;
 
-TEST(test_class_under_test, test_read)
-{
-   char text[100];
+	if (dif == 0)
+		real_read_size = data_size;
+	else
+	{
+		real_read_size = size_mul_sector * default_sector_size;
+	}
+	DataArray expectedData(real_read_size);
+	generateOrdered(expectedData, offset);
 
-   mock_reader mock_obj;
-   class_under_test cut;
+	EXPECT_CALL(*mockIOEngine_ptr, isOpen()).WillOnce(Return(true));
+	EXPECT_CALL(*mockIOEngine_ptr, getPosition()).WillOnce(Return(offset));
+	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillOnce(Invoke(
+		[&](ByteArray byte_array, uint32_t size, uint32_t& bytes_read) {
+			memcpy(byte_array, expectedData.data(), expectedData.size());
+			bytes_read = data_size;
+			return IOErrorsType::OK;
+		}));
+	diskDevicePtr->setPosition(offset);
 
-   EXPECT_CALL(mock_obj, read(_)).WillOnce(Invoke(mock_read_function));
-   cut.read(&mock_obj, text);
-   std::cout << "Output : " << text << std::endl;
-
-   // Lambda example
-   EXPECT_CALL(mock_obj, read(_)).WillOnce(Invoke(
-			[=](char* str){
-			   strcpy(str, "Mocked text(lambda)");
-			}));
-   cut.read(&mock_obj, text);
-   std::cout << "Output : " << text << std::endl;
-	*/
-
+	auto actual = diskDevicePtr->ReadData(block.data(), block.size());
+	EXPECT_EQ(std::memcmp(block.data(), expectedData.data() + mod_offset, block.size()), 0);
+	EXPECT_EQ(actual, data_size);
 }
 //
-//TEST_F(IODiskDeviceTest, ReadDataNotAligned_3Sectors_OK)
+//TEST_F(IODiskDeviceTest, ReadData_Use_ReadDataNotAligned_OK)
 //{
-//	const uint32_t numSectors = 3;
-//	const uint32_t data_size = numSectors * diskDevicePtr->getPhysicalDrive()->getBytesPerSector();
-//	DataArray block(data_size);
-//	DataArray returnData(data_size);
-//	memset(returnData.data(), 0xAA, returnData.size());
+//	const uint64_t offset = 458;
+//	const uint32_t data_size = 580;
 //
+//	DataArray block(data_size);
+//	constexpr uint32_t mod_offset = offset % default_sector_size;
+//	constexpr uint32_t size_mul_sector = (data_size + mod_offset) / default_sector_size + 1;
+//	constexpr uint32_t dataInsideSize = size_mul_sector * default_sector_size;
+//	DataArray expectedData(dataInsideSize);
+//	generateOrdered(expectedData, offset);
+//
+//
+//	EXPECT_CALL(*mockIOEngine_ptr, isOpen()).WillOnce(Return(true));
+//	EXPECT_CALL(*mockIOEngine_ptr, getPosition()).WillOnce(Return(offset));
 //	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillOnce(Invoke(
-//		[=](ByteArray byte_array, uint32_t size, uint32_t& bytes_read) {
-//			memcpy(byte_array, returnData.data(), returnData.size());
+//		[&](ByteArray byte_array, uint32_t size, uint32_t& bytes_read) {
+//			memcpy(byte_array, expectedData.data(), expectedData.size());
 //			bytes_read = data_size;
 //			return IOErrorsType::OK;
 //		}));
-//	diskDevicePtr->setPosition(data_size);
-//	auto actual = diskDevicePtr->ReadDataNotAligned(block.data(), block.size());
-//	EXPECT_EQ(std::memcmp(block.data(), returnData.data(), block.size()), 0);
+//	diskDevicePtr->setPosition(offset);
+//
+//	auto actual = diskDevicePtr->ReadData(block.data(), block.size());
+//	EXPECT_EQ(std::memcmp(block.data(), expectedData.data(), block.size()), 0);
 //	EXPECT_EQ(actual, data_size);
 //}
