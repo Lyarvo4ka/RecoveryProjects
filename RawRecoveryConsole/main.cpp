@@ -256,6 +256,7 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//factory_manager.Register("canonStartFragment", std::make_unique<RAW::CanonStartFragmentFactory>());
 
 	factory_manager.Register("pln", std::make_unique<RAW::PLNRawFactory>());
+	factory_manager.Register("pln_bl", std::make_unique<RAW::PLN_BLRawFactory>());
 
 	//factory_manager.Register("keychain-db", std::make_unique<IO::KeychainRawFactory>());
 

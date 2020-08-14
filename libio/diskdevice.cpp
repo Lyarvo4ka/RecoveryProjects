@@ -61,7 +61,8 @@ namespace IO
 	 uint32_t DiskDevice::ReadDataNotAligned(ByteArray data, uint32_t read_size)
 	{
 		const auto sector_size = physical_drive_->getBytesPerSector();
-		const uint32_t data_start = this->getPosition() % sector_size;
+		auto pos = this->getPosition();
+		const uint32_t data_start = pos % sector_size;
 		const int sector_to_read = (data_start + read_size) / sector_size + 1;
 		const int bytes_to_read = sector_to_read * sector_size;
 

@@ -14,6 +14,18 @@
 		],
 		"extension":".pln",
     "maxfilesize":104857600
+	},
+  	"pln_bl":{
+    "algorithmName": "pln_bl",
+		"header":
+		[
+			{
+			"hexdata":"524F462046444220",
+			"offset": 0
+			}
+		],
+		"extension":".pln"
 	}
+  
 	
 }
