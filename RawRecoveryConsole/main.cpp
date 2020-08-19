@@ -255,8 +255,8 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//factory_manager.Register("go_pro", std::make_unique<RAW::GoProRawFactory>());
 	//factory_manager.Register("canonStartFragment", std::make_unique<RAW::CanonStartFragmentFactory>());
 
-	factory_manager.Register("pln", std::make_unique<RAW::PLNRawFactory>());
-	factory_manager.Register("pln_bl", std::make_unique<RAW::PLN_BLRawFactory>());
+	//factory_manager.Register("pln", std::make_unique<RAW::PLNRawFactory>());
+	//factory_manager.Register("pln_bl", std::make_unique<RAW::PLN_BLRawFactory>());
 
 	//factory_manager.Register("keychain-db", std::make_unique<IO::KeychainRawFactory>());
 
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "pln.json";
+		QString json_file = "zoomH6.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{

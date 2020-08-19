@@ -16,7 +16,6 @@
     "maxfilesize":104857600
 	},
   	"pln_bl":{
-    "algorithmName": "pln_bl",
 		"header":
 		[
 			{
@@ -24,6 +23,7 @@
 			"offset": 0
 			}
 		],
+    "maxfilesize":104857600,
 		"extension":".pln"
 	}
   
