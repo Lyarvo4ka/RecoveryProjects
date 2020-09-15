@@ -11,6 +11,7 @@ namespace IO
 	{
 		io_engine_->setTranserSize(physical_drive_->getTransferLength());
 		deviceInfo_.deviceTypeName = disk_txt;
+		deviceInfo_.name = physical_drive->getDriveName();
 	}
 	bool DiskDevice::Open(OpenMode open_mode)
 	{

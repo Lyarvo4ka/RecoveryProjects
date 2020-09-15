@@ -729,6 +729,7 @@ void create_AllFiles(const IO::path_string & sourceFilePath , const IO::path_str
 }
 
 #include "io/diskdevice.h"
+#include "io/constants.h"
 
 uint64_t cacl_block_number(uint64_t absolute_offset , uint64_t volume_offset , uint32_t block_size)
 {
@@ -739,7 +740,10 @@ int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
 	IO::path_string folderToTest = argv[1];
-	testHeaderToBadSector(folderToTest);
+
+	constexpr int arr_size = MLVKeywords::mlv_array_v2.size();
+
+	//testHeaderToBadSector(folderToTest);
 
 	//testIsFileQtHeader(LR"(f:\NoName\)");
 	// ext4_raw

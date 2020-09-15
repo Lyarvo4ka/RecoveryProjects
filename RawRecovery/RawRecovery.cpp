@@ -99,7 +99,8 @@ void RawRecovery::OnDeviceContextMenu(const QPoint& point_pos)
 				if (disk_device)
 				{
 					QMessageBox msgBox;
-					QString msg_string = "Selected " + QString::fromWCharArray(disk_device->getDiskName().c_str());
+					auto devInfo = disk_device->getDeviceInfo();
+					QString msg_string = "Selected " + QString::fromWCharArray(devInfo.name.c_str());
 					msgBox.setText(msg_string);
 					msgBox.exec();
 				}

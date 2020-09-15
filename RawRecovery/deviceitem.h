@@ -2,6 +2,7 @@
 
 #include "io/physicaldrive.h"
 #include "io/iodevice.h"
+#include "io/diskdevice.h"
 
 #include "treeitem.h"
 

@@ -24,7 +24,7 @@ namespace IO
 	struct DeviceInfo
 	{
 		std::string deviceTypeName;
-		std::string name;
+		std::wstring name;
 
 
 	};
