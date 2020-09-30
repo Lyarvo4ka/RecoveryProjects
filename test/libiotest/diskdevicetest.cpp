@@ -178,7 +178,7 @@ TEST_F(IODiskDeviceTest, ReadData_Use_ReadBlock_OK)
 	DataArray expectedData(offset_sizes.getBufferSize());
 	generateOrdered(expectedData, offset);
 
-	EXPECT_CALL(*mockIOEngine_ptr, isOpen()).WillOnce(Return(true));
+	EXPECT_CALL(*mockIOEngine_ptr, isOpen()).WillRepeatedly(Return(true));
 	EXPECT_CALL(*mockIOEngine_ptr, getPosition()).WillOnce(Return(offset));
 	EXPECT_CALL(*mockIOEngine_ptr, Read(_, _, _)).WillOnce(Invoke(
 		[&](ByteArray byte_array, uint32_t size, uint32_t& bytes_read) {
@@ -218,5 +218,30 @@ TEST_F(IODiskDeviceTest, ReadData_Use_ReadDataNotAligned_OK)
 
 	auto actual = diskDevicePtr->ReadData(block.data(), block.size());
 	EXPECT_EQ(std::memcmp(block.data(), expectedData.data()+offset_sizes.getOffsetMod(), block.size()), 0);
+	EXPECT_EQ(actual, data_size);
+}
+
+
+TEST_F(IODiskDeviceTest, WriteData_Use_WriteBlock_OK)
+{
+	uint32_t real_write_size = 0;
+
+	const uint64_t offset = 1024;
+	const uint32_t data_size = 512;
+	DataArray block(data_size);
+
+	OffsetsSizes offset_sizes(offset, data_size);
+	DataArray expectedData(offset_sizes.getBufferSize());
+	generateOrdered(expectedData, offset);
+
+	EXPECT_CALL(*mockIOEngine_ptr, isOpen()).WillRepeatedly(Return(true));
+	EXPECT_CALL(*mockIOEngine_ptr, Write(_, _, _)).WillOnce(Invoke(
+		[&](ByteArray byte_array, uint32_t size, uint32_t& bytes_written) {
+			bytes_written = block.size();
+			return IOErrorsType::OK;
+		}));
+	diskDevicePtr->setPosition(offset);
+
+	auto actual = diskDevicePtr->WriteData(expectedData.data() + offset, block.size());
 	EXPECT_EQ(actual, data_size);
 }

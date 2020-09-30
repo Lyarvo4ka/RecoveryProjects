@@ -14,11 +14,13 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QToolBar>
@@ -38,12 +40,17 @@ public:
     QTreeView *treeView;
     QTabWidget *tabWidget;
     QWidget *tab;
+    QVBoxLayout *verticalLayout_3;
+    QStackedWidget *stackedWidget;
+    QWidget *page;
     QVBoxLayout *verticalLayout_2;
+    QLabel *label;
     QTreeView *signatureTree;
     QHBoxLayout *horizontalLayout_2;
     QSpacerItem *horizontalSpacer;
     QPushButton *pushButton;
     QSpacerItem *horizontalSpacer_2;
+    QWidget *page_2;
     QWidget *tab_2;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -75,11 +82,24 @@ public:
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
-        verticalLayout_2 = new QVBoxLayout(tab);
+        verticalLayout_3 = new QVBoxLayout(tab);
+        verticalLayout_3->setSpacing(6);
+        verticalLayout_3->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        stackedWidget = new QStackedWidget(tab);
+        stackedWidget->setObjectName(QString::fromUtf8("stackedWidget"));
+        page = new QWidget();
+        page->setObjectName(QString::fromUtf8("page"));
+        verticalLayout_2 = new QVBoxLayout(page);
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        signatureTree = new QTreeView(tab);
+        label = new QLabel(page);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        verticalLayout_2->addWidget(label);
+
+        signatureTree = new QTreeView(page);
         signatureTree->setObjectName(QString::fromUtf8("signatureTree"));
 
         verticalLayout_2->addWidget(signatureTree);
@@ -91,7 +111,7 @@ public:
 
         horizontalLayout_2->addItem(horizontalSpacer);
 
-        pushButton = new QPushButton(tab);
+        pushButton = new QPushButton(page);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
 
         horizontalLayout_2->addWidget(pushButton);
@@ -102,6 +122,13 @@ public:
 
 
         verticalLayout_2->addLayout(horizontalLayout_2);
+
+        stackedWidget->addWidget(page);
+        page_2 = new QWidget();
+        page_2->setObjectName(QString::fromUtf8("page_2"));
+        stackedWidget->addWidget(page_2);
+
+        verticalLayout_3->addWidget(stackedWidget);
 
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
@@ -133,6 +160,7 @@ public:
         retranslateUi(RawRecoveryClass);
 
         tabWidget->setCurrentIndex(0);
+        stackedWidget->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(RawRecoveryClass);
@@ -142,6 +170,7 @@ public:
     {
         RawRecoveryClass->setWindowTitle(QCoreApplication::translate("RawRecoveryClass", "RawRecovery", nullptr));
         actionOpen->setText(QCoreApplication::translate("RawRecoveryClass", "Open", nullptr));
+        label->setText(QCoreApplication::translate("RawRecoveryClass", "TextLabel", nullptr));
         pushButton->setText(QCoreApplication::translate("RawRecoveryClass", "Start", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("RawRecoveryClass", "Tab 1", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("RawRecoveryClass", "Tab 2", nullptr));

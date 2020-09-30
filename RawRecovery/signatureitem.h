@@ -56,7 +56,7 @@ public:
 		: file_struct_(file_struct)
 	{
 		signItemType_ = (SignatureItemType::kSignatureItem);
-		setName(QString::fromLocal8Bit(file_struct->getAlgorithmName().c_str()));
+		setName(QString::fromLocal8Bit(file_struct->getName().c_str()));
 	}
 	RAW::FileStruct::Ptr createFileStruct() override
 	{

@@ -741,11 +741,11 @@ int wmain(int argc, wchar_t* argv[])
 	setlocale(LC_ALL, "ru_RU.UTF8");
 	IO::path_string folderToTest = argv[1];
 
-	constexpr int arr_size = MLVKeywords::mlv_array_v2.size();
+	//constexpr int arr_size = MLVKeywords::mlv_array_v2.size();
 
 	//testHeaderToBadSector(folderToTest);
 
-	//testIsFileQtHeader(LR"(f:\NoName\)");
+	testIsFileQtHeader(LR"(f:\itunes\)");
 	// ext4_raw
 	//IO::path_string targetFilePath = LR"(e:\48264\result)";
 	//IO::File tagetFile(targetFilePath);
