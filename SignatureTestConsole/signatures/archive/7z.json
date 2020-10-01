@@ -1,0 +1,13 @@
+{
+    "7z": {
+      "category": "archive",
+      "header": [
+        {
+          "hexdata": "377A",
+          "offset": 0
+        }
+      ],
+      "extension": ".7z"
+    }
+  }
+

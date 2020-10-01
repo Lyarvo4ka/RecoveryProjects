@@ -1,0 +1,17 @@
+ {
+  "jpg": {
+    "category": "image",
+
+    "header": [
+      {
+        "hexdata": "FFD8FF",
+        "offset": 0
+      }
+    ],
+    "extension": ".jpg"
+  }
+}
+
+
+
+

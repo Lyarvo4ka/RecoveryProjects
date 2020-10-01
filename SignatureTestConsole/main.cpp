@@ -5,9 +5,9 @@
 #include "IO/Finder.h"
 #include "raw/AbstractRaw.h"
 
-#include <experimental/filesystem>
+#include <filesystem>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 void rename_to_bad_file(const IO::path_string & file_path)
 {
@@ -94,41 +94,138 @@ void testSignature(const RAW::FileStruct& fileStruct, const IO::path_string& fil
 
 }
 
+class ExtensionExtractor
+{
+	RAW::HeaderBase::Ptr headerBase_ = std::make_shared< RAW::HeaderBase>();
+public:
+	ExtensionExtractor()
+	{
+	}
+	void loadAllSignatures(const IO::path_string& folder)
+	{
+		IO::Finder finder;
+		finder.add_extension(L".json");
+		finder.FindFiles(folder);
+		auto listFilesOfSignatures = finder.getFiles();
+		for (auto signFile : listFilesOfSignatures)
+			addSignatures(signFile);
+
+
+	}
+	void addSignatures(const IO::path_string& signaturesFile)
+	{
+		QList<JsonFileStruct> listFileStruct;
+
+		QString json_file = QString::fromStdWString(signaturesFile);
+		QFile file(json_file);
+		if (!file.open(QIODevice::ReadOnly))
+		{
+			qInfo() << "Error to open file. \"" << file.fileName() << "\"";
+			return;
+		}
+
+		auto json_str = file.readAll();
+		ReadJsonFIle(json_str, listFileStruct);
+		if (listFileStruct.empty())
+		{
+			qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
+			return ;
+		}
+
+		for (auto theFileStruct : listFileStruct)
+			headerBase_->addFileFormat(toFileStruct(theFileStruct));
+
+
+	}
+	void extract_extensions(const IO::path_list& listFiles)
+	{
+		const uint32_t DefaultReadSize = 33280;
+		DataArray buffer(DefaultReadSize);
+		for (auto filepath : listFiles)
+		{
+			uint32_t read_size = DefaultReadSize;
+			File file(filepath);
+			file.OpenRead();
+			if (file.Size() < buffer.size())
+				read_size = file.Size();
+
+			file.ReadData(buffer.data(), read_size);
+			file.Close();
+
+			auto file_struct = headerBase_->find(buffer.data(), read_size);
+			if (file_struct)
+			{
+				qInfo() << filepath << "-->" << QString::fromStdWString(file_struct->getExtension()) ;
+				auto ext = file_struct->getExtension();
+				auto filePathWithExt = filepath + file_struct->getExtension();
+				fs::rename(filepath, filePathWithExt);
+			}
+			
+			
+			//headerBase_->
+		}
+	}
+};
+
+
+
+
+
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 
-	QString jsonFile("mts.json");
-
-	QFile file(jsonFile);
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		qInfo() << "Error to open file. \"" << file.fileName() << "\"";
-		return -1;
-	}
-
-	auto json_str = file.readAll();
-	QList<JsonFileStruct> listFileStruct;
-	ReadJsonFIle(json_str, listFileStruct);
+	ExtensionExtractor extExtractor;
+	extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
 
 	IO::Finder finder;
-	finder.add_extension(L".m2ts");
+	finder.FindFiles(LR"(f:\Root\!NoName\0\)");
+	auto listFiles = getFilesWithoutExtension(finder.getFiles());
 
-	finder.FindFiles(LR"(f:\46976\)");
-	auto fileList = finder.getFiles();
+	extExtractor.extract_extensions(listFiles);
 
-	if (!listFileStruct.empty())
-	{
-		auto fileStructQt = listFileStruct.first();
-		auto fileStruct = toFileStruct(fileStructQt);
-
-		for (auto & theFile : fileList)
-		{
-			testSignature(*fileStruct.get(),theFile);
-		}
-	}
-	
 
 	qDebug() << "Finished.";
 	return a.exec();
 }
+
+//
+//int main(int argc, char *argv[])
+//{
+//	QCoreApplication a(argc, argv);
+//
+//	QString jsonFile("mts.json");
+//
+//	QFile file(jsonFile);
+//	if (!file.open(QIODevice::ReadOnly))
+//	{
+//		qInfo() << "Error to open file. \"" << file.fileName() << "\"";
+//		return -1;
+//	}
+//
+//	auto json_str = file.readAll();
+//	QList<JsonFileStruct> listFileStruct;
+//	ReadJsonFIle(json_str, listFileStruct);
+//
+//	IO::Finder finder;
+//	finder.add_extension(L".m2ts");
+//
+//	finder.FindFiles(LR"(f:\46976\)");
+//	auto fileList = finder.getFiles();
+//
+//	if (!listFileStruct.empty())
+//	{
+//		auto fileStructQt = listFileStruct.first();
+//		auto fileStruct = toFileStruct(fileStructQt);
+//
+//		for (auto & theFile : fileList)
+//		{
+//			testSignature(*fileStruct.get(),theFile);
+//		}
+//	}
+//	
+//
+//	qDebug() << "Finished.";
+//	return a.exec();
+//}

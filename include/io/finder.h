@@ -14,6 +14,19 @@ namespace IO
 {
 	using compare_ByteArray_func = std::function<bool(ByteArray, uint32_t size)>;
 
+	inline	path_list getFilesWithoutExtension(const path_list& all_files)
+	{
+		path_list filesWithoutExt;
+		for (auto fileName : all_files)
+		{
+			fs::path filePath(fileName);
+			if (filePath.extension().empty())
+				filesWithoutExt.emplace_back(fileName);
+		}
+
+		return filesWithoutExt;
+	}
+
 	struct Range
 	{
 		uint64_t begin = 0;
@@ -300,4 +313,5 @@ namespace IO
 
 
 	};
+
 }

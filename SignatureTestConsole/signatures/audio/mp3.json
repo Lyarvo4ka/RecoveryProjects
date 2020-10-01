@@ -1,0 +1,14 @@
+{
+  "mp3": {
+    "category": "audio",
+
+    "header": [
+      {
+        "hexdata": "494433",
+        "offset": 0
+      }
+    ],
+    "extension": ".mp3"
+  }
+}
+

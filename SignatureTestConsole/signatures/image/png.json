@@ -1,0 +1,15 @@
+{
+  "png": {
+    "category": "image",
+
+    "header": [
+      {
+        "hexdata": "89504E47",
+        "offset": 0
+      }
+    ],
+    "extension": ".png"
+  }
+}
+
+

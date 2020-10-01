@@ -1,0 +1,14 @@
+{
+  "exe": {
+    "category": "application",
+
+    "header": [
+      {
+        "hexdata": "4D5A",
+        "offset": 0
+      }
+    ],
+    "extension": ".exe"
+  }
+}
+

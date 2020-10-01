@@ -1,0 +1,17 @@
+{
+  "pdf": {
+    "category": "office",
+
+    "header": [
+      {
+        "hexdata": "255044462D",
+        "offset": 0
+      },
+      {
+         "hexdata": "3083",
+        "offset": 0
+      }
+    ],
+    "extension": ".pdf"
+  }
+}

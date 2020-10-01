@@ -1,0 +1,17 @@
+{
+    "rar": {
+      "algorithmName": "rar",
+      "category": "archive",
+      "header": [
+        {
+          "hexdata": "526172211A0700",
+          "offset": 0
+        }
+      ],
+
+      "footer": {
+        "hexdata": "C43D7B00400700"
+      },
+      "extension": ".rar"
+    }
+  }

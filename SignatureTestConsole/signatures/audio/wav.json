@@ -1,0 +1,16 @@
+{
+	"wav":{
+		"header":
+		[
+			{
+				"hexdata":"52494646",
+				"offset": 0
+			},
+			{
+				"hexdata":"57415645",
+				"offset": 8
+			}
+		],
+	"extension":".wav"
+  }
+}
