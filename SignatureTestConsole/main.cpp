@@ -110,6 +110,8 @@ public:
 		for (auto signFile : listFilesOfSignatures)
 			addSignatures(signFile);
 
+		int k = 1;
+		k = 2;
 
 	}
 	void addSignatures(const IO::path_string& signaturesFile)
@@ -179,11 +181,11 @@ int main(int argc, char *argv[])
 	ExtensionExtractor extExtractor;
 	extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
 
-	IO::Finder finder;
-	finder.FindFiles(LR"(f:\Root\!NoName\0\)");
-	auto listFiles = getFilesWithoutExtension(finder.getFiles());
+	//IO::Finder finder;
+	//finder.FindFiles(LR"(f:\Root\!NoName\0\)");
+	//auto listFiles = getFilesWithoutExtension(finder.getFiles());
 
-	extExtractor.extract_extensions(listFiles);
+	//extExtractor.extract_extensions(listFiles);
 
 
 	qDebug() << "Finished.";
