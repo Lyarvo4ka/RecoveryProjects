@@ -1,5 +1,6 @@
 {
 	"wav":{
+    "category": "audio", 
 		"header":
 		[
 			{

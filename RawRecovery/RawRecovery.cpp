@@ -2,6 +2,7 @@
 #include "RawRecovery.h"
 
 #include "../JsonReader/JsonReader.h"
+#include "../JsonReader/SignatureReader.h"
 
 #include "io/iodevice.h"
 #include "deviceitem.h"
@@ -37,25 +38,12 @@ RawRecovery::RawRecovery(QWidget *parent)
 
 	connect(ui.treeView, &QWidget::customContextMenuRequested, this, &RawRecovery::OnDeviceContextMenu);
 
-	//physical_drives.
-
-	QList<JsonFileStruct> listFileStruct;
-	QString json_file = "signatures.json";
-	QFile file(json_file);
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		qInfo() << "Error to open file. \"" << file.fileName() << "\"";
-
-	}
-
-	auto json_str = file.readAll();
-	ReadJsonFIle(json_str, listFileStruct);
-	if (listFileStruct.empty())
-	{
-		qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
-	}
 
 
+	auto folder_path = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
+	SignatureReader singReader;
+	singReader.loadAllSignatures(folder_path);
+	auto listFileStruct = singReader.getAllSignatures();
 
 	auto sign_root = new SignatureItem(std::make_unique<CategoryFolderAdapter>());
 

@@ -1,0 +1,14 @@
+{
+  "mpeg": {
+    "algorithmName": "mpeg",
+    "category": "video",
+ 
+    "header": [
+      {
+        "hexdata": "000001BA",
+        "offset": 0
+      }
+    ],
+    "extension": ".mpg"
+  }
+}

@@ -1,6 +1,7 @@
 #include <QtCore/QCoreApplication>
 
 #include "../JsonReader/JsonReader.h"
+#include "../JsonReader/SignatureReader.h"
 
 #include "IO/Finder.h"
 #include "raw/AbstractRaw.h"
@@ -96,49 +97,24 @@ void testSignature(const RAW::FileStruct& fileStruct, const IO::path_string& fil
 
 class ExtensionExtractor
 {
+	const IO::path_string signaturePath_;
 	RAW::HeaderBase::Ptr headerBase_ = std::make_shared< RAW::HeaderBase>();
+	SignatureReader signatureReader;
 public:
-	ExtensionExtractor()
+	ExtensionExtractor(const IO::path_string signaturePath)
+		:signaturePath_(signaturePath)
 	{
 	}
-	void loadAllSignatures(const IO::path_string& folder)
+	void ReadSignatures()
 	{
-		IO::Finder finder;
-		finder.add_extension(L".json");
-		finder.FindFiles(folder);
-		auto listFilesOfSignatures = finder.getFiles();
-		for (auto signFile : listFilesOfSignatures)
-			addSignatures(signFile);
-
-		int k = 1;
-		k = 2;
-
-	}
-	void addSignatures(const IO::path_string& signaturesFile)
-	{
-		QList<JsonFileStruct> listFileStruct;
-
-		QString json_file = QString::fromStdWString(signaturesFile);
-		QFile file(json_file);
-		if (!file.open(QIODevice::ReadOnly))
+		signatureReader.loadAllSignatures(signaturePath_);
+		for (auto json_signature : signatureReader.getAllSignatures())
 		{
-			qInfo() << "Error to open file. \"" << file.fileName() << "\"";
-			return;
+			headerBase_->addFileFormat(toFileStruct(json_signature));
 		}
-
-		auto json_str = file.readAll();
-		ReadJsonFIle(json_str, listFileStruct);
-		if (listFileStruct.empty())
-		{
-			qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
-			return ;
-		}
-
-		for (auto theFileStruct : listFileStruct)
-			headerBase_->addFileFormat(toFileStruct(theFileStruct));
-
-
 	}
+
+
 	void extract_extensions(const IO::path_list& listFiles)
 	{
 		const uint32_t DefaultReadSize = 33280;
@@ -162,9 +138,6 @@ public:
 				auto filePathWithExt = filepath + file_struct->getExtension();
 				fs::rename(filepath, filePathWithExt);
 			}
-			
-			
-			//headerBase_->
 		}
 	}
 };

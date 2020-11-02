@@ -6,7 +6,7 @@
 #include <QFileIconProvider>
 #include <QVectorIterator>
 
-enum SignatureItemType : int
+enum class SignatureItemType : int
 {
 	kSignatureItem, kCategoryItem
 };

@@ -1,0 +1,16 @@
+{
+  "mxf": {
+    "algorithmName": "mxf",
+    "category": "video",
+
+    "header": [
+      {
+        "hexdata": "060E2B34020501010D01020101020400",
+        "offset": 0
+      }
+    ],
+    "extension": ".mxf"
+
+  }
+	
+}

@@ -1,0 +1,19 @@
+{
+  "avi": {
+    "algorithmName": "riff",
+    "category": "video",
+
+    "header": [
+      {
+        "hexdata": "52494646",
+        "offset": 0
+      },
+      {
+        "hexdata": "415649204C495354",
+        "offset": 8
+      }
+    ],
+    "extension": ".avi"
+
+  }
+}

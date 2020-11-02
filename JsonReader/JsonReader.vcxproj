@@ -99,17 +99,18 @@
   <ItemGroup>
     <ClInclude Include="JsonReader.h" />
     <ClInclude Include="jsonreader_global.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\src\IO\libio.vcxproj">
-      <Project>{a3400ee0-87c5-4fcc-a551-359cdea8c97e}</Project>
-    </ProjectReference>
+    <ClInclude Include="SignatureReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\RawRecoveryConsole\base\audio\audio.json" />
     <None Include="..\RawRecoveryConsole\base\office\office_2003.json" />
     <None Include="..\RawRecoveryConsole\base\office\office_2007.json" />
     <None Include="..\RawRecoveryConsole\base\video\video.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libio\libio.vcxproj">
+      <Project>{b48c2c80-4bc5-40e7-8157-674b222f3321}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
