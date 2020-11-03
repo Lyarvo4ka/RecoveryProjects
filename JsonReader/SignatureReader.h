@@ -7,13 +7,18 @@
 class SignatureReader
 {
 	QList<JsonFileStruct> listSignatures_;
+	IO::path_string signaturesFolder_;
 public:
+	SignatureReader(const IO::path_string& signaturesFolder)
+		:signaturesFolder_(signaturesFolder)
+	{
 
-	void loadAllSignatures(const IO::path_string& folder)
+	}
+	void loadAllSignatures()
 	{
 		IO::Finder finder;
 		finder.add_extension(L".json");
-		finder.FindFiles(folder);
+		finder.FindFiles(signaturesFolder_);
 		auto listFilesOfSignatures = finder.getFiles();
 		for (auto signFile : listFilesOfSignatures)
 			addSignatures(signFile);

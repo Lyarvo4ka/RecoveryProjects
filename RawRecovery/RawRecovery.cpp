@@ -41,8 +41,8 @@ RawRecovery::RawRecovery(QWidget *parent)
 
 
 	auto folder_path = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
-	SignatureReader singReader;
-	singReader.loadAllSignatures(folder_path);
+	SignatureReader singReader(folder_path);
+	singReader.loadAllSignatures();
 	auto listFileStruct = singReader.getAllSignatures();
 
 	auto sign_root = new SignatureItem(std::make_unique<CategoryFolderAdapter>());

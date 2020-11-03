@@ -95,6 +95,18 @@ void testSignature(const RAW::FileStruct& fileStruct, const IO::path_string& fil
 
 }
 
+inline void ReadSignatures(SignatureReader & signatureReader, RAW::HeaderBase::Ptr headeBase)
+{
+	if (headeBase)
+	{
+		signatureReader.loadAllSignatures();
+		for (auto json_signature : signatureReader.getAllSignatures())
+		{
+			headeBase->addFileFormat(toFileStruct(json_signature));
+		}
+	}
+}
+
 class ExtensionExtractor
 {
 	const IO::path_string signaturePath_;
@@ -105,15 +117,6 @@ public:
 		:signaturePath_(signaturePath)
 	{
 	}
-	void ReadSignatures()
-	{
-		signatureReader.loadAllSignatures(signaturePath_);
-		for (auto json_signature : signatureReader.getAllSignatures())
-		{
-			headerBase_->addFileFormat(toFileStruct(json_signature));
-		}
-	}
-
 
 	void extract_extensions(const IO::path_list& listFiles)
 	{
@@ -144,6 +147,45 @@ public:
 
 
 
+class SignatureTest
+{
+	RAW::HeaderBase::Ptr headerBase_ = std::make_shared< RAW::HeaderBase>();
+	SignatureReader signatureReader_;
+public:
+	SignatureTest(SignatureReader& signatureReader)
+		:signatureReader_(signatureReader)
+	{
+		ReadSignatures(signatureReader_, headerBase_);
+	}
+
+	void testSigantures(const IO::path_list& listFiles)
+	{
+		const uint32_t DefaultReadSize = 33280;
+		DataArray buffer(DefaultReadSize);
+		for (auto filepath : listFiles)
+		{
+			uint32_t read_size = DefaultReadSize;
+			File file(filepath);
+			file.OpenRead();
+			if (file.Size() < buffer.size())
+				read_size = file.Size();
+
+			file.ReadData(buffer.data(), read_size);
+			file.Close();
+
+			auto file_struct = headerBase_->find(buffer.data(), read_size);
+			if (file_struct)
+			{
+				qInfo() << filepath << "-->" << QString::fromStdWString(file_struct->getExtension());
+				auto ext = file_struct->getExtension();
+				auto filePathWithExt = filepath + file_struct->getExtension();
+				fs::rename(filepath, filePathWithExt);
+			}
+		}
+
+	}
+};
+
 
 
 
@@ -151,8 +193,11 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 
-	ExtensionExtractor extExtractor;
-	extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
+	IO::path_string singFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
+	SignatureReader signReader(singFolder);
+
+	//ExtensionExtractor extExtractor;
+	//extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
 
 	//IO::Finder finder;
 	//finder.FindFiles(LR"(f:\Root\!NoName\0\)");
