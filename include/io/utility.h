@@ -28,6 +28,8 @@ namespace IO
 		return true;
 	}
 
+
+	// not working
 	inline bool isNot00orFF(ByteArray data, uint32_t size)
 	{
 		if (isBlockContainsValue(data, size, 0x00))

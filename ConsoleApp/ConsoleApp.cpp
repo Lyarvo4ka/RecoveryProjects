@@ -8,106 +8,106 @@
 
 #include "io/iodevice.h"
 #include "io/file.h"
+
+const char s_ftyp[] = "ftyp";
+const char s_moov[] = "moov";
+const char s_mdat[] = "mdat";
+const char s_wide[] = "wide";
+const char s_skip[] = "skip";
+const char s_free[] = "free";
+const char s_pnot[] = "pnot";
+const char s_prfl[] = "prfl";
+const char s_mvhd[] = "mvhd";
+const char s_clip[] = "clip";
+const char s_trak[] = "trak";
+const char s_udta[] = "udta";
+const char s_ctab[] = "ctab";
+const char s_cmov[] = "cmov";
+const char s_rmra[] = "rmra";
+const char s_uuid[] = "uuid";
+const char s_meta[] = "meta";
+
 //
-//const char s_ftyp[] = "ftyp";
-//const char s_moov[] = "moov";
-//const char s_mdat[] = "mdat";
-//const char s_wide[] = "wide";
-//const char s_skip[] = "skip";
-//const char s_free[] = "free";
-//const char s_pnot[] = "pnot";
-//const char s_prfl[] = "prfl";
-//const char s_mvhd[] = "mvhd";
-//const char s_clip[] = "clip";
-//const char s_trak[] = "trak";
-//const char s_udta[] = "udta";
-//const char s_ctab[] = "ctab";
-//const char s_cmov[] = "cmov";
-//const char s_rmra[] = "rmra";
-//const char s_uuid[] = "uuid";
-//const char s_meta[] = "meta";
-//
-//
-//inline bool isQtSignature(const uint8_t* qt_header, const uint32_t size)
-//{
-//	if (memcmp(qt_header, s_ftyp, size) == 0)
-//		return true;
-//	else if (memcmp(qt_header, s_moov, size) == 0)
-//		return true;
-//	else if (memcmp(qt_header, s_mdat, size) == 0)
-//		return true;
-//	else if (memcmp(qt_header, s_wide, size) == 0)
-//		return true;
-//
-//
-//	return false;
-//}
-//
-//inline void testSignatureMP4(const IO::path_string& filePath)
-//{
-//	auto test_file = IO::makeFilePtr(filePath);
-//	const uint32_t offset = 4;
-//	const uint32_t header_size = 4;
-//	uint8_t buff[header_size];
-//	ZeroMemory(buff, header_size);
-//	if (test_file->Open(IO::OpenMode::OpenRead))
-//	{
-//		if (test_file->Size() >= header_size)
-//		{
-//			test_file->setPosition(offset);
-//			test_file->ReadData(buff, header_size);
-//			test_file->Close();
-//
-//			if (isQtSignature(buff, header_size) == false)
-//			{
-//				auto new_file_name = filePath + L".bad_file";
-//				std::wcout << new_file_name.c_str() << std::endl;
-//				fs::rename(filePath, new_file_name);
-//			}
-//		}
-//
-//	}
-//
-//
-//}
-//
-//
-//void testMP4_signature(const IO::path_string& folder)
-//{
-//	IO::Finder finder;
-//	finder.add_extension(L".mov");
-//	finder.add_extension(L".mp4");
-//	finder.add_extension(L".3gp");
-//	finder.add_extension(L".3gpp");
-//	finder.add_extension(L".m4a");
-//	//finder.add_extension(L".msdoc");
-//	finder.FindFiles(folder);
-//	auto fileList = finder.getFiles();
-//
-//	for (auto& theFile : fileList)
-//	{
-//		try {
-//			std::wcout << theFile.c_str();
-//			testSignatureMP4(theFile);
-//			std::wcout <<L" - OK" <<std::endl;
-//		}
-//		catch (IO::Error::IOErrorException& ex)
-//		{
-//			const char* text = ex.what();
-//			std::cout << " Cougth exception " << text;
-//
-//		}
-//		catch (fs::filesystem_error &fs_error)
-//		{
-//			std::cout << " Cougth exception " << fs_error.what();
-//			int k = 1;
-//			k = 2;
-//
-//		}
+inline bool isQtSignature(const uint8_t* qt_header, const uint32_t size)
+{
+	if (memcmp(qt_header, s_ftyp, size) == 0)
+		return true;
+	else if (memcmp(qt_header, s_moov, size) == 0)
+		return true;
+	else if (memcmp(qt_header, s_mdat, size) == 0)
+		return true;
+	else if (memcmp(qt_header, s_wide, size) == 0)
+		return true;
+
+
+	return false;
+}
+
+inline void testSignatureMP4(const IO::path_string& filePath)
+{
+	auto test_file = IO::makeFilePtr(filePath);
+	const uint32_t offset = 4;
+	const uint32_t header_size = 4;
+	uint8_t buff[header_size];
+	ZeroMemory(buff, header_size);
+	if (test_file->Open(IO::OpenMode::OpenRead))
+	{
+		if (test_file->Size() >= header_size)
+		{
+			test_file->setPosition(offset);
+			test_file->ReadData(buff, header_size);
+			test_file->Close();
+
+			if (isQtSignature(buff, header_size) == false)
+			{
+				auto new_file_name = filePath + L".bad_file";
+				std::wcout << new_file_name.c_str() << std::endl;
+				fs::rename(filePath, new_file_name);
+			}
+		}
+
+	}
+
+
+}
 //
 //
-//	}
-//}
+void testMP4_signature(const IO::path_string& folder)
+{
+	IO::Finder finder;
+	finder.add_extension(L".mov");
+	finder.add_extension(L".mp4");
+	finder.add_extension(L".3gp");
+	finder.add_extension(L".3gpp");
+	finder.add_extension(L".m4a");
+	//finder.add_extension(L".msdoc");
+	finder.FindFiles(folder);
+	auto fileList = finder.getFiles();
+
+	for (auto& theFile : fileList)
+	{
+		try {
+			std::wcout << theFile.c_str();
+			testSignatureMP4(theFile);
+			std::wcout <<L" - OK" <<std::endl;
+		}
+		catch (IO::Error::IOErrorException& ex)
+		{
+			const char* text = ex.what();
+			std::cout << " Cougth exception " << text;
+
+		}
+		catch (fs::filesystem_error &fs_error)
+		{
+			std::cout << " Cougth exception " << fs_error.what();
+			int k = 1;
+			k = 2;
+
+		}
+
+
+	}
+}
 
 void testDCM(const IO::path_string& filePath)
 {
@@ -730,22 +730,133 @@ void create_AllFiles(const IO::path_string & sourceFilePath , const IO::path_str
 
 #include "io/diskdevice.h"
 #include "io/constants.h"
+#include "io/sparsebundle.h"
+#include "io/utility.h"
 
 uint64_t cacl_block_number(uint64_t absolute_offset , uint64_t volume_offset , uint32_t block_size)
 {
 	return (absolute_offset - volume_offset) / block_size;
 }
 
+
+void writeMarkerToDisk(uint32_t diskNumber)
+{
+	auto listDisk = IO::ReadPhysicalDrives();
+	auto physical_disk = listDisk.find_by_number(diskNumber);
+	auto disk_ptr = std::make_shared<IO::DiskDevice>(physical_disk);
+	disk_ptr->Open(IO::OpenMode::OpenWrite);
+
+	IO::DataArray buffer(default_block_size);
+	for (uint32_t i = 0; i < buffer.size(); i+= default_sector_size)
+	{
+		memcpy(buffer.data() + i, Signatures::bad_sector_header, Signatures::bad_sector_header_size);
+	}
+
+	uint64_t offset = 0;
+	uint32_t bytesToWrite = 0;
+	while (offset < disk_ptr->Size())
+	{
+		bytesToWrite = IO::calcBlockSize(offset, disk_ptr->Size(), buffer.size());
+		if (bytesToWrite == 0)
+			break;
+
+		disk_ptr->WriteData(buffer.data(), buffer.size());
+
+		offset += bytesToWrite;
+	}
+
+
+}
+
+void sparsebundle_main(uint32_t drive_number)
+{
+	auto listDisk = IO::ReadPhysicalDrives();
+	auto physical_disk = listDisk.find_by_number(drive_number);
+	auto disk_ptr = std::make_shared<IO::DiskDevice>(physical_disk);
+	disk_ptr->Open(IO::OpenMode::OpenWrite);
+
+	IO::path_string folder = LR"(f:\Belova TimeCapsule Disk (HFS+)\ShareRoot\Inna’s Mac mini.sparsebundle\bands\)";
+	IO::Sparsebundle sparsebundle(disk_ptr);
+	sparsebundle.setBlockSize(0x800000);
+
+	IO::Finder finder;
+	finder.FindFiles(folder);
+
+	for (auto filename : finder.getFiles())
+	{
+		sparsebundle.saveFileToDisk(filename);
+	}
+
+	std::cout << "Written size = " << sparsebundle.writtenSize();
+
+	int k = 1;
+	k = 2;
+}
+
+void coopyWithoutFFand00(const IO::path_string & sourceFilename , const IO::path_string & targetFilename , uint64_t block_size)
+{
+	IO::File srcFile(sourceFilename);
+	srcFile.OpenRead();
+	IO::File targetFile(targetFilename);
+	targetFile.OpenCreate();
+
+	IO::DataArray buffer(block_size);
+
+	uint64_t offset = 0;
+	while (offset < srcFile.Size())
+	{
+		srcFile.ReadData(buffer);
+		if ( !IO::isBlockContainsValue(buffer.data(), buffer.size() , 0x00))
+			if (!IO::isBlockContainsValue(buffer.data(), buffer.size(), 0xFF))
+			{
+				targetFile.WriteData(buffer.data(), buffer.size());
+			}
+
+
+		offset += block_size;
+	}
+
+}
+
+#include "io/dbf.h"
+
+void fixAllDbfFiles(const IO::path_string & folder)
+{
+	IO::Finder finder;
+	finder.add_extension(L".dbf");
+	finder.FindFiles(folder);
+
+	for (auto filename : finder.getFiles())
+	{
+		IO::fixDBF(filename);
+	}
+
+
+	//fixDBF
+}
+
 int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
-	IO::path_string folderToTest = argv[1];
+	fixAllDbfFiles(LR"(y:\48867\dbf_bads\)");
+
+
+	//sparsebundle_main(3);
+	//auto srcFilename = argv[1];
+	//auto targetFilename = argv[2];
+	//uint64_t block_size = boost::lexical_cast<uint64_t>(argv[3]);
+	//coopyWithoutFFand00(srcFilename, targetFilename, block_size);
+
+	//IO::path_string folderToTest = argv[1];
+	//auto drive_number = boost::lexical_cast<uint32_t>(argv[1]);
+	//writeMarkerToDisk(drive_number);
+	//testMP4_signature(folder);
 
 	//constexpr int arr_size = MLVKeywords::mlv_array_v2.size();
 
 	//testHeaderToBadSector(folderToTest);
 
-	testIsFileQtHeader(LR"(f:\itunes\)");
+	//testIsFileQtHeader(LR"(f:\itunes\)");
 	// ext4_raw
 	//IO::path_string targetFilePath = LR"(e:\48264\result)";
 	//IO::File tagetFile(targetFilePath);
