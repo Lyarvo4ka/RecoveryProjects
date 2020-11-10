@@ -838,7 +838,7 @@ void fixAllDbfFiles(const IO::path_string & folder)
 int wmain(int argc, wchar_t* argv[])
 {
 	setlocale(LC_ALL, "ru_RU.UTF8");
-	fixAllDbfFiles(LR"(y:\48867\dbf_bads\)");
+	//fixAllDbfFiles(LR"(y:\48867\dbf_bads\)");
 
 
 	//sparsebundle_main(3);
@@ -909,9 +909,18 @@ int wmain(int argc, wchar_t* argv[])
 	//testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
 	//XorAnalyzer(argc, argv);
 
-	//IO::XorAnalyzer xor_analyzer(L"");
-	//xor_analyzer.analizeXor( LR"(d:\incoming\XOR_finder\testing\from_2.tmp)", 16384 , 1024);
 
+	if (argc == 4)
+	{
+		auto dumpFilename = argv[1];
+		auto targetFilename = argv[2];
+		uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
+
+		IO::XorAnalyzer xor_analyzer(dumpFilename);
+		xor_analyzer.Analize(targetFilename, block_size);
+	}
+	else
+		std::cout << "Wrong params";
 	//auto block = xor_analyzer.generateBlock(37748736);
 
 	//IO::path_string filePath = LR"(d:\incoming\XOR_finder\test_file)";

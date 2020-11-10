@@ -1,0 +1,12 @@
+{
+  "docx": [ "msoffice2003", "msoffice2007" ],
+  "xlsx": [ "msoffice2003", "msoffice2007" ],
+  "pptx": [ "msoffice2003", "msoffice2007" ],
+  "doc": [ "msoffice2003", "msoffice2007" ],
+  "xls": [ "msoffice2003", "msoffice2007" ],
+  "ppt": [ "msoffice2003", "msoffice2007" ],
+
+  "zip": [ "zip" ],
+  "jpg": ["jpg" , "png"]
+      
+}

@@ -202,7 +202,7 @@ namespace IO
 				}
 
 				for (DWORD nByte = 0; nByte < buffer_size; ++nByte)
-					xor_data[nByte + xor_offset] = pByteCounts[nByte].getMax();
+					xor_data[(DWORD)nByte + xor_offset] = pByteCounts[nByte].getMax();
 
 				ByteArray pWriteData = xor_data + xor_offset;
 

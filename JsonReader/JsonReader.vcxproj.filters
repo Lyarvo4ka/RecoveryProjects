@@ -37,6 +37,9 @@
     <ClInclude Include="SignatureReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExtensionsReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jsonreader_global.h">

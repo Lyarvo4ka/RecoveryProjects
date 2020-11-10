@@ -97,6 +97,7 @@
     <ClCompile Include="JsonReader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ExtensionsReader.h" />
     <ClInclude Include="JsonReader.h" />
     <ClInclude Include="jsonreader_global.h" />
     <ClInclude Include="SignatureReader.h" />
