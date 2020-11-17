@@ -517,27 +517,27 @@ void testHeaderToBadSector(const IO::path_string folderPath)
 		{
 			std::wcout << theFile.c_str();
 			IO::File file(theFile);
-file.OpenRead();
+			file.OpenRead();
 
-if (file.Size() >= Signatures::bad_sector_header_size)
-{
-	IO::DataArray buff(Signatures::bad_sector_header_size);
-	file.ReadData(buff);
-	file.Close();
+			if (file.Size() >= Signatures::bad_sector_header_size)
+			{
+				IO::DataArray buff(Signatures::bad_sector_header_size);
+				file.ReadData(buff);
+				file.Close();
 
-	if (buff.compareData((IO::ByteArray)Signatures::bad_sector_header, Signatures::bad_sector_header_size))
-	{
-		auto src = IO::addPrefix(theFile);
-		auto dst = IO::addPrefix(theFile + L".bad_file");
-		fs::rename(src, dst);
-		std::wcout << " BAD";
-	}
-	else
-		std::wcout << " OK";
+				if (buff.compareData((IO::ByteArray)Signatures::bad_sector_header, Signatures::bad_sector_header_size))
+				{
+					auto src = IO::addPrefix(theFile);
+					auto dst = IO::addPrefix(theFile + L".bad_file");
+					fs::rename(src, dst);
+					std::wcout << " BAD";
+				}
+				else
+					std::wcout << " OK";
 
-}
-else
-std::wcout << " OK";
+			}
+			else
+			std::wcout << " OK";
 		}
 		catch (IO::Error::IOErrorException& ex)
 		{
@@ -910,17 +910,23 @@ int wmain(int argc, wchar_t* argv[])
 	//XorAnalyzer(argc, argv);
 
 
-	if (argc == 4)
+	if (argc == 2)
 	{
-		auto dumpFilename = argv[1];
-		auto targetFilename = argv[2];
-		uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
-
-		IO::XorAnalyzer xor_analyzer(dumpFilename);
-		xor_analyzer.Analize(targetFilename, block_size);
+		auto folderPath = argv[1];
+		testHeaderToBadSector(folderPath);
 	}
-	else
-		std::cout << "Wrong params";
+
+	//if (argc == 4)
+	//{
+	//	auto dumpFilename = argv[1];
+	//	auto targetFilename = argv[2];
+	//	uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
+
+	//	IO::XorAnalyzer xor_analyzer(dumpFilename);
+	//	xor_analyzer.Analize(targetFilename, block_size);
+	//}
+	//else
+	//	std::cout << "Wrong params";
 	//auto block = xor_analyzer.generateBlock(37748736);
 
 	//IO::path_string filePath = LR"(d:\incoming\XOR_finder\test_file)";
@@ -1073,6 +1079,7 @@ int wmain(int argc, wchar_t* argv[])
 	//add_service(LR"(d:\incoming\46907\xor_without_SA.bin)", LR"(d:\incoming\46907\result.bin)");
 	//IO::calcNullsForFolder(LR"(d:\PaboTa\46950\sample\)" , 131072);
 	//RAW::testOLE();
+	std::cout << std::endl << " FINISHED ";
 	return 0;
 }
 

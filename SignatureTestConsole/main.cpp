@@ -95,11 +95,11 @@ void testSignature(const RAW::FileStruct& fileStruct, const IO::path_string& fil
 
 }
 
-inline void ReadSignatures(SignatureReader & signatureReader, RAW::HeaderBase::Ptr headeBase)
+inline void ReadSignatures(SignatureReader & signatureReader, RAW::HeaderBase::Ptr headeBase , const IO::path_string & folder)
 {
 	if (headeBase)
 	{
-		signatureReader.loadAllSignatures();
+		signatureReader.loadAllSignatures(folder , L".json");
 		for (auto json_signature : signatureReader.getAllSignatures())
 		{
 			headeBase->addFileFormat(toFileStruct(json_signature));
@@ -155,7 +155,7 @@ public:
 	SignatureTest(SignatureReader& signatureReader)
 		:signatureReader_(signatureReader)
 	{
-		ReadSignatures(signatureReader_, headerBase_);
+		//ReadSignatures(signatureReader_, headerBase_);
 	}
 
 	void testSigantures(const IO::path_list& listFiles)
@@ -194,7 +194,12 @@ int main(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 
 	IO::path_string singFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
-	SignatureReader signReader(singFolder);
+	SignatureReader signReader;
+	signReader.loadAllSignatures(singFolder, L".json");
+
+	IO::path_string extFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\extensions\)";
+	ExtensionReader extReader;
+	extReader.loadAllExtensions(extFolder, L".json");
 
 	//ExtensionExtractor extExtractor;
 	//extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
