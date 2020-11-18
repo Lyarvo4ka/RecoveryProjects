@@ -37,13 +37,13 @@
 //#include "IO\PCKRaw.h"
 //#include "IO\ZS2Raw.h"
 //#include "IO\ZoomH6Raw.h"
-#include "raw\RawPLN.h"
+//#include "raw\RawPLN.h"
 //#include "IO\GoPro.h"
 //#include "IO\RawCDW.h"
 //#include "IO\FlpRaw.h"
 //#include "IO/djidrone.h"
 //#include "IO/Raw7z.h"
-//#include "IO/prproj.h"
+#include "RAW/prproj.h"
 
 
 const int param_count = 6;
@@ -242,7 +242,7 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//factory_manager.Register("Canon4FileFragmentRaw", std::make_unique<Canon4FileFragmentRawFactory>());
 	//Canon4FileFragmentRaw
 	//factory_manager.Register("7z", std::make_unique<IO::Raw7zFactory>());
-	//factory_manager.Register("prproj" , std::make_unique<IO::RawAdobePremireFactory>());
+	factory_manager.Register("prproj" , std::make_unique<RAW::RawAdobePremireFactory>());
 	//initVideoFactoryManager(factory_manager);
 
 	//factory_manager.Register("flp", std::make_unique<IO::RawFLPFactory>());
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 		QList<JsonFileStruct> listFileStruct;
 
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "zoomH6.json";
+		QString json_file = "prproj.json";
 		QFile file(json_file);
 		if (!file.open(QIODevice::ReadOnly))
 		{

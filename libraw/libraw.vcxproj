@@ -167,6 +167,7 @@
     <ClInclude Include="..\include\raw\factories.h" />
     <ClInclude Include="..\include\raw\GoPro.h" />
     <ClInclude Include="..\include\raw\oleraw.h" />
+    <ClInclude Include="..\include\raw\prproj.h" />
     <ClInclude Include="..\include\raw\QuickTime.h" />
     <ClInclude Include="..\include\raw\RawPLN.h" />
     <ClInclude Include="..\include\raw\RawRIFF.h" />

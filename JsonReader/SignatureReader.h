@@ -75,7 +75,7 @@ public:
 class ExtensionReader
 	: public AbstractJsonReader
 {
-	QList< JsonExtensions> listExtensions_;
+	QList<JsonExtensions> listExtensions_;
 public:
 	void loadAllExtensions(const IO::path_string& extensionsFolder, const IO::path_string& extension)
 	{
@@ -89,7 +89,7 @@ public:
 		QJsonDocument json_doc = QJsonDocument::fromJson(byte_data);
 		if (json_doc.isNull())
 		{
-			qInfo() << "Error to parse json file.";
+			qInfo() << "Error to read" << QString::fromStdWString(extensionFilePath) << "file. Wrong syntax.";
 			return;
 		}
 		auto root = json_doc.object();
@@ -111,5 +111,9 @@ public:
 
 			listExtensions_.append(extension);
 		}
+	}
+	QList<JsonExtensions> getAllSignatures() const
+	{
+		return listExtensions_;
 	}
 };

@@ -149,41 +149,73 @@ public:
 
 class SignatureTest
 {
-	RAW::HeaderBase::Ptr headerBase_ = std::make_shared< RAW::HeaderBase>();
-	SignatureReader signatureReader_;
+	using ListFormatName = std::list<std::string>;
+	using ExtensionName = std::string;
+	using FormatName = std::string;
+	std::map<ExtensionName, ListFormatName > extensionsMap_;
+	std::map< FormatName, RAW::FileStruct> headerBase_;
+	using 
 public:
-	SignatureTest(SignatureReader& signatureReader)
-		:signatureReader_(signatureReader)
+	IO::path_string getExtension(const IO::path_string & filename)
 	{
-		//ReadSignatures(signatureReader_, headerBase_);
+		fs::path filePath(filename);
+		return filePath.extension().generic_wstring();
 	}
 
-	void testSigantures(const IO::path_list& listFiles)
+	std::list<RAW::FileStruct> getListFileStructFromListFormatName( const ListFormatName & listFormatName)
 	{
-		const uint32_t DefaultReadSize = 33280;
-		DataArray buffer(DefaultReadSize);
-		for (auto filepath : listFiles)
+		std::list<RAW::FileStruct> listFileStruct;
+		for (auto formatName : listFormatName)
 		{
-			uint32_t read_size = DefaultReadSize;
-			File file(filepath);
-			file.OpenRead();
-			if (file.Size() < buffer.size())
-				read_size = file.Size();
-
-			file.ReadData(buffer.data(), read_size);
-			file.Close();
-
-			auto file_struct = headerBase_->find(buffer.data(), read_size);
-			if (file_struct)
-			{
-				qInfo() << filepath << "-->" << QString::fromStdWString(file_struct->getExtension());
-				auto ext = file_struct->getExtension();
-				auto filePathWithExt = filepath + file_struct->getExtension();
-				fs::rename(filepath, filePathWithExt);
-			}
+			auto findIter =	headerBase_.find(formatName);
+			if (findIter != headerBase_.end())
+				listFileStruct.push_back(findIter->second);
 		}
+		return listFileStruct;
+	}
+	
+
+	void testSigantures(const IO::path_string & filename , )
+	{
+		File file(filename);
+		file.OpenRead();
+		if (file.Size() < buffer.size())
+			read_size = file.Size();
+
+		file.ReadData(buffer.data(), read_size);
+		file.Close();
+
 
 	}
+
+
+
+	//void testSigantures(const IO::path_list& listFiles)
+	//{
+	//	const uint32_t DefaultReadSize = 33280;
+	//	DataArray buffer(DefaultReadSize);
+	//	for (auto filepath : listFiles)
+	//	{
+	//		uint32_t read_size = DefaultReadSize;
+	//		File file(filepath);
+	//		file.OpenRead();
+	//		if (file.Size() < buffer.size())
+	//			read_size = file.Size();
+
+	//		file.ReadData(buffer.data(), read_size);
+	//		file.Close();
+
+	//		auto file_struct = headerBase_->find(buffer.data(), read_size);
+	//		if (file_struct)
+	//		{
+	//			qInfo() << filepath << "-->" << QString::fromStdWString(file_struct->getExtension());
+	//			auto ext = file_struct->getExtension();
+	//			auto filePathWithExt = filepath + file_struct->getExtension();
+	//			fs::rename(filepath, filePathWithExt);
+	//		}
+	//	}
+
+	//}
 };
 
 
