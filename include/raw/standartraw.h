@@ -128,20 +128,20 @@ namespace RAW
 					bytes_to_write = bytes_read;
 
 				uint64_t after_written = written_size + bytes_to_write;
-				if (after_written >= maxFileSize_)
+				if (after_written == maxFileSize_)
 				{
-					uint32_t last_size = (uint32_t)(after_written - maxFileSize_);
-					if ( last_size > 0 )
-					{
+					//uint32_t last_size = (uint32_t)(after_written - maxFileSize_);
+					//if ( last_size > 0 )
+					//{
 						target_file.setPosition(written_size);
-						bytes_written = target_file.WriteData(buffer->data(), last_size);
+						bytes_written = target_file.WriteData(buffer->data(), bytes_to_write);
 						if (bytes_written == 0)
 						{
 							wprintf(L"Error write block\n");
 							break;
 						}
-						written_size += last_size;
-					}
+						written_size += bytes_to_write;
+					//}
 					return written_size;
 				}
 

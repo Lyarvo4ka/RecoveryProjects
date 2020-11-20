@@ -1,0 +1,20 @@
+{
+"dst":
+  {
+    "category": "other",
+    "header": 
+    [
+      {
+        "hexdata": "4C413A",
+        "offset": 0
+      }
+    ],
+    
+    "footer": 
+    {
+      "hexdata": "030000F31A"
+    },
+    "maxfilesize":1048576,
+    "extension": ".dst"
+  }  
+}

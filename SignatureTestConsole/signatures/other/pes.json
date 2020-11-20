@@ -1,0 +1,15 @@
+{
+"pes":
+  {
+    "category": "other",
+    "header": 
+    [
+      {
+        "hexdata": "23504553",
+        "offset": 0
+      }
+    ],
+    "maxfilesize":1048576,
+    "extension": ".pes"
+  }  
+}

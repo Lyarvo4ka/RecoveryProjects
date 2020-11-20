@@ -1,0 +1,25 @@
+{
+"xsd":
+  {
+    "category": "other",
+    "header": 
+    [
+      {
+        "hexdata": "1005",
+        "offset": 0
+      },
+      {
+        "hexdata": "00040006",
+        "offset": 11
+      }      
+    ],
+    
+    "footer": 
+    {
+      "hexdata": "7431000003",
+      "tailsize": 1473
+    },
+    "maxfilesize":5242880,
+    "extension": ".xsd"
+  }  
+}

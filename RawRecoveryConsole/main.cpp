@@ -287,6 +287,8 @@ constexpr uint8_t chiper = 0x59;
 
 constexpr uint8_t res_val = enc_val - chiper;
 
+#include "../JsonReader/SignatureReader.h"
+
 int main(int argc, char *argv[])
 {
 
@@ -348,24 +350,29 @@ int main(int argc, char *argv[])
 			return -1;
 
 		//////////////////////////////////////////////////////////////////////////
-		QList<JsonFileStruct> listFileStruct;
+		
 
+		IO::path_string folderSignatures = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\other\)";
+		
+		SignatureReader signatureReader;
+		signatureReader.loadAllSignatures(folderSignatures , L".json");
+		QList<JsonFileStruct> listFileStruct = signatureReader.getAllSignatures();
 		//QString json_file = R"(d:\develop\libio\RawRecoveryConsole\base\video\video.json)";
-		QString json_file = "prproj.json";
-		QFile file(json_file);
-		if (!file.open(QIODevice::ReadOnly))
-		{
-			qInfo() << "Error to open file. \"" << file.fileName() << "\"";
-			return -1;
-		}
+		//QString json_file = "prproj.json";
+		//QFile file(json_file);
+		//if (!file.open(QIODevice::ReadOnly))
+		//{
+		//	qInfo() << "Error to open file. \"" << file.fileName() << "\"";
+		//	return -1;
+		//}
 
-		auto json_str = file.readAll();
-		ReadJsonFIle(json_str, listFileStruct);
-		if ( listFileStruct.empty())
-		{
-			qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
-			return -1;
-		}
+		//auto json_str = file.readAll();
+		//ReadJsonFIle(json_str, listFileStruct);
+		//if ( listFileStruct.empty())
+		//{
+		//	qInfo() << "Error to read" << file.fileName() << "file. Wrong syntax.";
+		//	return -1;
+		//}
 
 		RAW::HeaderBase::Ptr headerBase = std::make_shared<RAW::HeaderBase>();
 		for (auto theFileStruct : listFileStruct)
@@ -417,8 +424,8 @@ int main(int argc, char *argv[])
 				{
 					RAW::StandartRaw* standard_raw = new RAW::StandartRaw(src_device);
 					standard_raw->setMaxFileSize(file_struct->getMaxFileSize());
-					//standard_raw->setFooter(file_struct->getFooter(), file_struct->getFooterTailEndSize());
-					//standard_raw->setFooterOffsetSearchBlock(4, 4096);
+					standard_raw->setFooters(file_struct->getFooters());
+					standard_raw->setTailSize(file_struct->getFooterTailEndSize());
 
 					raw_algorithm = standard_raw;
 
