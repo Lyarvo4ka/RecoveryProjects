@@ -175,6 +175,7 @@
     <ClInclude Include="..\include\io\functions.h" />
     <ClInclude Include="..\include\io\iodevice.h" />
     <ClInclude Include="..\include\io\ioengine.h" />
+    <ClInclude Include="..\include\io\onec.h" />
     <ClInclude Include="..\include\io\physicaldrive.h" />
     <ClInclude Include="..\include\io\sparsebundle.h" />
     <ClInclude Include="..\include\io\utility.h" />

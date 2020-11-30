@@ -9,6 +9,8 @@
 #include "io/iodevice.h"
 #include "io/file.h"
 
+#include "io/onec.h"
+
 const char s_ftyp[] = "ftyp";
 const char s_moov[] = "moov";
 const char s_mdat[] = "mdat";
@@ -909,12 +911,12 @@ int wmain(int argc, wchar_t* argv[])
 	//testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
 	//XorAnalyzer(argc, argv);
 
-
-	if (argc == 2)
-	{
-		auto folderPath = argv[1];
-		testHeaderToBadSector(folderPath);
-	}
+	IO::RestoreRootObject();
+	//if (argc == 2)
+	//{
+	//	auto folderPath = argv[1];
+	//	testHeaderToBadSector(folderPath);
+	//}
 
 	//if (argc == 4)
 	//{

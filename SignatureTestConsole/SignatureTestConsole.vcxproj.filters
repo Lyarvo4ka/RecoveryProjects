@@ -33,4 +33,9 @@
   <ItemGroup>
     <None Include="extensions\extensions.json" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="signatureTester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

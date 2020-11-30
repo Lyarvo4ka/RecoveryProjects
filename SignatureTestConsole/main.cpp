@@ -154,7 +154,7 @@ class SignatureTest
 	using FormatName = std::string;
 	std::map<ExtensionName, ListFormatName > extensionsMap_;
 	std::map< FormatName, RAW::FileStruct> headerBase_;
-	using 
+	//using 
 public:
 	IO::path_string getExtension(const IO::path_string & filename)
 	{
@@ -175,15 +175,15 @@ public:
 	}
 	
 
-	void testSigantures(const IO::path_string & filename , )
+	void testSigantures(const IO::path_string & filename )
 	{
-		File file(filename);
-		file.OpenRead();
-		if (file.Size() < buffer.size())
-			read_size = file.Size();
+		//File file(filename);
+		//file.OpenRead();
+		//if (file.Size() < buffer.size())
+		//	read_size = file.Size();
 
-		file.ReadData(buffer.data(), read_size);
-		file.Close();
+		//file.ReadData(buffer.data(), read_size);
+		//file.Close();
 
 
 	}
@@ -221,10 +221,12 @@ public:
 
 
 
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 
+////////////////////
 	IO::path_string singFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
 	SignatureReader signReader;
 	signReader.loadAllSignatures(singFolder, L".json");
@@ -232,7 +234,7 @@ int main(int argc, char *argv[])
 	IO::path_string extFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\extensions\)";
 	ExtensionReader extReader;
 	extReader.loadAllExtensions(extFolder, L".json");
-
+////////////////
 	//ExtensionExtractor extExtractor;
 	//extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
 
