@@ -24,7 +24,7 @@ namespace RAW
 		SignatureArray signatureArray_;
 
 	public:
-		using Ptr = std::unique_ptr<SignatureOffset>;
+		using Ptr = std::shared_ptr<SignatureOffset>;
 		SignatureOffset()
 		{
 
@@ -115,12 +115,17 @@ namespace RAW
 		uint64_t minFileSize_ = 0;
 		uint32_t footer_offset_ = 0;
 		uint32_t search_block_ = 0;
+		bool bValid = false;
 	public:
 		using Ptr = std::shared_ptr<FileStruct>;
 		FileStruct(const std::string & formatName)
 			: formatName_(formatName)
 		{
 
+		}
+		bool isValid()
+		{
+			return bValid;
 		}
 		std::string getName() const
 		{
@@ -158,10 +163,12 @@ namespace RAW
 			}
 			else
 				headers_.emplace_back(makeSignatureOffset(std::move(data_array), offset));
+			bValid = true;
 		}
 		void addSignature(SignatureOffset::Ptr signAndOffset)
 		{
 			headers_.emplace_back(std::move(signAndOffset));
+			bValid = true;
 		}
 
 		void addFooter( DataArray::Ptr footer)

@@ -147,86 +147,16 @@ public:
 
 
 
-class SignatureTest
-{
-	using ListFormatName = std::list<std::string>;
-	using ExtensionName = std::string;
-	using FormatName = std::string;
-	std::map<ExtensionName, ListFormatName > extensionsMap_;
-	std::map< FormatName, RAW::FileStruct> headerBase_;
-	//using 
-public:
-	IO::path_string getExtension(const IO::path_string & filename)
-	{
-		fs::path filePath(filename);
-		return filePath.extension().generic_wstring();
-	}
-
-	std::list<RAW::FileStruct> getListFileStructFromListFormatName( const ListFormatName & listFormatName)
-	{
-		std::list<RAW::FileStruct> listFileStruct;
-		for (auto formatName : listFormatName)
-		{
-			auto findIter =	headerBase_.find(formatName);
-			if (findIter != headerBase_.end())
-				listFileStruct.push_back(findIter->second);
-		}
-		return listFileStruct;
-	}
-	
-
-	void testSigantures(const IO::path_string & filename )
-	{
-		//File file(filename);
-		//file.OpenRead();
-		//if (file.Size() < buffer.size())
-		//	read_size = file.Size();
-
-		//file.ReadData(buffer.data(), read_size);
-		//file.Close();
-
-
-	}
 
 
 
-	//void testSigantures(const IO::path_list& listFiles)
-	//{
-	//	const uint32_t DefaultReadSize = 33280;
-	//	DataArray buffer(DefaultReadSize);
-	//	for (auto filepath : listFiles)
-	//	{
-	//		uint32_t read_size = DefaultReadSize;
-	//		File file(filepath);
-	//		file.OpenRead();
-	//		if (file.Size() < buffer.size())
-	//			read_size = file.Size();
+#include "signatureTester.h"
 
-	//		file.ReadData(buffer.data(), read_size);
-	//		file.Close();
-
-	//		auto file_struct = headerBase_->find(buffer.data(), read_size);
-	//		if (file_struct)
-	//		{
-	//			qInfo() << filepath << "-->" << QString::fromStdWString(file_struct->getExtension());
-	//			auto ext = file_struct->getExtension();
-	//			auto filePathWithExt = filepath + file_struct->getExtension();
-	//			fs::rename(filepath, filePathWithExt);
-	//		}
-	//	}
-
-	//}
-};
-
-
-
-
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	QCoreApplication a(argc, argv);
 
-////////////////////
+	////////////////////
 	IO::path_string singFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
 	SignatureReader signReader;
 	signReader.loadAllSignatures(singFolder, L".json");
@@ -234,7 +164,47 @@ int main(int argc, char *argv[])
 	IO::path_string extFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\extensions\)";
 	ExtensionReader extReader;
 	extReader.loadAllExtensions(extFolder, L".json");
+
+	ExtensionBase extBase;
+	auto listJsonExtension = extReader.getAllSignatures();
+	for (auto jsonExtension : listJsonExtension)
+	{
+		ListFormatName listFormatName;
+		for (auto formatName : jsonExtension.listFormatName)
+		{
+			listFormatName.emplace_back(formatName.toStdString());
+		}
+		extBase.add(jsonExtension.extensionName.toStdString(), listFormatName);
+	}
+	
+	SignatureBase signBase;
+	for (auto jsonFileStruct : signReader.getAllSignatures())
+		signBase.add(jsonFileStruct);
+
+
 ////////////////
+
+	IO::path_string folderToTest = LR"(d:\test_folder\!SignatureTest\)";
+
+	IO::Finder finder;
+	finder.FindFiles(folderToTest);
+
+	SignatureTester signTester;
+	signTester.setExtensionBase(extBase);
+	signTester.setSignatureBase(signBase);
+
+
+	for (auto fileToTest : finder.getFiles())
+	{
+		signTester.testSigantures(fileToTest);
+	}
+
+
+	
+
+
+
+
 	//ExtensionExtractor extExtractor;
 	//extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
 
