@@ -10,7 +10,7 @@ namespace IO
 		std::vector<uint8_t> data_;
 
 	public:
-		using Ptr = std::shared_ptr<DataArray>;
+		using Ptr = std::unique_ptr<DataArray>;
 		
 		DataArray() = delete;
 		//DataArray(const DataArray&) = delete;

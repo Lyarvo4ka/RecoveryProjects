@@ -15,8 +15,9 @@ namespace RAW
 
 
 
-	using SignatureArray = std::vector<DataArray::Ptr>;
-	using FotersArray = std::vector<DataArray>;
+	using SignatureArray = std::vector<DataArray>;
+	using SignatureArrayPtr = std::vector<DataArray::Ptr>;
+	using FotersArray = SignatureArray;
 
 	class SignatureOffset
 	{
@@ -24,15 +25,15 @@ namespace RAW
 		SignatureArray signatureArray_;
 
 	public:
-		using Ptr = std::shared_ptr<SignatureOffset>;
+		using Ptr = std::unique_ptr<SignatureOffset>;
 		SignatureOffset()
 		{
 
 		}
-		SignatureOffset(DataArray::Ptr dataArray, uint32_t signature_offset = 0)
+		SignatureOffset(DataArray dataArray, uint32_t signature_offset = 0)
 		{
 			signature_offset_ = signature_offset;
-			addSignature(std::move(dataArray));
+			addSignature(dataArray);
 		}
 		SignatureOffset(ByteArray data, uint32_t size, uint32_t signature_offset = 0)
 		{
@@ -47,53 +48,34 @@ namespace RAW
 		{
 			return signature_offset_;
 		}
-		void addSignature(DataArray::Ptr dataArray)
+		void addSignature(const DataArray & dataArray)
 		{
-			signatureArray_.emplace_back(std::move( dataArray));
-		}
-		void addSignature(DataArray * data_array)
-		{
-			signatureArray_.emplace_back(data_array);
+			signatureArray_.emplace_back(dataArray);
 		}
 		void addSignature(ByteArray data, uint32_t size)
 		{
-			signatureArray_.emplace_back(std::make_unique<DataArray>(data, size));
+			signatureArray_.emplace_back(DataArray(data, size));
 		}
-		//void addSignature(const uint8_t const_data[], uint32_t size)
-		//{
-		//	signatureArray_.emplace_back(std::make_unique<DataArray>(const_data, size));
-		//}
 		bool FindSignature(const ByteArray data, uint32_t size)
 		{
 			for (auto & theSignature : signatureArray_)
 			{
-				if (theSignature->compareData(data, size, signature_offset_))
+				if (theSignature.compareData(data, size, signature_offset_))
 					return true;
 			}
 			return false;
 		}
-		bool find(const DataArray::Ptr & data_array)
+		bool find(const DataArray & data_array)
 		{
-			auto iter = std::find(signatureArray_.begin(), signatureArray_.end(), data_array);
+			auto iter = std::find(signatureArray_.begin(), signatureArray_.end(), &data_array);
 			return (iter != signatureArray_.end()) ? true : false;
 		}
 
 	};
 
-	inline SignatureOffset::Ptr makeSignatureOffset()
-	{
-		return std::make_unique<SignatureOffset>();
-	}
-	inline SignatureOffset::Ptr makeSignatureOffset(ByteArray data, uint32_t size, uint32_t signature_offset = 0)
-	{
-		return std::make_unique<SignatureOffset>(data , size , signature_offset);
-	}
-	inline SignatureOffset::Ptr makeSignatureOffset(DataArray::Ptr data_array, uint32_t signature_offset = 0)
-	{
-		return std::make_unique<SignatureOffset>(std::move(data_array), signature_offset);
-	}
 
-	using HeaderArray = std::vector<SignatureOffset::Ptr>;
+	using HeaderArray = std::vector<SignatureOffset>;
+	using HeaderArrayPtr = std::vector<SignatureOffset::Ptr>;
 
 
 	// RAWFile
@@ -109,7 +91,7 @@ namespace RAW
 		std::string algorithType_;
 		std::string category_;
 		path_string extension_;
-		SignatureArray footers_;
+		FotersArray footers_;
 		uint32_t footerTailEndSize_ = 0;
 		uint64_t maxFileSize_ = 0;
 		uint64_t minFileSize_ = 0;
@@ -117,7 +99,7 @@ namespace RAW
 		uint32_t search_block_ = 0;
 		bool bValid = false;
 	public:
-		using Ptr = std::shared_ptr<FileStruct>;
+		using Ptr = std::unique_ptr<FileStruct>;
 		FileStruct(const std::string & formatName)
 			: formatName_(formatName)
 		{
@@ -125,7 +107,7 @@ namespace RAW
 		}
 		bool isValid()
 		{
-			return bValid;
+			return !headers_.empty();
 		}
 		std::string getName() const
 		{
@@ -143,48 +125,34 @@ namespace RAW
 		{
 			return headers_.size();
 		}
-		//void addSignature(ByteArray data, uint32_t size, uint32_t header_offset)
-		//{
-		//	addSignature(makeDataArray(data, size), header_offset);
-		//}
 
-		void addSignature(DataArray::Ptr data_array, uint32_t offset)
+		void addHeader(const DataArray & dataArray, uint32_t offset)
 		{
 			auto iter = findByOffset(offset);
 
 			if (iter != headers_.end())
 			{
-				if (!(*iter)->find(data_array))
-					(*iter)->addSignature(std::move(data_array));
+				if (!(*iter)->find(dataArray))
+					(*iter).addSignature(dataArray);
 				else
 				{
 					printf("This signature is already present\r\n");
 				}
 			}
 			else
-				headers_.emplace_back(makeSignatureOffset(std::move(data_array), offset));
-			bValid = true;
-		}
-		void addSignature(SignatureOffset::Ptr signAndOffset)
-		{
-			headers_.emplace_back(std::move(signAndOffset));
-			bValid = true;
-		}
+				headers_.emplace_back(SignatureOffset(dataArray, offset));
 
-		void addFooter( DataArray::Ptr footer)
-		{
-			footers_.emplace_back(std::move(footer));
-			//footer_ = std::move(footer);
 		}
-		//void addFooter(ByteArray data, uint32_t size)
-		//{
-		//	footers_.emplace_back(makeDataArray(data, size));
-		//}
-		//void addFooter(const uint8_t const_data[], uint32_t size)
-		//{
-		//	footers_.emplace_back(makeDataArray(const_data, size));
-		//}
-		const SignatureArray & getFooters() const
+		void addHeader(const SignatureOffset & signAndOffset)
+		{
+			headers_.emplace_back(signAndOffset);
+		}
+		void addFooter( const DataArray & footer)
+		{
+			footers_.emplace_back(footer);
+
+		}
+		const FotersArray& getFooters() const
 		{
 			return footers_;
 		}
@@ -220,9 +188,9 @@ namespace RAW
 
 		bool compareWithAllHeaders(ByteArray data, uint32_t size) const
 		{
-			for (auto & theHeader : headers_)
+			for (auto &theHeader : headers_)
 			{
-				if (!theHeader->FindSignature(data, size))
+				if (!theHeader.FindSignature(data, size))
 					return false;
 			}
 			return true;
