@@ -165,6 +165,7 @@
     <ClInclude Include="..\include\raw\djvuraw.h" />
     <ClInclude Include="..\include\raw\ext4_raw.h" />
     <ClInclude Include="..\include\raw\factories.h" />
+    <ClInclude Include="..\include\raw\filestruct.h" />
     <ClInclude Include="..\include\raw\GoPro.h" />
     <ClInclude Include="..\include\raw\oleraw.h" />
     <ClInclude Include="..\include\raw\prproj.h" />

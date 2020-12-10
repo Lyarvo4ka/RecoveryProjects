@@ -90,9 +90,9 @@ namespace MLVKeywords
 	constexpr auto mlv_array_size_v2 = std::size(mlv_array);
 	const int mlv_array_size = SIZEOF_ARRAY(mlv_array);
 
-	constexpr std::array mlv_array_v2 = { "MLVI", "VIDF", "AUDF", "RAWI", "WAVI", "EXPO", "LENS", "RTCI",
-										  "IDNT", "XREF", "INFO", "DISO", "NULL", "ELVL", "WBAL", "STYL",
-										  "MARK", "SUBC", "SUBI", "COLP", "DARK", "VIGN", "VERS", "DEBG" };
+	//constexpr std::array mlv_array_v2 = { "MLVI", "VIDF", "AUDF", "RAWI", "WAVI", "EXPO", "LENS", "RTCI",
+	//									  "IDNT", "XREF", "INFO", "DISO", "NULL", "ELVL", "WBAL", "STYL",
+	//									  "MARK", "SUBC", "SUBI", "COLP", "DARK", "VIGN", "VERS", "DEBG" };
 
 
 };

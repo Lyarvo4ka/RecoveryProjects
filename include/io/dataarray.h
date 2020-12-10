@@ -19,11 +19,7 @@ namespace IO
 			:data_(size)
 		{
 		}
-		DataArray(ByteArray data , const uint32_t size)
-			:data_(size)
-		{
-			// NOT WORKING
-		}
+
 		~DataArray()
 		{
 			clear();
