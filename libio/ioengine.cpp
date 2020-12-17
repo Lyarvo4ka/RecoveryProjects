@@ -80,8 +80,8 @@ namespace IO
 	}
 	IOErrorsType IOEngine::Create(const path_string & path)
 	{
-	//	auto new_string = addPrefix(path);
-		hDevice_ = ::CreateFile(path.c_str(),
+		auto new_string = addPrefix(path);
+		hDevice_ = ::CreateFile(new_string.c_str(),
 			GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			NULL,

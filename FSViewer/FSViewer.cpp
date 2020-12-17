@@ -20,9 +20,9 @@ using namespace FileSystem;
 #include "raw/StandartRaw.h"
 #include "JsonReader/JsonReader.h"
 
-#include <experimental/filesystem>
+#include <filesystem>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 
 FSViewer::FSViewer(QWidget *parent)
@@ -33,7 +33,7 @@ FSViewer::FSViewer(QWidget *parent)
 	RecoverDialog_ = new RecoverDialog(this, &RecoverUi_);
 	RecoverUi_.setupUi(RecoverDialog_);
 
-	source_file_ = IO::makeFilePtr(LR"(z:\46659\46659.img)");
+	source_file_ = IO::makeFilePtr(LR"(e:\FLESHKA_DHL\img.bin)");
 	source_file_->OpenRead();
 	
 	SectorReader sector_reader(new CSectorReader(source_file_, 512));
@@ -166,8 +166,8 @@ void FSViewer::RecoverRAWFile(const QString& folder_path, const FileSystem::File
 		}
 
 		RAW::HeaderBase::Ptr headerBase = std::make_shared<RAW::HeaderBase>();
-		for (auto theFileStruct : listFileStruct)
-			headerBase->addFileFormat(toFileStruct(theFileStruct));
+		//for (auto theFileStruct : listFileStruct)
+		//	headerBase->addFileFormat(toFileStruct(theFileStruct));
 
 		auto algirthmName = getAlgorithmNameFromExtension(extension);
 		if (algirthmName.empty())
@@ -213,27 +213,29 @@ void recoverWITH_FAT_table(const FileSystem::FileEntry& file_entry ,QFileInfo & 
 {
 	DWORD bytesRead = 0;
 	file_entry->OpenFile();
-	//readSizeUsingTable
-	auto fat_fs = std::dynamic_pointer_cast<FatFileSystem>(abstract_fs);
-	if (fat_fs)
+	if (file_entry->size() == 4096 || file_entry->size() == 8192)
 	{
-		auto file_size = fat_fs->readSizeUsingTable(file_entry);
-		if (file_size > 0)
+		//readSizeUsingTable
+		auto fat_fs = std::dynamic_pointer_cast<FatFileSystem>(abstract_fs);
+		if (fat_fs)
 		{
-			BYTE* read_data = new BYTE[file_size];
-
-			if (abstract_fs->ReadFile(file_entry, read_data, file_entry->size(), bytesRead))
+			auto file_size = fat_fs->readSizeUsingTable(file_entry);
+			if (file_size > 0)
 			{
-				qDebug("Read ok.");
+				BYTE* read_data = new BYTE[file_size];
+
+				if (abstract_fs->ReadFile(file_entry, read_data, file_entry->size(), bytesRead))
+				{
+					qDebug("Read ok.");
+				}
+				QString filePath(fileInfo.absoluteFilePath());
+				IO::File target_file(fileInfo.absoluteFilePath().toStdWString());
+				target_file.OpenCreate();
+				target_file.WriteData(read_data, bytesRead);
+				delete read_data;
 			}
-			QString filePath(fileInfo.absoluteFilePath());
-			IO::File target_file(fileInfo.absoluteFilePath().toStdWString());
-			target_file.OpenCreate();
-			target_file.WriteData(read_data, bytesRead);
-			delete read_data;
 		}
 	}
-
 }
 
 void FSViewer::RecoverFile(const QString & folder_path, const FileSystem::FileEntry & file_entry)
@@ -251,8 +253,8 @@ void FSViewer::RecoverFile(const QString & folder_path, const FileSystem::FileEn
 
 	if ((file_entry->size() == 0) || (file_entry->size() == 4096 || file_entry->size() == 8192))
 	{
-		//recoverWITH_FAT_table(file_entry, fileInfo, abstract_fs);
-		RecoverRAWFile(folder_path, file_entry);
+		recoverWITH_FAT_table(file_entry, fileInfo, abstract_fs);
+		//RecoverRAWFile(folder_path, file_entry);
 	}
 /*
 	QDir currentDir(folder_path);

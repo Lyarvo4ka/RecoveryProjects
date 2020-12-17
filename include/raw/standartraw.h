@@ -26,9 +26,9 @@ namespace RAW
 		{
 			for (const auto & footer : footers_array)
 			{
-				auto data_array = std::make_unique<IO::DataArray>( footer->size());
-				memcpy(data_array->data(), footer->data(), footer->size());
-				footers_.emplace_back(std::move(data_array));
+				DataArray data_array (footer.size());
+				memcpy(data_array.data(), footer.data(), footer.size());
+				footers_.emplace_back(data_array);
 			}
 		}
 		void setTailSize(const uint32_t tailSize)
@@ -112,15 +112,15 @@ namespace RAW
 				for (const auto& footer : footers_)
 				{
 					auto tmp_start = footer_start;
-					if (findFooter(*buffer.get(), bytes_read, *footer.get(), footer_pos, tmp_start))
-					{
-						uint32_t sizeToWrite = footer_pos + footer->size() + tailSize_;
-						target_file.setPosition(written_size);
-						bytes_written = target_file.WriteData(buffer->data(), sizeToWrite);
-						written_size += bytes_written;
-						bFoundFooter_ = true;
-						break;
-					}
+					//if (findFooter(*buffer.get(), bytes_read, *footer.get(), footer_pos, tmp_start))
+					//{
+					//	uint32_t sizeToWrite = footer_pos + footer->size() + tailSize_;
+					//	target_file.setPosition(written_size);
+					//	bytes_written = target_file.WriteData(buffer->data(), sizeToWrite);
+					//	written_size += bytes_written;
+					//	bFoundFooter_ = true;
+					//	break;
+					//}
 				}
 				if (bFoundFooter_)
 					break;

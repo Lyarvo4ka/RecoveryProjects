@@ -14,7 +14,7 @@ class TableIndex;
 class TreeIndex;
 
 #include "FileSystem/AbstractFS.h"
-#include "io/constants.h"
+#include "io/file.h"
 
 
 #include "ui_RecoverDialog.h"

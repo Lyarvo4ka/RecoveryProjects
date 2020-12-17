@@ -220,13 +220,14 @@ void ReadJsonFile(const QString & jsonFileName , QList<JsonFileStruct> & parsedR
 	auto byte_data = file.readAll();
 	ReadJsonFIle(byte_data, parsedResult);
 }
-IO::DataArray::Ptr JsonToDataArray(SignatureHandle signHandle)
+IO::DataArray JsonToDataArray(SignatureHandle signHandle)
 {
 	IO::DataArray::Ptr data_array = nullptr;
 	if (signHandle.bHex)
 	{
 		if (signHandle.value_string.length() % 2 != 0)
-			return nullptr;
+			return IO::DataArray(0);
+
 		auto byte_array = QByteArray::fromHex(signHandle.value_string.toLatin1());
 		data_array = IO::makeDataArray(byte_array.size());
 		memcpy(data_array->data(), byte_array.data(), data_array->size());
@@ -237,16 +238,16 @@ IO::DataArray::Ptr JsonToDataArray(SignatureHandle signHandle)
 		data_array = IO::makeDataArray(signHandle.value_string.length());
 		memcpy(data_array->data(), signHandle.value_string.toStdString().c_str(), data_array->size());
 	}
-	return data_array;
+	return *data_array.get();
 }
 
-RAW::FileStruct::Ptr toFileStruct(const JsonFileStruct & jsonFileStruct)
+std::shared_ptr<RAW::FileStruct> toFileStruct(const JsonFileStruct & jsonFileStruct)
 {
-	auto file_struct = RAW::makeFileStruct(jsonFileStruct.name.toStdString());
+	auto file_struct = std::make_shared<RAW::FileStruct>(jsonFileStruct.name.toStdString());
 	for (auto theHeader : jsonFileStruct.headers)
 	{
 		auto data_array = JsonToDataArray(theHeader);
-		file_struct->addSignature(std::move(data_array), theHeader.value_int);
+		file_struct->addHeader(data_array, theHeader.value_int);
 	}
 
 	if (!jsonFileStruct.footer.isEmpty())

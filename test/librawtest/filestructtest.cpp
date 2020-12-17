@@ -29,7 +29,7 @@ namespace RAWTest
 		memset(testData.data(), 0xFF, testData.size());
 		EXPECT_FALSE(signOffset.findSignature(testData.data(), testData.size()));
 	}
-	TEST(SignatureOffsetSuit, addSignatureDataArrayInvalidTest)
+	TEST(SignatureOffsetSuit, addSignatureInvalidDataArrayTest)
 	{
 		IO::DataArray invalid_data(0);
 		RAW::SignatureOffset signOffset;
