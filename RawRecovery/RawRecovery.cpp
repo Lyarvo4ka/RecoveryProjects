@@ -41,8 +41,8 @@ RawRecovery::RawRecovery(QWidget *parent)
 
 
 	auto folder_path = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
-	SignatureReader singReader(folder_path);
-	singReader.loadAllSignatures();
+	SignatureReader singReader;
+	singReader.loadAllSignatures(folder_path, L".json");
 	auto listFileStruct = singReader.getAllSignatures();
 
 	auto sign_root = new SignatureItem(std::make_unique<CategoryFolderAdapter>());
@@ -58,7 +58,7 @@ RawRecovery::RawRecovery(QWidget *parent)
 			parentItem = new SignatureItem(std::move(categoryAdapter), sign_root);
 			sign_root->appendChild(parentItem);
 		}
-		auto sign_adapter = std::make_unique<SignatureItemAdapter>(toFileStruct(theFileStruct));
+		auto sign_adapter = std::make_unique<SignatureItemAdapter>(*toFileStruct(theFileStruct));
 		SignatureItem* sign_item = new SignatureItem(std::move(sign_adapter), parentItem);
 		parentItem->appendChild(sign_item);
 			

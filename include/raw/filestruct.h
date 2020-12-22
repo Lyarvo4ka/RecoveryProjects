@@ -145,10 +145,7 @@ namespace RAW
 			else
 				headers_.emplace_back(SignatureOffset(dataArray, offset));
 		}
-		void addHeader(const SignatureOffset& signAndOffset)
-		{
-			headers_.emplace_back(signAndOffset);
-		}
+
 		void addFooter(const DataArray& footer)
 		{
 			footers_.emplace_back(footer);

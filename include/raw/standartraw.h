@@ -112,15 +112,15 @@ namespace RAW
 				for (const auto& footer : footers_)
 				{
 					auto tmp_start = footer_start;
-					//if (findFooter(*buffer.get(), bytes_read, *footer.get(), footer_pos, tmp_start))
-					//{
-					//	uint32_t sizeToWrite = footer_pos + footer->size() + tailSize_;
-					//	target_file.setPosition(written_size);
-					//	bytes_written = target_file.WriteData(buffer->data(), sizeToWrite);
-					//	written_size += bytes_written;
-					//	bFoundFooter_ = true;
-					//	break;
-					//}
+					if (findFooter(*buffer.get(), bytes_read, footer, footer_pos, tmp_start))
+					{
+						uint32_t sizeToWrite = footer_pos + footer.size() + tailSize_;
+						target_file.setPosition(written_size);
+						bytes_written = target_file.WriteData(buffer->data(), sizeToWrite);
+						written_size += bytes_written;
+						bFoundFooter_ = true;
+						break;
+					}
 				}
 				if (bFoundFooter_)
 					break;

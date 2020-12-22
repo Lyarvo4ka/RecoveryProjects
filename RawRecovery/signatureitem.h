@@ -50,17 +50,17 @@ public:
 class SignatureItemAdapter
 	: public SignatureAdapter
 {
-	RAW::FileStruct::Ptr file_struct_;
+	RAW::FileStruct file_struct_;
 public:
-	SignatureItemAdapter(RAW::FileStruct::Ptr file_struct)
+	SignatureItemAdapter(const RAW::FileStruct & file_struct)
 		: file_struct_(file_struct)
 	{
 		signItemType_ = (SignatureItemType::kSignatureItem);
-		setName(QString::fromLocal8Bit(file_struct->getName().c_str()));
+		setName(QString::fromLocal8Bit(file_struct.getName().c_str()));
 	}
 	RAW::FileStruct::Ptr createFileStruct() override
 	{
-		return file_struct_;
+		return file_struct_.clone();
 	}
 };
 
