@@ -178,6 +178,7 @@
     <ClInclude Include="..\include\io\onec.h" />
     <ClInclude Include="..\include\io\physicaldrive.h" />
     <ClInclude Include="..\include\io\sparsebundle.h" />
+    <ClInclude Include="..\include\io\uniqueid.h" />
     <ClInclude Include="..\include\io\utility.h" />
     <ClInclude Include="..\include\io\XorAnalyzer.h" />
     <ClInclude Include="framework.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="error.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="ioengine.cpp" />
+    <ClCompile Include="uniqueid.cpp" />
     <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,4 +1,5 @@
 #include "io/diskdevice.h"
+#include "io/uniqueid.h"
 
 namespace IO
 {
@@ -12,6 +13,8 @@ namespace IO
 		io_engine_->setTranserSize(physical_drive_->getTransferLength());
 		deviceInfo_.deviceTypeName = disk_txt;
 		deviceInfo_.name = physical_drive->getDriveName();
+		
+		deviceInfo_.deviceID = IdGenerator::getGenerator()->generateID();
 	}
 	bool DiskDevice::Open(OpenMode open_mode)
 	{

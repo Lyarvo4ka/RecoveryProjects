@@ -66,10 +66,6 @@ public:
 		itemData_.fs = "#" + QString::number(physical_drive_->getDriveNumber());
 		itemData_.start = 0;
 		itemData_.size = physical_drive_->getSize();
-
-		int k = 0;
-		k = 1;
-
 	}
 	IO::IODevicePtr createDevice() override
 	{

@@ -38,8 +38,6 @@ RawRecovery::RawRecovery(QWidget *parent)
 
 	connect(ui.treeView, &QWidget::customContextMenuRequested, this, &RawRecovery::OnDeviceContextMenu);
 
-
-
 	auto folder_path = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
 	SignatureReader singReader;
 	singReader.loadAllSignatures(folder_path, L".json");
@@ -64,12 +62,8 @@ RawRecovery::RawRecovery(QWidget *parent)
 			
 	}
 
-
 	auto pSignatureTreeModel = new SignatureTreeModel(sign_root, this);
 	ui.signatureTree->setModel(pSignatureTreeModel);
-
-	//ui.tabWidget.
-
 }
 
 void RawRecovery::OnDeviceContextMenu(const QPoint& point_pos)
@@ -88,7 +82,7 @@ void RawRecovery::OnDeviceContextMenu(const QPoint& point_pos)
 				{
 					QMessageBox msgBox;
 					auto devInfo = disk_device->getDeviceInfo();
-					QString msg_string = "Selected " + QString::fromWCharArray(devInfo.name.c_str());
+					QString msg_string = "Selected " + QString::fromWCharArray(devInfo.name.c_str()) + "ID = " + QString::number(devInfo.deviceID);
 					msgBox.setText(msg_string);
 					msgBox.exec();
 				}

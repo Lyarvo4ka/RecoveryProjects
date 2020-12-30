@@ -25,7 +25,7 @@ namespace IO
 	{
 		std::string deviceTypeName;
 		std::wstring name;
-
+		uint32_t deviceID;
 
 	};
 
