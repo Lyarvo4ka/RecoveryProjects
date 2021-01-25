@@ -603,7 +603,8 @@ void join2FilesWithMarker(const IO::path_string& fileName1, const IO::path_strin
 
 	uint32_t byteToRead = 0;
 
-	uint32_t marker = 0xADDEADDE;
+	//uint32_t marker = 0xADDEADDE;
+	uint32_t marker = 0x62616420;
 
 
 	while (offset < file1.Size())
@@ -911,7 +912,13 @@ int wmain(int argc, wchar_t* argv[])
 	//testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
 	//XorAnalyzer(argc, argv);
 
-	IO::RestoreRootObject();
+	IO::path_string file1 = LR"(y:\49094\Mark\OPSURT_DB\OPSURT_DB_2.0.11.FDB)";
+	IO::path_string file2 = LR"(y:\49094\Mark\copy.FDB)";
+	IO::path_string target = LR"(y:\49094\Mark\result)";
+
+	join2FilesWithMarker(file1 , file2 , target);
+
+	//IO::RestoreRootObject();
 	//if (argc == 2)
 	//{
 	//	auto folderPath = argv[1];
