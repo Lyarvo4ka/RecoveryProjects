@@ -17,7 +17,10 @@ namespace IO
 
 	int chunksPrerBlock(uint64_t block_size)
 	{
-		return (int)(block_size / BS::GB);
+		int chunks = (int)(block_size / BS::GB);
+		if (chunks == 0)
+			++chunks;
+		return chunks;
 	}
 	class ByteCount
 	{

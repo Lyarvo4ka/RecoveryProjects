@@ -912,11 +912,11 @@ int wmain(int argc, wchar_t* argv[])
 	//testIsFileQtHeader(LR"(y:\48095\[FAT32]\FOUND.001\)");
 	//XorAnalyzer(argc, argv);
 
-	IO::path_string file1 = LR"(y:\49094\Mark\OPSURT_DB\OPSURT_DB_2.0.11.FDB)";
-	IO::path_string file2 = LR"(y:\49094\Mark\copy.FDB)";
-	IO::path_string target = LR"(y:\49094\Mark\result)";
+	//IO::path_string file1 = LR"(y:\49094\Mark\OPSURT_DB\OPSURT_DB_2.0.11.FDB)";
+	//IO::path_string file2 = LR"(y:\49094\Mark\copy.FDB)";
+	//IO::path_string target = LR"(y:\49094\Mark\result)";
 
-	join2FilesWithMarker(file1 , file2 , target);
+	//join2FilesWithMarker(file1 , file2 , target);
 
 	//IO::RestoreRootObject();
 	//if (argc == 2)
@@ -925,17 +925,17 @@ int wmain(int argc, wchar_t* argv[])
 	//	testHeaderToBadSector(folderPath);
 	//}
 
-	//if (argc == 4)
-	//{
-	//	auto dumpFilename = argv[1];
-	//	auto targetFilename = argv[2];
-	//	uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
+	if (argc == 4)
+	{
+		auto dumpFilename = argv[1];
+		auto targetFilename = argv[2];
+		uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
 
-	//	IO::XorAnalyzer xor_analyzer(dumpFilename);
-	//	xor_analyzer.Analize(targetFilename, block_size);
-	//}
-	//else
-	//	std::cout << "Wrong params";
+		IO::XorAnalyzer xor_analyzer(dumpFilename);
+		xor_analyzer.Analize(targetFilename, block_size);
+	}
+	else
+		std::cout << "Wrong params";
 	//auto block = xor_analyzer.generateBlock(37748736);
 
 	//IO::path_string filePath = LR"(d:\incoming\XOR_finder\test_file)";
