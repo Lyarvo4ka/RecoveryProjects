@@ -120,6 +120,8 @@ public:
 	{
 		IO::File file(filename);
 		file.OpenRead();
+		if (file.Size() == 0)
+			return false;
 
 		// Here could discover size to test
 

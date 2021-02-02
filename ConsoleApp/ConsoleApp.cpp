@@ -320,12 +320,51 @@ void add_service(const IO::path_string& src_filename, const IO::path_string& dst
 		dst.WriteData(target.data(), target.size());
 		cur_offset += source.size();
 	}
+}
 
+void insertXorByPattern(const IO::path_string& src_filename,  const IO::path_string& target_filename)
+{
 
+	IO::File src_file(src_filename);
+	src_file.OpenRead();
 
+	IO::File target_file(target_filename);
+	target_file.OpenCreate();
 
+	const uint32_t target_page_size = 8640;
+	const uint32_t num_pages = 128;
+	const uint32_t data_size = 1024;
+	const uint32_t num_pagedata = 8;
+	constexpr uint32_t pagedata_size = data_size * num_pagedata;
+	constexpr uint32_t xor_block_size = data_size * num_pagedata * num_pages;
+	constexpr uint32_t new_xor_block_size = target_page_size * num_pages;
+
+	uint64_t src_offset = 0;
+
+	IO::DataArray src_xor(xor_block_size);
+	src_file.ReadData(src_xor);
+
+	IO::DataArray dst_xor(new_xor_block_size);
+
+	for (uint32_t iPage = 0; iPage < num_pages; ++iPage)
+	{
+		uint32_t dst_offset = 24;
+		uint32_t tmp_dst_offset = dst_offset + iPage * target_page_size;
+		memcpy(dst_xor.data() + tmp_dst_offset, src_xor.data() + src_offset , data_size);
+
+		for (uint32_t i = 1; i < num_pagedata; ++i)
+		{
+			tmp_dst_offset += data_size + 52;
+			src_offset += data_size;
+			memcpy(dst_xor.data() + tmp_dst_offset, src_xor.data() + src_offset, data_size);
+		}
+	}
+	
+	target_file.WriteData(dst_xor.data(), dst_xor.size());
+	target_file.Close();
 
 }
+
 
 #include "raw/GoPro.h"
 #include "io/dbf.h"
@@ -925,17 +964,22 @@ int wmain(int argc, wchar_t* argv[])
 	//	testHeaderToBadSector(folderPath);
 	//}
 
-	if (argc == 4)
-	{
-		auto dumpFilename = argv[1];
-		auto targetFilename = argv[2];
-		uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
+	//if (argc == 4)
+	//{
+	//	auto dumpFilename = argv[1];
+	//	auto targetFilename = argv[2];
+	//	uint64_t block_size = boost::lexical_cast<DWORD>(argv[3]);
 
-		IO::XorAnalyzer xor_analyzer(dumpFilename);
-		xor_analyzer.Analize(targetFilename, block_size);
-	}
-	else
-		std::cout << "Wrong params";
+	//	IO::XorAnalyzer xor_analyzer(dumpFilename);
+	//	xor_analyzer.Analize(targetFilename, block_size);
+	//}
+	//else
+	//	std::cout << "Wrong params";
+
+	IO::path_string src_xor = LR"(e:\test\xor_SA.test)";
+	IO::path_string dst_xor = LR"(e:\test\xor_result)";
+	insertXorByPattern(src_xor, dst_xor);
+
 	//auto block = xor_analyzer.generateBlock(37748736);
 
 	//IO::path_string filePath = LR"(d:\incoming\XOR_finder\test_file)";

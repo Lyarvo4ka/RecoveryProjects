@@ -102,7 +102,7 @@ inline void ReadSignatures(SignatureReader & signatureReader, RAW::HeaderBase::P
 		signatureReader.loadAllSignatures(folder , L".json");
 		for (auto json_signature : signatureReader.getAllSignatures())
 		{
-			headeBase->addFileFormat(toFileStruct(json_signature));
+			headeBase->addFileFormat(std::move(toFileStruct(json_signature)));
 		}
 	}
 }
@@ -184,9 +184,10 @@ int main(int argc, char* argv[])
 
 ////////////////
 
-	IO::path_string folderToTest = LR"(d:\test_folder\!SignatureTest\)";
+	IO::path_string folderToTest = LR"(f:\Root\)";
 
 	IO::Finder finder;
+	finder.add_extension(L".mp3");
 	finder.FindFiles(folderToTest);
 
 	SignatureTester signTester;

@@ -241,9 +241,9 @@ IO::DataArray JsonToDataArray(SignatureHandle signHandle)
 	return *data_array.get();
 }
 
-std::shared_ptr<RAW::FileStruct> toFileStruct(const JsonFileStruct & jsonFileStruct)
+std::unique_ptr<RAW::FileStruct> toFileStruct(const JsonFileStruct & jsonFileStruct)
 {
-	auto file_struct = std::make_shared<RAW::FileStruct>(jsonFileStruct.name.toStdString());
+	auto file_struct = std::make_unique<RAW::FileStruct>(jsonFileStruct.name.toStdString());
 	for (auto theHeader : jsonFileStruct.headers)
 	{
 		auto data_array = JsonToDataArray(theHeader);

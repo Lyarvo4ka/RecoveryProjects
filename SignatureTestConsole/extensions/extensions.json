@@ -7,6 +7,7 @@
   ".ppt": [ "msoffice2003", "msoffice2007" ],
 
   ".zip": [ "zip" ],
-  ".jpg": ["jpg" , "png"]
+  ".jpg": ["jpg" , "png"],
+  ".mp3": ["mp3"]
       
 }
