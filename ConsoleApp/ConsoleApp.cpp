@@ -976,9 +976,11 @@ int wmain(int argc, wchar_t* argv[])
 	//else
 	//	std::cout << "Wrong params";
 
-	IO::path_string src_xor = LR"(e:\test\xor_SA.test)";
-	IO::path_string dst_xor = LR"(e:\test\xor_result)";
-	insertXorByPattern(src_xor, dst_xor);
+	//IO::RestoreRootObject();
+
+	//IO::path_string src_xor = LR"(e:\test\xor_SA.test)";
+	//IO::path_string dst_xor = LR"(e:\test\xor_result)";
+	//insertXorByPattern(src_xor, dst_xor);
 
 	//auto block = xor_analyzer.generateBlock(37748736);
 

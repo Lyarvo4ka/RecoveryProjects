@@ -42,7 +42,7 @@ class SignatureBase
 public:
 	void add(const JsonFileStruct & jsonFileStruct)
 	{
-		auto fileStruct = toFileStruct(jsonFileStruct);
+		auto fileStruct = toUniqueFileStruct(jsonFileStruct);
 		headerBase_.emplace(jsonFileStruct.name.toStdString(), *fileStruct);
 	}
 	RAW::FileStruct find( const FormatName & formatName)

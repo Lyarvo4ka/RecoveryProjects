@@ -242,7 +242,7 @@ void initFactoryMananger(RAW::RawFactoryManager & factory_manager)
 	//factory_manager.Register("Canon4FileFragmentRaw", std::make_unique<Canon4FileFragmentRawFactory>());
 	//Canon4FileFragmentRaw
 	//factory_manager.Register("7z", std::make_unique<IO::Raw7zFactory>());
-	factory_manager.Register("prproj" , std::make_unique<RAW::RawAdobePremireFactory>());
+	//factory_manager.Register("prproj" , std::make_unique<RAW::RawAdobePremireFactory>());
 	//initVideoFactoryManager(factory_manager);
 
 	//factory_manager.Register("flp", std::make_unique<IO::RawFLPFactory>());
@@ -376,7 +376,8 @@ int main(int argc, char *argv[])
 
 		RAW::HeaderBase::Ptr headerBase = std::make_shared<RAW::HeaderBase>();
 		for (auto theFileStruct : listFileStruct)
-			headerBase->addFileFormat(toFileStruct(theFileStruct));
+			
+			headerBase->addFileFormat(toUniqueFileStruct(theFileStruct));
 
 		RAW::RawFactoryManager factory_manager;
 		initFactoryMananger(factory_manager);

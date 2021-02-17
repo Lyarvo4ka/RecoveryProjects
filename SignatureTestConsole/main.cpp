@@ -102,22 +102,20 @@ inline void ReadSignatures(SignatureReader & signatureReader, RAW::HeaderBase::P
 		signatureReader.loadAllSignatures(folder , L".json");
 		for (auto json_signature : signatureReader.getAllSignatures())
 		{
-			headeBase->addFileFormat(std::move(toFileStruct(json_signature)));
+			headeBase->addFileFormat(std::move(toUniqueFileStruct(json_signature)));
 		}
 	}
 }
 
 class ExtensionExtractor
 {
-	const IO::path_string signaturePath_;
 	RAW::HeaderBase::Ptr headerBase_ = std::make_shared< RAW::HeaderBase>();
-	SignatureReader signatureReader;
 public:
-	ExtensionExtractor(const IO::path_string signaturePath)
-		:signaturePath_(signaturePath)
-	{
-	}
 
+	void setHeaderBase(RAW::HeaderBase::Ptr headerBase)
+	{
+		headerBase_ = headerBase;
+	}
 	void extract_extensions(const IO::path_list& listFiles)
 	{
 		const uint32_t DefaultReadSize = 33280;
@@ -146,16 +144,37 @@ public:
 };
 
 
-
-
-
-
 #include "signatureTester.h"
 
-int main(int argc, char* argv[])
+int extract_extension()
 {
-	QCoreApplication a(argc, argv);
 
+	ExtensionExtractor extExtractor;
+
+	IO::path_string singFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
+	SignatureReader signReader;
+	signReader.loadAllSignatures(singFolder, L".json");
+
+	auto headerBase = std::make_shared<RAW::HeaderBase>();
+	for (const auto& jsonFileStruct : signReader.getAllSignatures())
+	{
+		headerBase->addFileFormat(toUniqueFileStruct(jsonFileStruct));
+	}
+
+	extExtractor.setHeaderBase(headerBase);
+
+	IO::Finder finder;
+	finder.FindFiles(LR"(e:\49262\FOUND.000\)");
+	finder.add_extension(L"*.chk");
+	auto all_files = finder.getFiles();
+	//auto listFiles = getFilesWithoutExtension(all_files);
+
+	extExtractor.extract_extensions(all_files);
+	return 0;
+}
+
+int test_signatures()
+{
 	////////////////////
 	IO::path_string singFolder = LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)";
 	SignatureReader signReader;
@@ -176,15 +195,15 @@ int main(int argc, char* argv[])
 		}
 		extBase.add(jsonExtension.extensionName.toStdString(), listFormatName);
 	}
-	
+
 	SignatureBase signBase;
 	for (auto jsonFileStruct : signReader.getAllSignatures())
 		signBase.add(jsonFileStruct);
 
 
-////////////////
+	////////////////
 
-	IO::path_string folderToTest = LR"(f:\Root\)";
+	IO::path_string folderToTest = LR"(e:\49262\FOUND.000\)";
 
 	IO::Finder finder;
 	finder.add_extension(L".mp3");
@@ -201,19 +220,23 @@ int main(int argc, char* argv[])
 	}
 
 
-	
 
 
 
 
-	//ExtensionExtractor extExtractor;
-	//extExtractor.loadAllSignatures(LR"(d:\develop\RecoveryProjects\SignatureTestConsole\signatures\)");
 
-	//IO::Finder finder;
-	//finder.FindFiles(LR"(f:\Root\!NoName\0\)");
-	//auto listFiles = getFilesWithoutExtension(finder.getFiles());
+	return 0;
+}
 
-	//extExtractor.extract_extensions(listFiles);
+
+
+
+
+int main(int argc, char* argv[])
+{
+	QCoreApplication a(argc, argv);
+
+	extract_extension();
 
 
 	qDebug() << "Finished.";

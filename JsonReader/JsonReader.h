@@ -180,13 +180,13 @@ void ReadJsonFIle(const QByteArray & byte_data, QList<JsonFileStruct> & parsedRe
 			auto footer_value = json_object.value(footer_txt);
 			if (footer_value.isObject())
 			{
-				SignatureHandle footerData;
-				ReadFooter(footer_value.toObject(), footerData);
-				jsonFileStruct.footer.append(footerData);
+			SignatureHandle footerData;
+			ReadFooter(footer_value.toObject(), footerData);
+			jsonFileStruct.footer.append(footerData);
 			}
 			else if (footer_value.isArray())
 			{
-				ReadFooters(footer_value.toArray(), jsonFileStruct.footer);
+			ReadFooters(footer_value.toArray(), jsonFileStruct.footer);
 			}
 
 			auto maxsize_value = json_object.value(maxfilesize_txt);
@@ -213,7 +213,7 @@ void ReadJsonFIle(const QByteArray & byte_data, QList<JsonFileStruct> & parsedRe
 	}
 
 }
-void ReadJsonFile(const QString & jsonFileName , QList<JsonFileStruct> & parsedResult)
+void ReadJsonFile(const QString& jsonFileName, QList<JsonFileStruct>& parsedResult)
 {
 	QFile file(jsonFileName);
 	file.open(QIODevice::ReadOnly);
@@ -241,13 +241,14 @@ IO::DataArray JsonToDataArray(SignatureHandle signHandle)
 	return *data_array.get();
 }
 
-std::unique_ptr<RAW::FileStruct> toFileStruct(const JsonFileStruct & jsonFileStruct)
+
+RAW::FileStruct* toRAWFileStruct(const JsonFileStruct& jsonFileStruct)
 {
-	auto file_struct = std::make_unique<RAW::FileStruct>(jsonFileStruct.name.toStdString());
+	auto raw_file_struct = new RAW::FileStruct(jsonFileStruct.name.toStdString());
 	for (auto theHeader : jsonFileStruct.headers)
 	{
 		auto data_array = JsonToDataArray(theHeader);
-		file_struct->addHeader(data_array, theHeader.value_int);
+		raw_file_struct->addHeader(data_array, theHeader.value_int);
 	}
 
 	if (!jsonFileStruct.footer.isEmpty())
@@ -255,16 +256,31 @@ std::unique_ptr<RAW::FileStruct> toFileStruct(const JsonFileStruct & jsonFileStr
 		for (auto& theFooter : jsonFileStruct.footer)
 		{
 			auto data_array = JsonToDataArray(theFooter);
-			file_struct->addFooter(std::move(data_array));
-			file_struct->setFooterTailEndSize(theFooter.value_int);
-			file_struct->setFooterSearchOffset(theFooter.offset, theFooter.search_block);
+			raw_file_struct->addFooter(std::move(data_array));
+			raw_file_struct->setFooterTailEndSize(theFooter.value_int);
+			raw_file_struct->setFooterSearchOffset(theFooter.offset, theFooter.search_block);
 		}
 
 	}
-	file_struct->setAlgorithmName(jsonFileStruct.algorithmName.toStdString());
-	file_struct->setExtension(jsonFileStruct.extension.toStdWString());
-	file_struct->setMaxFileSize(jsonFileStruct.maxfilesize);
-	file_struct->setMinFileSize(jsonFileStruct.minfilesize);
-	file_struct->setAlgorithType(jsonFileStruct.algorithType.toStdString());
+	raw_file_struct->setAlgorithmName(jsonFileStruct.algorithmName.toStdString());
+	raw_file_struct->setExtension(jsonFileStruct.extension.toStdWString());
+	raw_file_struct->setMaxFileSize(jsonFileStruct.maxfilesize);
+	raw_file_struct->setMinFileSize(jsonFileStruct.minfilesize);
+	raw_file_struct->setAlgorithType(jsonFileStruct.algorithType.toStdString());
+	return raw_file_struct;
+}
+
+
+std::unique_ptr<RAW::FileStruct> toUniqueFileStruct(const JsonFileStruct& jsonFileStruct)
+{
+	auto raw_file_struct = toRAWFileStruct(jsonFileStruct);
+	auto file_struct = std::unique_ptr<RAW::FileStruct>(raw_file_struct);
+	return file_struct;
+}
+
+std::shared_ptr<RAW::FileStruct> toSharedFileStruct(const JsonFileStruct& jsonFileStruct)
+{
+	auto raw_file_struct = toRAWFileStruct(jsonFileStruct);
+	auto file_struct = std::shared_ptr<RAW::FileStruct>(raw_file_struct);
 	return file_struct;
 }

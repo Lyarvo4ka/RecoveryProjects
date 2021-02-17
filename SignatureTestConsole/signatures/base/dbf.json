@@ -1,0 +1,14 @@
+ {
+ 	"dbf":{
+  "category": "database",
+		"header":
+		[
+			{
+				"hexdata":"03730B057B",
+				"offset": 0
+			}
+		],
+	"extension":".dbf"
+  }
+ }
+

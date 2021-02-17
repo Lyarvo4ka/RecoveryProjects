@@ -1,0 +1,20 @@
+{
+"vrmat":
+  {
+    "category": "other",
+    "header": 
+    [
+      {
+        "textdata": "<vrmat>",
+        "offset": 0
+      }
+    ],
+    "footer": {
+       "textdata": "</vrmat>",
+       "tailsize": 1
+      },    
+    "maxfilesize":1048576,
+    "extension": ".vrmat"
+
+  }  
+}
