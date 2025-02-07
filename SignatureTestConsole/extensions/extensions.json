@@ -5,11 +5,44 @@
   ".doc": [ "msoffice2003", "msoffice2007" ],
   ".xls": [ "msoffice2003", "msoffice2007" ],
   ".ppt": [ "msoffice2003", "msoffice2007" ],
+  ".pdf": ["pdf"],
+  ".ai" : ["pdf"],
+  ".djvu" : ["djvu"],
+  ".djv" : ["djvu"],
 
   ".zip": [ "zip" ],
+  ".7z": [ "7z" ],
+  ".rar": ["rar"],
+  ".jar": ["jar"],
+  
   ".jpg": ["jpg" , "png"],
+  ".jpeg": ["jpg" , "png"],
+  ".gif" : ["gif", "png"],
+  ".png" : ["png" , "jpg"], 
+  ".tif" : ["tif"],
+  ".nef" : ["tif"],
+  ".cr2" : ["tif"],
+  ".bmp" : ["bmp"],
+ 
   ".mp3": ["mp3"],
-  ".dbf": ["dbf"] 
+  ".aiff": ["aiff"],
+  ".m4a" : ["quicktime"],
+  ".wma" : ["wmv"],
+  
+  ".dbf": ["dbf"],
+  
+  ".mp4": ["quicktime"], 
+  ".mov": ["quicktime"],
+  ".avi": ["avi"],
+  ".mkv": ["mkv"],
+  ".mpg": ["mpeg"],
+  ".wmv": ["wmv"],
+
+  ".exe": ["exe"],
+  ".dll": ["exe"],
+  ".msi": ["msoffice2003"]
+  
+
   
       
 }

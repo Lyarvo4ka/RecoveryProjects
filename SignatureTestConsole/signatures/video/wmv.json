@@ -1,0 +1,14 @@
+{
+  "wmv": {
+    "category": "video",
+ 
+    "header": [
+      {
+        "hexdata": "3026B275",
+        "offset": 0
+      }
+    ],
+    "extension": ".wmv"
+  }
+}
+

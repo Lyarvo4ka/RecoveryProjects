@@ -1,0 +1,13 @@
+ {
+  "gif": {
+    "category": "image",
+
+    "header": [
+      {
+        "hexdata": "474946",
+        "offset": 0
+      }
+    ],
+    "extension": ".gif"
+  }
+}

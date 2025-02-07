@@ -1,0 +1,14 @@
+  {
+ 	"sqlite":{
+  "category": "database",
+		"header":
+		[
+			{
+				"hexdata":"53514C697465",
+				"offset": 0
+			}
+		],
+	"extension":".sqlite"
+  }
+ }
+

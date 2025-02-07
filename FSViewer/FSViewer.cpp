@@ -33,7 +33,7 @@ FSViewer::FSViewer(QWidget *parent)
 	RecoverDialog_ = new RecoverDialog(this, &RecoverUi_);
 	RecoverUi_.setupUi(RecoverDialog_);
 
-	source_file_ = IO::makeFilePtr(LR"(e:\FLESHKA_DHL\img.bin)");
+	source_file_ = IO::makeFilePtr(LR"(y:\51818\51818.img )");
 	source_file_->OpenRead();
 	
 	SectorReader sector_reader(new CSectorReader(source_file_, 512));
@@ -43,6 +43,7 @@ FSViewer::FSViewer(QWidget *parent)
 	if (sector_reader->Open())
 	{
 		MasterBootRecord MBR;
+		//PartitionEntry  bootFatEntry = std::make_shared<CPartition>(0,15728640);
 
 
 		if (MBR.open(sector_reader))
@@ -504,7 +505,7 @@ void FSViewer::TreeViewChecked(Qt::CheckState checkState)
 void FSViewer::RecoverySelected()
 {
 	//QString folder_path(QDir::currentPath()); 
-	QString folder_path("D:\\Recovery\\");
+	QString folder_path(R"(y:\51818\result\)");
 	RecoverDialog_->setFolderPath(folder_path);
 	if (RecoverDialog_->exec() == QDialog::Accepted)
 	{

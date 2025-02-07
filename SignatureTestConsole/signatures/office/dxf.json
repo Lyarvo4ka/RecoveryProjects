@@ -1,0 +1,15 @@
+{
+"dxf":
+  {
+    "category": "office",
+    "header": 
+    [
+      {
+        "hexdata": "2020300D0A53454354494F4E",
+        "offset": 0
+      }
+    ],
+    "extension": ".dxf"   
+  } 
+
+}

@@ -1,0 +1,12 @@
+{
+  "aiff": {
+    "category": "audio",
+    "header": [
+      {
+        "hexdata": "464F524D",
+        "offset": 0
+      }
+    ],
+    "extension": ".aiff"
+  }
+}

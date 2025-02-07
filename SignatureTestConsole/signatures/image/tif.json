@@ -1,0 +1,21 @@
+ {
+  "tif": {
+    "category": "image",
+
+    "header": [
+      {
+        "hexdata": "49492A00",
+        "offset": 0
+      },
+      {
+       "hexdata": "4D4D002A",
+        "offset": 0
+      }
+    ],
+    "extension": ".tif"
+  }
+}
+
+
+
+

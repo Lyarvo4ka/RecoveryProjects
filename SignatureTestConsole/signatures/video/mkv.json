@@ -1,0 +1,13 @@
+{
+  "mkv": {
+    "category": "video",
+ 
+    "header": [
+      {
+        "hexdata": "6D6174726F736B61",
+        "offset": 24
+      }
+    ],
+    "extension": ".mkv"
+  }
+}

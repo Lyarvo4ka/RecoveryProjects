@@ -95,10 +95,10 @@ namespace IO
 	{
 		constexpr uint32_t PAGE_SIZE = 4 * 1024;
 
-		File db(LR"(e:\49273\old2 )");
+		File db(LR"(d:\PaboTa\49360\1CBASE\VD_UTP_OCTION\original\1Cv8.1CD)");
 		db.OpenRead();
 
-		File root_object(LR"(e:\49273\old2_root_object.dat)");
+		File root_object(LR"(d:\PaboTa\49360\1CBASE\VD_UTP_OCTION\original\root_object.dat)");
 		root_object.OpenCreate();
 
 			const size_t page_size = PAGE_SIZE;

@@ -1,0 +1,13 @@
+ {
+  "bmp": {
+    "category": "image",
+
+    "header": [
+      {
+        "hexdata": "424D",
+        "offset": 0
+      }
+    ],
+    "extension": ".bmp"
+  }
+}

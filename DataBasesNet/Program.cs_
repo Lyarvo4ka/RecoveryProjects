@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using System.Data.OleDb;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Data.OleDb;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -44,7 +44,7 @@ namespace DataBasesNet
         public bool TestTable(SqlConnection connection , string tableName)
         {
             bool testResult = false;
-            string select_table = "SELECT * FROM[ANDBUH].[dbo].[" + tableName + "]";
+            string select_table = "SELECT * FROM[beercraft2].[dbo].[" + tableName + "]";
 
             Console.Write(tableName);
 
@@ -82,11 +82,11 @@ namespace DataBasesNet
             try
             {
                 SqlConnection connection;
-                connetionString = "Data Source=WIN-2AAD50GME1V\\MSSQL_2012;Initial Catalog=ANDBUH;User ID=sa;Password=Admin123";
+                connetionString = "Data Source=WIN-2AAD50GME1V\\MSSQL_2012;Initial Catalog=Tarasov;User ID=sa;Password=Admin123";
                 connection = new SqlConnection(connetionString);
                 connection.Open();
 
-                allTables_ = GetAllTables(connection , "ANDBUH");
+                allTables_ = GetAllTables(connection , "Tarasov");
                 connection.Close();
 
                 foreach (string tableName in allTables_)
@@ -162,7 +162,6 @@ namespace DataBasesNet
             public string column_name_ ;
             public string type_name_;
             public string sql_type_name_;
-            public string allowNulls;
 
             //public ColumnType(string column , string type)
             //{
@@ -179,7 +178,7 @@ namespace DataBasesNet
 
             List<ColumnType> listColumType = new List<ColumnType> { };
             SqlConnection connection;
-            string connetionString = "Data Source=CVI-SSAVCHENKO\\sql2022;Initial Catalog=" + dbName + "; User ID=sa;Password=Admin123";
+            string connetionString = "Data Source=WIN-2AAD50GME1V\MSSQL_2012;Initial Catalog=" + dbName + "; User ID=sa;Password=Admin123";
             connection = new SqlConnection(connetionString);
             DataTable schemaTable;
             SqlCommand cmd = new SqlCommand();
@@ -206,8 +205,6 @@ namespace DataBasesNet
 
                 string ColumnNameText = "ColumnName";
                 string DataTypeText = "DataType";
-                string AllowNullsText = "AllowDBNull";
-
                 string DataTypeNameText = "DataTypeName";
 
                 //For each field in the table...
@@ -228,11 +225,7 @@ namespace DataBasesNet
                         {
                             fieldType.sql_type_name_ = myField[myProperty].ToString();
                         }
-                        else if (myProperty.ColumnName == AllowNullsText)
-                        {
-                            fieldType.allowNulls = myField[myProperty].ToString();
-                            //Console.WriteLine(myProperty.ColumnName + " = " + myField[myProperty].ToString());
-                        }
+                        //Console.WriteLine(myProperty.ColumnName + " = " + myField[myProperty].ToString());
                     }
                     listColumType.Add(fieldType);
 //                    Console.ReadLine();
@@ -240,7 +233,7 @@ namespace DataBasesNet
 
                 foreach (var columType in listColumType)
                 {
-                    Console.WriteLine(columType.column_name_ + " = " + columType.sql_type_name_ + " : " + columType.allowNulls);
+                    Console.WriteLine(columType.column_name_ + " = " + columType.sql_type_name_);
                 }
                 connection.Close();
             }
@@ -258,15 +251,15 @@ namespace DataBasesNet
             string stringTypeName = "System.String";
             foreach (var columType in columnTypes)
             {
-               if (columType.type_name_ == stringTypeName)
+               // if (columType.type_name_ == stringTypeName)
                 {
-                   if (columType.allowNulls == "False")
+                    if (columType.column_name_ == "_Fld9494")
                     {
                         try
                         {
                             connection_.Open();
 
-                            string updatedString = "UPDATE " + tableName + " SET " + columType.column_name_ + " = '' WHERE " + columType.column_name_ + " IS NULL";
+                            string updatedString = "UPDATE " + tableName + " SET " + columType.column_name_ + " = '0.0' WHERE " + columType.column_name_ + " IS NULL";
 
                             SqlCommand cmdUpdate = new SqlCommand(updatedString, connection_);
                             int rows = cmdUpdate.ExecuteNonQuery();
@@ -305,17 +298,6 @@ namespace DataBasesNet
             return bUpated;
         }
 
-        //public List<string> getListFreeTables()
-        //{
-        //    List<string> freeTablesList = new List<string>;
-
-        //    var allTables = GetAllTables(SqlConnection connection, string dbName)
-
-
-
-        //    return freeTablesList;
-        //}
-
 
     }
 
@@ -335,8 +317,8 @@ namespace DataBasesNet
 
         static void Main(string[] args)
         {
-            // SqlDataBases sqlBases = new SqlDataBases();
-            //sqlBases.TestTables();
+            SqlDataBases sqlBases = new SqlDataBases();
+            sqlBases.TestTables();
             //string[] Tables = System.IO.File.ReadAllLines(@"d:\SQL\tarasov.txt");
 
             //foreach (var tableName in Tables)
@@ -355,28 +337,25 @@ namespace DataBasesNet
             //}
 
             //d:\PaboTa\45601\isd.tables 
-             string[] Tables = System.IO.File.ReadAllLines(@"c:\53276\1c_2804");
-            string old_database = "1C_2804";
-            string new_database = "1C_WORK_old";
+            // string[] Tables = System.IO.File.ReadAllLines(@"z:\47732\bad_tables.txt");
+            //string database_name = "LDS_Service_BAS";
+
             //string table_name = "_UsersWorkHistory";
 
-            //var tableName = "_Reference112";
-            foreach (var tableName in Tables)
-            {
-               SqlDataBases oldBases = new SqlDataBases();
+            // var tableName = "_CommonSettings";
+            // foreach (var tableName in Tables)
+            //{
+            //    SqlDataBases sql_bases = new SqlDataBases();
 
-                //var allTables = sql_bases.GetAllTables()
-               // string tableName = "_Reference537_VT1700";
+            //    //var allTables = sql_bases.GetAllTables()
+            //    string tableName = "_DocumentJournal9492";
+            //    var col_types = sql_bases.GetTableColunmType(database_name, tableName);
 
-                //var col_types = oldBases.GetTableColunmType(old_database, tableName);
-
-                ////////////////////////////////////////////////////////////
-                SqlDataBases newBases = new SqlDataBases();
-                var connString = newBases.CreateConnectionString("CVI-SSAVCHENKO\\SQL2022", new_database, "sa", "Admin123");
-                newBases.CreateConnection(connString);
-                var col_types = oldBases.GetTableColunmType(old_database, tableName);
-                newBases.UpdateNullsIfExist(col_types, tableName);
-            }
+            //    SqlDataBases sql_updater = new SqlDataBases();
+            //    var connString = sql_bases.CreateConnectionString("CVI-PROG\\MSSQLSERVER_2014", database_name, "sa", "Admin123");
+            //    sql_updater.CreateConnection(connString);
+            //    sql_updater.UpdateNullsIfExist(col_types, tableName);
+            //}
 
             Console.WriteLine("\nFininshed");
             Console.ReadLine();

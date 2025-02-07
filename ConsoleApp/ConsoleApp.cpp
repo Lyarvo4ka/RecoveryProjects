@@ -957,7 +957,7 @@ int wmain(int argc, wchar_t* argv[])
 
 	//join2FilesWithMarker(file1 , file2 , target);
 
-	//IO::RestoreRootObject();
+	IO::RestoreRootObject();
 	//if (argc == 2)
 	//{
 	//	auto folderPath = argv[1];

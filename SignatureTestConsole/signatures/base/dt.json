@@ -1,0 +1,14 @@
+ {
+ 	"dt":{
+  "category": "database",
+		"header":
+		[
+			{
+				"hexdata":"31434942446D7046",
+				"offset": 0
+			}
+		],
+	"extension":".dt"
+  }
+ }
+

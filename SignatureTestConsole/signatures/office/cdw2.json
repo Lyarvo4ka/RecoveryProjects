@@ -1,0 +1,17 @@
+{
+        "cdw": {
+            "header": 
+            [
+                {
+                    "hexdata": "4B461610",
+                    "offset": 0
+                },
+                {
+                    "hexdata": "4B464D00",
+                    "offset": 0
+                }                
+                
+            ],
+            "extension": ".cdw"
+        }
+}

@@ -1,0 +1,13 @@
+{
+    "cab": {
+      "category": "archive",
+      "header": [
+        {
+          "hexdata": "4D534346",
+          "offset": 0
+        }
+      ],
+      "extension": ".cab"
+    }
+  }
+
